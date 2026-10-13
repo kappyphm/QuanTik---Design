@@ -115,6 +115,10 @@ test("Bộ lọc reset, theme và bố cục không làm tràn chiều ngang", a
       width: document.documentElement.clientWidth,
       scroll: document.documentElement.scrollWidth,
     }));
+    if (sizes.scroll > sizes.width + 1) {
+      const layout = await page.evaluate(() => Array.from(document.querySelectorAll(".terminal,.terminal-workspace,.workspace-content,.dashboard-grid,.dashboard-main,.panel,.table-scroll,.table-toolbar,.table-controls,.inline-search,.selected-stock,.selected-content,.selected-actions")).map(el=>{const rect=el.getBoundingClientRect(),style=getComputedStyle(el);return {class:el.className,left:rect.left,right:rect.right,width:rect.width,scroll:el.scrollWidth,overflow:style.overflowX,display:style.display};}));
+      console.log("OVERFLOW", route, JSON.stringify(layout));
+    }
     expect(sizes.scroll, route).toBeLessThanOrEqual(sizes.width + 1);
   }
   if (isMobile) {
