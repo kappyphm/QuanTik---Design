@@ -70,7 +70,7 @@ export function Dashboard() {
                 <td className="number muted">{format(item.up, 0)} / {format(item.down, 0)} / {format(item.flat, 0)}</td>
                 <td className={`number ${tone(item.change)}`}>{signed(item.change)}</td>
                 <td className="number muted">{format(item.value)}</td>
-                <td className="number muted">{signed(item.share)}</td>
+                <td className="number muted">{format(item.share)}%</td>
                 <td className="number muted">{item.covered}/{item.count}</td>
                 <td className="number muted">{format(item.score)}</td>
               </tr>)}</tbody>

@@ -7,12 +7,10 @@ import { Criteria } from "./quant-panel";
 
 export function Screener() {
   const [review, setReview] = useState(false);
-  const [period, setPeriod] = useState("published");
   return <>
     <PageHeading title="Quét toàn sàn"><button className="button primary" onClick={() => setReview(true)}>Chạy Quant tổng quát</button></PageHeading>
     <div className="scan-published-bar">
       <span>Bản mẫu Excel · {scanSnapshot.source.publishedLabel}</span>
-      <label><span className="sr-only">Đợt công bố</span><select value={period} onChange={(event) => setPeriod(event.target.value)}><option value="published">Bản công bố trong file</option><option value="morning" disabled>Đợt sáng</option><option value="afternoon" disabled>Đợt chiều</option></select></label>
     </div>
     <div className="scan-grid">
       <Panel title="5 mã nổi bật"><ScanList items={scanSnapshot.best} /></Panel>
