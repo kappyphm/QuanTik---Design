@@ -54,9 +54,11 @@ export function Modal({
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
+    const previous = document.activeElement;
     if (!el.open) el.showModal();
     return () => {
       if (el.open) el.close();
+      if (previous instanceof HTMLElement && previous.isConnected) previous.focus();
     };
   }, []);
   return (

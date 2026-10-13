@@ -1,0 +1,24 @@
+import {build} from "esbuild";
+import {readFile,writeFile,readdir,mkdir} from "node:fs/promises";
+import {resolve,dirname} from "node:path";
+import {fileURLToPath} from "node:url";
+const root=resolve(dirname(fileURLToPath(import.meta.url)),"..");
+const result=await build({
+  absWorkingDir:root,entryPoints:["frontend/preview/entry.tsx"],bundle:true,write:false,minify:true,
+  jsx:"automatic",target:"es2020",format:"iife",define:{"process.env.NODE_ENV":'"production"'},
+  alias:{"next/link":resolve(root,"frontend/preview/router.tsx"),"next/navigation":resolve(root,"frontend/preview/router.tsx")},
+});
+const logo="data:image/jpeg;base64,"+(await readFile(resolve(root,"frontend/public/quantik-logo.jpg"))).toString("base64");
+const javascript=result.outputFiles[0].text.replaceAll('"/quantik-logo.jpg"',JSON.stringify(logo)).replaceAll("</script","<\\/script");
+const chunks=resolve(root,"frontend/.next/static");
+const cssFiles=(await readdir(chunks,{recursive:true})).filter(path=>path.endsWith(".css")).sort();
+if(!cssFiles.length)throw new Error("Build the Next.js frontend before exporting its preview.");
+const css=(await Promise.all(cssFiles.map(path=>readFile(resolve(chunks,path),"utf8")))).join("\n").replace(/@font-face\s*\{[^}]*\}/g,"");
+const fontImport='@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap");';
+const fragment='<div id="quantik-design-preview"></div>\n<style>'+fontImport+css+'\n#quantik-design-preview{position:relative;min-height:800px;background:#0b1013}#quantik-design-preview .terminal-sidebar{position:absolute}#quantik-design-preview .terminal{min-height:800px}#quantik-design-preview .sidebar-scrim{position:absolute}@media(max-width:700px){#quantik-design-preview .terminal-sidebar{height:100%;max-height:none}}</style>\n<script>'+javascript+'</script>\n';
+if(Buffer.byteLength(fragment)>1000000)throw new Error("Preview exceeds 1 MB.");
+await mkdir(resolve(root,"preview"),{recursive:true});
+await writeFile(resolve(root,"preview/index.html"),'<!doctype html><html lang="vi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>QuanTik Design Preview</title></head><body>'+fragment+'</body></html>');
+const destination=process.argv[2];
+if(destination)await writeFile(resolve(destination),fragment);
+console.log("Generated preview/index.html ("+Buffer.byteLength(fragment)+" bytes)");

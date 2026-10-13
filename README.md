@@ -55,3 +55,7 @@ Repo này không chứa engine Quant, API tài chính, đăng nhập, execution,
 `npm run typecheck` kiểm tra TypeScript strict. `npm run build` build production. `npm test` kiểm tra tính nhất quán của mock JSON và cách tổng hợp các khung biểu đồ.
 
 `npm run test:e2e` chạy kiểm thử trình duyệt. Lần đầu cần cài Chromium: `npm exec --workspace frontend -- playwright install chromium`. CI cài và chạy bộ này tự động trên pull request.
+
+## Xem thử bản đóng gói
+
+`npm run build && npm run preview:export` tạo `preview/index.html` để mở trực tiếp. Bản xem thử dùng các component giao diện của Next.js, với điều hướng nội bộ thay thế router cho một file độc lập. Màn hình mặc định là Dashboard; có thể mở Home, Lọc cổ phiếu, Phân tích và Biểu đồ từ menu.

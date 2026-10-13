@@ -115,7 +115,7 @@ test("Bộ lọc reset, theme và bố cục không làm tràn chiều ngang", a
       width: document.documentElement.clientWidth,
       scroll: document.documentElement.scrollWidth,
     }));
-    expect(sizes.scroll).toBeLessThanOrEqual(sizes.width + 1);
+    expect(sizes.scroll, route).toBeLessThanOrEqual(sizes.width + 1);
   }
   if (isMobile) {
     await page.goto("/dashboard");

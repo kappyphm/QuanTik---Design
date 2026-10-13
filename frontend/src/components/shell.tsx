@@ -38,6 +38,7 @@ export function Shell({ children }: { children: ReactNode }) {
     navigation.find((item) => item.href === pathname)?.label ?? "QuanTik";
   useEffect(() => {
     const key = (event: KeyboardEvent) => {
+      if (document.querySelector("dialog[open]")) return;
       if (
         event.key === "/" &&
         !(
@@ -52,7 +53,7 @@ export function Shell({ children }: { children: ReactNode }) {
       if (event.key === "Escape") {
         setQuery("");
         setMobile(false);
-        mobileButton.current?.focus();
+        if (mobileButton.current?.getAttribute("aria-expanded") === "true") mobileButton.current.focus();
       }
     };
     document.addEventListener("keydown", key);

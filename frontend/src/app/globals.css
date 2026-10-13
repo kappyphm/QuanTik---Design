@@ -33,6 +33,7 @@ button:disabled {
   cursor: not-allowed;
 }
 .terminal {
+  overflow-x: clip;
   --background: #0b1013;
   --surface: #131c20;
   --raised: #1a252a;
@@ -506,11 +507,13 @@ button:disabled {
   opacity: 0.9;
 }
 .table-controls {
+  min-width: 0;
   display: flex;
   gap: 10px;
   align-items: center;
 }
 .inline-search {
+  min-width: 0;
   display: flex;
   align-items: center;
   gap: 8px;

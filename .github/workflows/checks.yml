@@ -18,6 +18,7 @@ jobs:
       - run: npm run typecheck
       - run: npm test
       - run: npm run build
+      - run: npm run preview:export
       - run: npm exec --workspace frontend -- playwright install --with-deps chromium
       - run: npm run test:e2e
       - uses: actions/upload-artifact@v4
