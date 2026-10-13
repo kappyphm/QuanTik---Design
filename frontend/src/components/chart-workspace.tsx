@@ -22,9 +22,9 @@ export function ChartSurface({ symbol, onSymbolChange }: { symbol: string; onSym
   if (!stock) return <EmptyState title="Chọn mã cổ phiếu"><Link className="text-link" href="/dashboard">Dashboard →</Link></EmptyState>;
   return <section className="chart-workspace">
     <div className="chart-controls">
-      <label><span className="sr-only">Chọn mã biểu đồ</span><select className="symbol-select" value={symbol} onChange={(event) => onSymbolChange(event.target.value)}>{stocks.map((item) => <option key={item.symbol}>{item.symbol}</option>)}</select></label>
-      <label><span className="sr-only">Nguồn biểu đồ</span><select value={source} onChange={(event) => { setSource(event.target.value); if (event.target.value !== "TradingView") setTimeframe("1D"); }}>{chartOptions.sources.map((name) => <option key={name}>{name}</option>)}</select></label>
-      <label><span className="sr-only">Khung thời gian</span><select value={timeframe} onChange={(event) => setTimeframe(event.target.value)}>{(source === "TradingView" ? chartOptions.intervals : ["1D","1W","1M"]).map((interval) => <option key={interval}>{interval}</option>)}</select></label>
+      <label><span className="sr-only">Chọn mã biểu đồ</span><select aria-label="Chọn mã biểu đồ" className="symbol-select" value={symbol} onChange={(event) => onSymbolChange(event.target.value)}>{stocks.map((item) => <option key={item.symbol}>{item.symbol}</option>)}</select></label>
+      <label><span className="sr-only">Nguồn biểu đồ</span><select aria-label="Nguồn biểu đồ" value={source} onChange={(event) => { setSource(event.target.value); if (event.target.value !== "TradingView") setTimeframe("1D"); }}>{chartOptions.sources.map((name) => <option key={name}>{name}</option>)}</select></label>
+      <label><span className="sr-only">Khung thời gian</span><select aria-label="Khung thời gian" value={timeframe} onChange={(event) => setTimeframe(event.target.value)}>{(source === "TradingView" ? chartOptions.intervals : ["1D","1W","1M"]).map((interval) => <option key={interval}>{interval}</option>)}</select></label>
       <div className="chart-view-actions">
         <Link className="button secondary" href={`/analysis?symbol=${symbol}`}>Mở Quant toàn màn hình ↗</Link>
         <button className="button secondary" aria-pressed={sidebar} onClick={() => setSidebar(!sidebar)}>{sidebar ? <PanelRightClose size={17} /> : <PanelRightOpen size={17} />}{sidebar ? "Thu phân tích" : "Mở phân tích bên chart"}</button>
