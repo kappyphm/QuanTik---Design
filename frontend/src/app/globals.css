@@ -546,6 +546,7 @@ button:disabled {
   max-width: 100%;
 }
 .table-scroll {
+  position: relative;
   overflow-x: auto;
   scrollbar-width: thin;
   scrollbar-color: var(--border) transparent;

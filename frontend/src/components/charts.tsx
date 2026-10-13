@@ -1,6 +1,27 @@
 "use client";
-import { useId } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import { format, type Analysis, type Candle } from "@/lib/mock-data";
+function useChartWidth(initial: number) {
+  const ref = useRef<SVGSVGElement>(null);
+  const [width, setWidth] = useState(initial);
+  useEffect(() => {
+    const element = ref.current;
+    if (!element) return;
+    const resize = () => {
+      const style = getComputedStyle(element);
+      const measured =
+        element.clientWidth -
+        parseFloat(style.paddingLeft) -
+        parseFloat(style.paddingRight);
+      if (measured > 0) setWidth(Math.max(260, Math.round(measured)));
+    };
+    const observer = new ResizeObserver(resize);
+    observer.observe(element);
+    resize();
+    return () => observer.disconnect();
+  }, []);
+  return { ref, width };
+}
 export function Sparkline({
   values,
   positive = true,
@@ -30,8 +51,8 @@ export function Sparkline({
 }
 export function ForecastChart({ data }: { data: Analysis["forecast"] }) {
   const id = useId().replace(/:/g, "");
-  const w = 760,
-    h = 290,
+  const { ref, width: w } = useChartWidth(760);
+  const h = 290,
     left = 58,
     right = 24,
     top = 22,
@@ -50,6 +71,7 @@ export function ForecastChart({ data }: { data: Analysis["forecast"] }) {
     ].join(" ");
   return (
     <svg
+      ref={ref}
       className="large-chart"
       viewBox={`0 0 ${w} ${h}`}
       role="img"
@@ -91,8 +113,13 @@ export function ForecastChart({ data }: { data: Analysis["forecast"] }) {
         stroke="var(--accent)"
         strokeWidth="2.5"
       />
-      {[0, 5, 10, 15, 20].map((i) => (
-        <text key={i} x={x(i)} y={h - 15} textAnchor="middle">
+      {(w < 450 ? [0, 10, 20] : [0, 5, 10, 15, 20]).map((i) => (
+        <text
+          key={i}
+          x={x(i)}
+          y={h - 15}
+          textAnchor={i === 0 ? "start" : i === 20 ? "end" : "middle"}
+        >
           {i === 0 ? "Hiện tại" : `${i} phiên`}
         </text>
       ))}
@@ -101,17 +128,18 @@ export function ForecastChart({ data }: { data: Analysis["forecast"] }) {
 }
 export function VolatilityChart({ values }: { values: number[] }) {
   const id = useId().replace(/:/g, "");
-  const w = 500,
-    h = 155;
+  const { ref, width: w } = useChartWidth(500);
+  const h = 155;
   const max = Math.max(...values) * 1.15;
   const points = values
     .map(
       (v, i) =>
-        `${20 + (i / (values.length - 1)) * 460},${135 - (v / max) * 115}`,
+        `${20 + (i / (values.length - 1)) * (w - 40)},${135 - (v / max) * 115}`,
     )
     .join(" ");
   return (
     <svg
+      ref={ref}
       className="large-chart"
       viewBox={`0 0 ${w} ${h}`}
       role="img"
@@ -124,9 +152,16 @@ export function VolatilityChart({ values }: { values: number[] }) {
         </linearGradient>
       </defs>
       {[40, 80, 120].map((v) => (
-        <line key={v} x1="20" x2="480" y1={v} y2={v} stroke="var(--border)" />
+        <line
+          key={v}
+          x1="20"
+          x2={w - 20}
+          y1={v}
+          y2={v}
+          stroke="var(--border)"
+        />
       ))}
-      <polygon points={`20,135 ${points} 480,135`} fill={`url(#${id})`} />
+      <polygon points={`20,135 ${points} ${w - 20},135`} fill={`url(#${id})`} />
       <polyline
         points={points}
         fill="none"
@@ -145,8 +180,8 @@ export function PriceChart({
   type?: "candles" | "line";
   cmf?: boolean;
 }) {
-  const w = 960,
-    h = cmf ? 520 : 410,
+  const { ref, width: w } = useChartWidth(960);
+  const h = cmf ? 520 : 410,
     left = 20,
     right = 65,
     top = 25,
@@ -162,6 +197,7 @@ export function PriceChart({
     maxVolume = Math.max(...candles.map((c) => c.volume));
   return (
     <svg
+      ref={ref}
       className="price-chart"
       viewBox={`0 0 ${w} ${h}`}
       role="img"
