@@ -1,950 +1,1066 @@
 {
-  "mode": "mock",
-  "asOf": "2026-10-13T07:45:00Z",
+  "mode": "snapshot-sample",
+  "asOf": "2026-10-13T17:45:47Z",
   "units": {
     "price": "nghìn đồng",
-    "volume": "triệu cổ phiếu",
-    "flow": "tỷ đồng"
+    "volume": "cổ phiếu",
+    "value": "triệu đồng",
+    "sectorValue": "tỷ đồng"
   },
   "indices": [
     {
       "name": "VN-INDEX",
-      "value": 1287.54,
-      "change": 0.86,
-      "points": 10.98,
-      "spark": [
-        100,
-        101.45626982250063,
-        101.21860164618575,
-        100.07468060897924,
-        100.13985441313582,
-        101.75814398570537,
-        102.99825201444952,
-        102.48291803481922,
-        101.40660823709722,
-        101.78561969929716,
-        103.50420044419197,
-        104.48412635712954,
-        103.72930438275932,
-        102.78505118471877,
-        103.47420061311246,
-        105.22664784366353,
-        105.91455428089269,
-        104.9696360854911,
-        104.21570133025523,
-        105.19676690071212,
-        106.91507014057552,
-        107.29279348071445,
-        106.21607204573895,
-        105.70180596320343,
-        106.94289695164494,
-        108.560644508255,
-        108.62454537544568,
-        107.48048533590408,
-        107.24401573063149,
-        108.70106578816686
-      ]
+      "value": null,
+      "change": null
     },
     {
       "name": "VN30",
-      "value": 1364.28,
-      "change": 1.12,
-      "points": 15.11,
-      "spark": [
-        101.00976518176948,
-        101.19484625461206,
-        100.06897546804618,
-        99.72105686485081,
-        101.10029271661901,
-        102.62559997212969,
-        102.50190063147011,
-        101.34991522132853,
-        101.2968057692024,
-        102.85987844970394,
-        104.18872882683384,
-        103.77608868775673,
-        102.66597750575883,
-        102.92421146600623,
-        104.61197791458387,
-        105.69619575313456,
-        105.02798401095453,
-        104.02577515861637,
-        104.59730821554638,
-        106.34478661720777,
-        107.1476511140854,
-        106.26920404016732,
-        105.43587311955137,
-        106.30799080605188,
-        108.0474033486164,
-        108.54536800020301,
-        107.51186608245546,
-        106.90048102893662,
-        108.0463940781997,
-        109.71034063131077
-      ]
+      "value": null,
+      "change": null
     },
     {
       "name": "HNX-INDEX",
-      "value": 235.16,
-      "change": -0.34,
-      "points": -0.81,
-      "spark": [
-        101.09115691219081,
-        99.6107051670281,
-        98.40757079563984,
-        98.95134800220372,
-        100.15240143661899,
-        99.95818453514819,
-        98.36022504489769,
-        97.40653689415521,
-        98.20127498946204,
-        99.28714569077016,
-        98.78034540818854,
-        97.13033727445587,
-        96.46138660249825,
-        97.46050722536819,
-        98.37098462132037,
-        97.56596680371304,
-        95.9318062927469,
-        95.56955159686808,
-        96.71690622566138,
-        97.39999249142842,
-        96.32508694596945,
-        94.77392826306752,
-        94.72596707860208,
-        95.95846617162596,
-        96.3728110148707,
-        95.0689849737259,
-        93.66409578445804,
-        93.92330893209967,
-        95.17387607953384,
-        95.2907129574521
-      ]
+      "value": null,
+      "change": null
     },
     {
       "name": "UPCOM",
-      "value": 92.74,
-      "change": 0.28,
-      "points": 0.26,
-      "spark": [
-        100.16934400967185,
-        99.20060087590065,
-        99.8424800345532,
-        101.59412771726585,
-        102.32887666801572,
-        101.40981865544583,
-        100.62287652392021,
-        101.56042304255847,
-        103.28845106794294,
-        103.71489619737152,
-        102.65451602000192,
-        102.10027068271238,
-        103.30363160591605,
-        104.94117292077001,
-        105.05339346748718,
-        103.91539058504739,
-        103.63384186510736,
-        105.06071754480298,
-        106.54514211339125,
-        106.3519308030787,
-        105.20363933894444,
-        105.22201810893117,
-        106.8196428747767,
-        108.09549031450584,
-        107.619941642748,
-        106.52917748054571,
-        106.86067058373922,
-        108.56828348236952,
-        109.58985998225697,
-        108.86828882059248
-      ]
+      "value": null,
+      "change": null
     }
   ],
   "stocks": [
     {
       "symbol": "FPT",
       "name": "FPT",
-      "sector": "Công nghệ",
+      "sector": "Công nghệ Thông tin",
       "exchange": "HOSE",
-      "price": 108.8,
-      "change": 1.02,
-      "volume": 6.77,
-      "cmf": 0.19,
-      "signal": "Chờ xác nhận",
-      "volatility": 1.4,
-      "spark": [
-        102.6,
-        103.94,
-        102.69,
-        101.57,
-        102.97,
-        104.24,
-        103.21,
-        102.68,
-        104.54,
-        105.71,
-        104.35,
-        103.58,
-        105.12,
-        105.9,
-        104.54,
-        104.3,
-        106.36,
-        107.28,
-        105.91,
-        105.63,
-        107.33,
-        107.65,
-        106.03,
-        106.04,
-        108.12,
-        108.68,
-        107.37,
-        107.63,
-        109.48,
-        108.8
-      ]
+      "reference": 57.1,
+      "ceiling": 61,
+      "floor": 53.2,
+      "price": 56.3,
+      "change": -1.4,
+      "volume": 6775400,
+      "value": 383471.71,
+      "open": 57.1,
+      "high": 57.4,
+      "low": 56.1,
+      "foreignBuy": 1126438,
+      "foreignSell": 3013723,
+      "quantScore": 25,
+      "bid": [
+        {
+          "price": 56.2,
+          "volume": 351400
+        },
+        {
+          "price": 56.1,
+          "volume": 312900
+        },
+        {
+          "price": 56.0,
+          "volume": 715800
+        }
+      ],
+      "ask": [
+        {
+          "price": 56.3,
+          "volume": 1000
+        },
+        {
+          "price": 56.4,
+          "volume": 35200
+        },
+        {
+          "price": 56.5,
+          "volume": 219100
+        }
+      ],
+      "matchedVolume": null,
+      "foreignRoom": 354325889
     },
     {
       "symbol": "HPG",
       "name": "Hòa Phát",
-      "sector": "Nguyên vật liệu",
+      "sector": "Tài nguyên Cơ bản",
       "exchange": "HOSE",
-      "price": 28.6,
-      "change": 2.14,
-      "volume": 32.4,
-      "cmf": 0.26,
-      "signal": "Chờ xác nhận",
-      "volatility": 1.53,
-      "spark": [
-        27.23,
-        27.17,
-        26.74,
-        26.87,
-        27.31,
-        27.22,
-        26.89,
-        27.19,
-        27.71,
-        27.58,
-        27.22,
-        27.45,
-        27.83,
-        27.61,
-        27.29,
-        27.66,
-        28.13,
-        27.95,
-        27.69,
-        28.03,
-        28.35,
-        28.03,
-        27.75,
-        28.15,
-        28.53,
-        28.28,
-        28.13,
-        28.58,
-        28.85,
-        28.6
-      ]
+      "reference": 20.7,
+      "ceiling": 22.1,
+      "floor": 19.3,
+      "price": 20.45,
+      "change": -1.21,
+      "volume": 11561600,
+      "value": 237151.44,
+      "open": 20.7,
+      "high": 20.7,
+      "low": 20.35,
+      "foreignBuy": 355200,
+      "foreignSell": 1398554,
+      "quantScore": 42,
+      "bid": [
+        {
+          "price": 20.4,
+          "volume": 216000
+        },
+        {
+          "price": 20.35,
+          "volume": 246500
+        },
+        {
+          "price": 20.3,
+          "volume": 595900
+        }
+      ],
+      "ask": [
+        {
+          "price": 20.45,
+          "volume": 2500
+        },
+        {
+          "price": 20.5,
+          "volume": 641700
+        },
+        {
+          "price": 20.55,
+          "volume": 493200
+        }
+      ],
+      "matchedVolume": null,
+      "foreignRoom": 2305315558
     },
     {
       "symbol": "MBB",
       "name": "MB Bank",
       "sector": "Ngân hàng",
       "exchange": "HOSE",
-      "price": 25.7,
-      "change": 0.98,
-      "volume": 18.3,
-      "cmf": 0.22,
-      "signal": "Chờ xác nhận",
-      "volatility": 1.66,
-      "spark": [
-        24.49,
-        24.14,
-        24.02,
-        24.41,
-        24.53,
-        24.19,
-        24.2,
-        24.7,
-        24.85,
-        24.52,
-        24.52,
-        24.93,
-        24.94,
-        24.55,
-        24.62,
-        25.11,
-        25.17,
-        24.87,
-        25,
-        25.43,
-        25.35,
-        24.95,
-        25.08,
-        25.52,
-        25.48,
-        25.2,
-        25.45,
-        25.89,
-        25.74,
-        25.7
-      ]
+      "reference": 19.15,
+      "ceiling": 20.45,
+      "floor": 17.85,
+      "price": 19.05,
+      "change": -0.52,
+      "volume": 6577800,
+      "value": 125436.94,
+      "open": 19.15,
+      "high": 19.15,
+      "low": 19,
+      "foreignBuy": 755310,
+      "foreignSell": 88228,
+      "quantScore": 47,
+      "bid": [
+        {
+          "price": 19.05,
+          "volume": 4900
+        },
+        {
+          "price": 19,
+          "volume": 1009500
+        },
+        {
+          "price": 18.95,
+          "volume": 1007700
+        }
+      ],
+      "ask": [
+        {
+          "price": 19.1,
+          "volume": 191400
+        },
+        {
+          "price": 19.15,
+          "volume": 535900
+        },
+        {
+          "price": 19.2,
+          "volume": 765500
+        }
+      ],
+      "matchedVolume": null,
+      "foreignRoom": 92677582
     },
     {
       "symbol": "VIC",
       "name": "Vingroup",
       "sector": "Bất động sản",
       "exchange": "HOSE",
-      "price": 74.5,
-      "change": -2.61,
-      "volume": 12.8,
-      "cmf": -0.32,
-      "signal": "Thận trọng",
-      "volatility": 1.79,
-      "spark": [
-        70.37,
-        69.54,
-        70.3,
-        71.18,
-        70.44,
-        69.75,
-        70.84,
-        71.93,
-        71.32,
-        70.78,
-        71.81,
-        72.51,
-        71.53,
-        70.96,
-        72.12,
-        72.94,
-        72.2,
-        71.97,
-        73.24,
-        73.78,
-        72.69,
-        72.31,
-        73.49,
-        73.96,
-        73.07,
-        73.12,
-        74.56,
-        74.93,
-        73.85,
-        74.5
-      ]
+      "reference": 219,
+      "ceiling": 234.3,
+      "floor": 203.7,
+      "price": 222,
+      "change": 1.37,
+      "volume": 3133800,
+      "value": 693708.62,
+      "open": 218,
+      "high": 224,
+      "low": 215.3,
+      "foreignBuy": 337510,
+      "foreignSell": 402532,
+      "quantScore": 45,
+      "bid": [
+        {
+          "price": 222,
+          "volume": 1800
+        },
+        {
+          "price": 221.9,
+          "volume": 23600
+        },
+        {
+          "price": 221.8,
+          "volume": 25600
+        }
+      ],
+      "ask": [
+        {
+          "price": 222.5,
+          "volume": 400
+        },
+        {
+          "price": 222.6,
+          "volume": 1900
+        },
+        {
+          "price": 222.8,
+          "volume": 400
+        }
+      ],
+      "matchedVolume": null,
+      "foreignRoom": 3488400798
     },
     {
       "symbol": "VCB",
       "name": "Vietcombank",
       "sector": "Ngân hàng",
       "exchange": "HOSE",
-      "price": 86.3,
-      "change": 0.58,
-      "volume": 4.25,
-      "cmf": 0.14,
-      "signal": "Theo dõi",
-      "volatility": 1.92,
-      "spark": [
-        80.66,
-        80.89,
-        82.26,
-        82.06,
-        80.78,
-        81.23,
-        82.85,
-        82.84,
-        81.86,
-        82.52,
-        83.91,
-        83.42,
-        82.17,
-        82.81,
-        84.2,
-        83.85,
-        83.02,
-        84.06,
-        85.42,
-        84.74,
-        83.67,
-        84.51,
-        85.62,
-        84.89,
-        84.2,
-        85.51,
-        86.76,
-        85.97,
-        85.2,
-        86.3
-      ]
+      "reference": 56.7,
+      "ceiling": 60.6,
+      "floor": 52.8,
+      "price": 56.3,
+      "change": -0.71,
+      "volume": 1581600,
+      "value": 89385.62,
+      "open": 56.6,
+      "high": 57,
+      "low": 56.3,
+      "foreignBuy": 35900,
+      "foreignSell": 75714,
+      "quantScore": 40,
+      "bid": [
+        {
+          "price": 56.3,
+          "volume": 103300
+        },
+        {
+          "price": 56.2,
+          "volume": 118700
+        },
+        {
+          "price": 56.1,
+          "volume": 79500
+        }
+      ],
+      "ask": [
+        {
+          "price": 56.4,
+          "volume": 10300
+        },
+        {
+          "price": 56.5,
+          "volume": 200
+        },
+        {
+          "price": 56.6,
+          "volume": 61900
+        }
+      ],
+      "matchedVolume": null,
+      "foreignRoom": 842429650
     },
     {
       "symbol": "SSI",
       "name": "SSI",
-      "sector": "Chứng khoán",
+      "sector": "Dịch vụ tài chính",
       "exchange": "HOSE",
-      "price": 32.1,
-      "change": 1.58,
-      "volume": 21.6,
-      "cmf": 0.18,
-      "signal": "Chờ xác nhận",
-      "volatility": 2.05,
-      "spark": [
-        29.93,
-        30.42,
-        30.65,
-        30.19,
-        30.02,
-        30.55,
-        30.83,
-        30.47,
-        30.46,
-        31.03,
-        31.18,
-        30.69,
-        30.61,
-        31.14,
-        31.25,
-        30.86,
-        30.96,
-        31.59,
-        31.67,
-        31.2,
-        31.24,
-        31.75,
-        31.71,
-        31.27,
-        31.48,
-        32.1,
-        32.1,
-        31.69,
-        31.88,
-        32.1
-      ]
+      "reference": 19.05,
+      "ceiling": 20.35,
+      "floor": 17.75,
+      "price": 18.9,
+      "change": -0.79,
+      "volume": 11764500,
+      "value": 223886.5,
+      "open": 19,
+      "high": 19.2,
+      "low": 18.9,
+      "foreignBuy": 342781,
+      "foreignSell": 1203345,
+      "quantScore": 30,
+      "bid": [
+        {
+          "price": 18.9,
+          "volume": 148400
+        },
+        {
+          "price": 18.85,
+          "volume": 307200
+        },
+        {
+          "price": 18.8,
+          "volume": 413200
+        }
+      ],
+      "ask": [
+        {
+          "price": 18.95,
+          "volume": 19100
+        },
+        {
+          "price": 19,
+          "volume": 202600
+        },
+        {
+          "price": 19.05,
+          "volume": 302800
+        }
+      ],
+      "matchedVolume": null,
+      "foreignRoom": 2102422828
     },
     {
       "symbol": "VNM",
       "name": "Vinamilk",
-      "sector": "Tiêu dùng",
+      "sector": "Thực phẩm và đồ uống",
       "exchange": "HOSE",
-      "price": 63.2,
-      "change": -0.47,
-      "volume": 3.8,
-      "cmf": -0.05,
-      "signal": "Theo dõi",
-      "volatility": 2.18,
-      "spark": [
-        59.4,
-        60.35,
-        59.85,
-        59.01,
-        59.62,
-        60.55,
-        60.15,
-        59.64,
-        60.53,
-        61.43,
-        60.81,
-        60.13,
-        60.87,
-        61.56,
-        60.91,
-        60.53,
-        61.6,
-        62.39,
-        61.71,
-        61.28,
-        62.17,
-        62.62,
-        61.76,
-        61.5,
-        62.64,
-        63.24,
-        62.53,
-        62.4,
-        63.44,
-        63.2
-      ]
+      "reference": 58.4,
+      "ceiling": 62.4,
+      "floor": 54.4,
+      "price": 58,
+      "change": -0.68,
+      "volume": 1654800,
+      "value": 95668,
+      "open": 58.1,
+      "high": 58.1,
+      "low": 57.5,
+      "foreignBuy": 66749,
+      "foreignSell": 343578,
+      "quantScore": 46,
+      "bid": [
+        {
+          "price": 57.8,
+          "volume": 66800
+        },
+        {
+          "price": 57.7,
+          "volume": 18800
+        },
+        {
+          "price": 57.6,
+          "volume": 44300
+        }
+      ],
+      "ask": [
+        {
+          "price": 58,
+          "volume": 43400
+        },
+        {
+          "price": 58.1,
+          "volume": 29200
+        },
+        {
+          "price": 58.2,
+          "volume": 12800
+        }
+      ],
+      "matchedVolume": null,
+      "foreignRoom": 1050073098
     },
     {
       "symbol": "HDB",
       "name": "HDBank",
       "sector": "Ngân hàng",
       "exchange": "HOSE",
-      "price": 27.8,
+      "reference": 22.6,
+      "ceiling": 24.15,
+      "floor": 21.05,
+      "price": 23.1,
       "change": 2.21,
-      "volume": 14.2,
-      "cmf": 0.31,
-      "signal": "Chờ xác nhận",
-      "volatility": 2.31,
-      "spark": [
-        26.42,
-        26.48,
-        26.04,
-        26.04,
-        26.5,
-        26.53,
-        26.19,
-        26.35,
-        26.89,
-        26.89,
-        26.49,
-        26.6,
-        27.02,
-        26.92,
-        26.56,
-        26.8,
-        27.32,
-        27.25,
-        26.93,
-        27.16,
-        27.55,
-        27.33,
-        26.98,
-        27.28,
-        27.73,
-        27.58,
-        27.34,
-        27.7,
-        28.06,
-        27.8
-      ]
+      "volume": 33788100,
+      "value": 777318.78,
+      "open": 22.6,
+      "high": 23.25,
+      "low": 22.45,
+      "foreignBuy": 4485774,
+      "foreignSell": 2562234,
+      "quantScore": 74,
+      "bid": [
+        {
+          "price": 23.1,
+          "volume": 1174300
+        },
+        {
+          "price": 23.05,
+          "volume": 1214100
+        },
+        {
+          "price": 23,
+          "volume": 1506000
+        }
+      ],
+      "ask": [
+        {
+          "price": 23.15,
+          "volume": 381400
+        },
+        {
+          "price": 23.2,
+          "volume": 628600
+        },
+        {
+          "price": 23.25,
+          "volume": 494700
+        }
+      ],
+      "matchedVolume": null,
+      "foreignRoom": 367467636
     },
     {
       "symbol": "MSN",
       "name": "Masan",
-      "sector": "Tiêu dùng",
+      "sector": "Thực phẩm và đồ uống",
       "exchange": "HOSE",
-      "price": 78.6,
-      "change": -1.26,
-      "volume": 6.9,
-      "cmf": -0.15,
-      "signal": "Thận trọng",
-      "volatility": 2.44,
-      "spark": [
-        74.98,
-        74.07,
-        73.39,
-        74.44,
-        75.13,
-        74.2,
-        73.89,
-        75.33,
-        76.13,
-        75.19,
-        74.85,
-        76.04,
-        76.41,
-        75.27,
-        75.13,
-        76.61,
-        77.15,
-        76.22,
-        76.27,
-        77.6,
-        77.7,
-        76.46,
-        76.51,
-        77.91,
-        78.12,
-        77.2,
-        77.63,
-        79.06,
-        78.95,
-        78.6
-      ]
+      "reference": 73.1,
+      "ceiling": 78.2,
+      "floor": 68,
+      "price": 71.1,
+      "change": -2.74,
+      "volume": 7120400,
+      "value": 512185.64,
+      "open": 72.9,
+      "high": 73.7,
+      "low": 71.1,
+      "foreignBuy": 341600,
+      "foreignSell": 615612,
+      "quantScore": 54,
+      "bid": [
+        {
+          "price": 71.1,
+          "volume": 80500
+        },
+        {
+          "price": 71,
+          "volume": 191800
+        },
+        {
+          "price": 70.9,
+          "volume": 53500
+        }
+      ],
+      "ask": [
+        {
+          "price": 71.2,
+          "volume": 23800
+        },
+        {
+          "price": 71.3,
+          "volume": 1000
+        },
+        {
+          "price": 71.5,
+          "volume": 5000
+        }
+      ],
+      "matchedVolume": null,
+      "foreignRoom": 1161103579
     },
     {
       "symbol": "DGC",
       "name": "Hóa chất Đức Giang",
-      "sector": "Nguyên vật liệu",
+      "sector": "Hóa chất",
       "exchange": "HOSE",
-      "price": 95.4,
-      "change": 1.27,
-      "volume": 2.1,
-      "cmf": 0.17,
-      "signal": "Theo dõi",
-      "volatility": 2.57,
-      "spark": [
-        90.39,
-        89.12,
-        89.73,
-        91.09,
-        90.49,
-        89.35,
-        90.42,
-        92.09,
-        91.62,
-        90.64,
-        91.66,
-        92.86,
-        91.89,
-        90.84,
-        92.06,
-        93.45,
-        92.74,
-        92.1,
-        93.5,
-        94.55,
-        93.36,
-        92.5,
-        93.83,
-        94.82,
-        93.84,
-        93.51,
-        95.21,
-        96.09,
-        94.83,
-        95.4
-      ]
+      "reference": 33,
+      "ceiling": 35.3,
+      "floor": 30.7,
+      "price": 32.9,
+      "change": -0.3,
+      "volume": 317400,
+      "value": 10479.33,
+      "open": 33,
+      "high": 33.2,
+      "low": 32.9,
+      "foreignBuy": 3400,
+      "foreignSell": 2200,
+      "quantScore": 17,
+      "bid": [
+        {
+          "price": 32.85,
+          "volume": 12600
+        },
+        {
+          "price": 32.8,
+          "volume": 10500
+        },
+        {
+          "price": 32.75,
+          "volume": 800
+        }
+      ],
+      "ask": [
+        {
+          "price": 32.9,
+          "volume": 14400
+        },
+        {
+          "price": 32.95,
+          "volume": 10200
+        },
+        {
+          "price": 33,
+          "volume": 11600
+        }
+      ],
+      "matchedVolume": null,
+      "foreignRoom": 175955067
     },
     {
       "symbol": "GAS",
       "name": "PV GAS",
-      "sector": "Năng lượng",
+      "sector": "Điện, nước & xăng dầu khí đốt",
       "exchange": "HOSE",
-      "price": 72.4,
-      "change": 0.83,
-      "volume": 1.4,
-      "cmf": 0.08,
-      "signal": "Theo dõi",
-      "volatility": 2.7,
-      "spark": [
-        67.84,
-        67.71,
-        68.85,
-        69.01,
-        67.92,
-        67.98,
-        69.36,
-        69.68,
-        68.81,
-        69.04,
-        70.28,
-        70.18,
-        69.04,
-        69.27,
-        70.54,
-        70.55,
-        69.73,
-        70.31,
-        71.59,
-        71.31,
-        70.25,
-        70.68,
-        71.78,
-        71.44,
-        70.67,
-        71.51,
-        72.77,
-        72.35,
-        71.49,
-        72.4
-      ]
+      "reference": 79,
+      "ceiling": 84.5,
+      "floor": 73.5,
+      "price": 78.5,
+      "change": -0.63,
+      "volume": 1178800,
+      "value": 91807.03,
+      "open": 79.1,
+      "high": 80.1,
+      "low": 76.6,
+      "foreignBuy": 313100,
+      "foreignSell": 282400,
+      "quantScore": 33,
+      "bid": [
+        {
+          "price": 78.4,
+          "volume": 3900
+        },
+        {
+          "price": 78.3,
+          "volume": 1000
+        },
+        {
+          "price": 78.1,
+          "volume": 100
+        }
+      ],
+      "ask": [
+        {
+          "price": 78.5,
+          "volume": 7800
+        },
+        {
+          "price": 78.6,
+          "volume": 1500
+        },
+        {
+          "price": 78.7,
+          "volume": 300
+        }
+      ],
+      "matchedVolume": null,
+      "foreignRoom": 1130531008
     },
     {
       "symbol": "FRT",
       "name": "FPT Retail",
       "sector": "Bán lẻ",
       "exchange": "HOSE",
-      "price": 162.5,
+      "reference": 149.5,
+      "ceiling": 159.9,
+      "floor": 139.1,
+      "price": 143.8,
       "change": -3.81,
-      "volume": 1.7,
-      "cmf": -0.23,
-      "signal": "Thận trọng",
-      "volatility": 2.83,
-      "spark": [
-        151.45,
-        153.51,
-        155.27,
-        153.31,
-        151.82,
-        154.19,
-        156.22,
-        154.75,
-        153.99,
-        156.63,
-        158.08,
-        155.83,
-        154.72,
-        157.18,
-        158.48,
-        156.63,
-        156.46,
-        159.52,
-        160.63,
-        158.34,
-        157.83,
-        160.35,
-        160.86,
-        158.66,
-        158.96,
-        162.18,
-        162.88,
-        160.74,
-        160.99,
-        162.5
-      ]
+      "volume": 1001100,
+      "value": 144344.75,
+      "open": 149.2,
+      "high": 149.7,
+      "low": 140.5,
+      "foreignBuy": 202529,
+      "foreignSell": 431800,
+      "quantScore": 67,
+      "bid": [
+        {
+          "price": 142.6,
+          "volume": 200
+        },
+        {
+          "price": 142.3,
+          "volume": 500
+        },
+        {
+          "price": 142,
+          "volume": 2500
+        }
+      ],
+      "ask": [
+        {
+          "price": 143.8,
+          "volume": 3400
+        },
+        {
+          "price": 143.9,
+          "volume": 10400
+        },
+        {
+          "price": 144,
+          "volume": 2900
+        }
+      ],
+      "matchedVolume": null,
+      "foreignRoom": 27576170
     },
     {
       "symbol": "MWG",
       "name": "Thế Giới Di Động",
       "sector": "Bán lẻ",
       "exchange": "HOSE",
-      "price": 65.8,
-      "change": 1.86,
-      "volume": 8.5,
-      "cmf": 0.21,
-      "signal": "Chờ xác nhận",
-      "volatility": 2.96,
-      "spark": [
-        61.66,
-        62.76,
-        62.5,
-        61.5,
-        61.88,
-        62.99,
-        62.82,
-        62.13,
-        62.82,
-        63.92,
-        63.51,
-        62.63,
-        63.17,
-        64.09,
-        63.62,
-        63.01,
-        63.93,
-        64.97,
-        64.45,
-        63.78,
-        64.52,
-        65.23,
-        64.5,
-        63.98,
-        65.02,
-        65.9,
-        65.29,
-        64.9,
-        65.86,
-        65.8
-      ]
+      "reference": 75.6,
+      "ceiling": 80.8,
+      "floor": 70.4,
+      "price": 74.8,
+      "change": -1.06,
+      "volume": 2663800,
+      "value": 198995.06,
+      "open": 75.3,
+      "high": 75.5,
+      "low": 74.3,
+      "foreignBuy": 7946200,
+      "foreignSell": 7946300,
+      "quantScore": 67,
+      "bid": [
+        {
+          "price": 74.7,
+          "volume": 2500
+        },
+        {
+          "price": 74.6,
+          "volume": 38000
+        },
+        {
+          "price": 74.5,
+          "volume": 63700
+        }
+      ],
+      "ask": [
+        {
+          "price": 74.8,
+          "volume": 22900
+        },
+        {
+          "price": 74.9,
+          "volume": 29800
+        },
+        {
+          "price": 75,
+          "volume": 48300
+        }
+      ],
+      "matchedVolume": null,
+      "foreignRoom": 0
     },
     {
       "symbol": "VND",
       "name": "VNDirect",
-      "sector": "Chứng khoán",
+      "sector": "Dịch vụ tài chính",
       "exchange": "HOSE",
-      "price": 18.2,
-      "change": 0,
-      "volume": 17.8,
-      "cmf": 0.02,
-      "signal": "Theo dõi",
-      "volatility": 3.09,
-      "spark": [
-        17.25,
-        17.37,
-        17.1,
-        17.02,
-        17.31,
-        17.41,
-        17.19,
-        17.21,
-        17.57,
-        17.64,
-        17.38,
-        17.37,
-        17.66,
-        17.67,
-        17.42,
-        17.5,
-        17.86,
-        17.89,
-        17.65,
-        17.73,
-        18.01,
-        17.94,
-        17.68,
-        17.8,
-        18.14,
-        18.11,
-        17.91,
-        18.08,
-        18.36,
-        18.2
-      ]
+      "reference": 13.15,
+      "ceiling": 14.05,
+      "floor": 12.25,
+      "price": 12.9,
+      "change": -1.9,
+      "volume": 8425300,
+      "value": 109550.57,
+      "open": 13,
+      "high": 13.25,
+      "low": 12.85,
+      "foreignBuy": 461404,
+      "foreignSell": 1460635,
+      "quantScore": 25,
+      "bid": [
+        {
+          "price": 12.9,
+          "volume": 302200
+        },
+        {
+          "price": 12.85,
+          "volume": 292100
+        },
+        {
+          "price": 12.8,
+          "volume": 526400
+        }
+      ],
+      "ask": [
+        {
+          "price": 12.95,
+          "volume": 15500
+        },
+        {
+          "price": 13,
+          "volume": 76900
+        },
+        {
+          "price": 13.05,
+          "volume": 47400
+        }
+      ],
+      "matchedVolume": null,
+      "foreignRoom": 1407378332
     },
     {
       "symbol": "PVS",
       "name": "PTSC",
-      "sector": "Năng lượng",
+      "sector": "Dầu khí",
       "exchange": "HNX",
-      "price": 33.6,
-      "change": -1.18,
-      "volume": 8.18,
-      "cmf": -0.09,
-      "signal": "Theo dõi",
-      "volatility": 3.22,
-      "spark": [
-        32.05,
-        31.77,
-        31.37,
-        31.72,
-        32.13,
-        31.82,
-        31.57,
-        32.1,
-        32.57,
-        32.24,
-        31.97,
-        32.41,
-        32.7,
-        32.27,
-        32.07,
-        32.65,
-        33.03,
-        32.68,
-        32.55,
-        33.09,
-        33.28,
-        32.77,
-        32.64,
-        33.22,
-        33.46,
-        33.08,
-        33.11,
-        33.72,
-        33.83,
-        33.6
-      ]
+      "reference": 33.5,
+      "ceiling": 36.8,
+      "floor": 30.2,
+      "price": 33,
+      "change": -1.49,
+      "volume": 2538900,
+      "value": 84197.55,
+      "open": 33,
+      "high": 33.9,
+      "low": 32.9,
+      "foreignBuy": 4900,
+      "foreignSell": 411242,
+      "quantScore": 47,
+      "bid": [
+        {
+          "price": 33,
+          "volume": 108000
+        },
+        {
+          "price": 32.9,
+          "volume": 137600
+        },
+        {
+          "price": 32.8,
+          "volume": 164200
+        }
+      ],
+      "ask": [
+        {
+          "price": 33.2,
+          "volume": 24100
+        },
+        {
+          "price": 33.3,
+          "volume": 25800
+        },
+        {
+          "price": 33.4,
+          "volume": 11700
+        }
+      ],
+      "matchedVolume": null,
+      "foreignRoom": 169724504
     },
     {
       "symbol": "ACV",
       "name": "Cảng hàng không Việt Nam",
-      "sector": "Vận tải",
+      "sector": "Du lịch và Giải trí",
       "exchange": "UPCOM",
-      "price": 93.8,
-      "change": -1.26,
-      "volume": 1.47,
-      "cmf": 0.06,
-      "signal": "Theo dõi",
-      "volatility": 3.35,
-      "spark": [
-        89.12,
-        87.77,
-        87.97,
-        89.43,
-        89.23,
-        87.97,
-        88.64,
-        90.44,
-        90.36,
-        89.21,
-        89.84,
-        91.23,
-        90.64,
-        89.37,
-        90.23,
-        91.85,
-        91.48,
-        90.57,
-        91.64,
-        92.97,
-        92.09,
-        90.93,
-        91.96,
-        93.26,
-        92.55,
-        91.89,
-        93.33,
-        94.55,
-        93.52,
-        93.8
-      ]
+      "reference": 41.6,
+      "ceiling": 47.8,
+      "floor": 35.4,
+      "price": 40.7,
+      "change": -2.16,
+      "volume": 337000,
+      "value": 13743.65,
+      "open": 41.3,
+      "high": 41.3,
+      "low": 40.5,
+      "foreignBuy": 17700,
+      "foreignSell": 0,
+      "quantScore": 54,
+      "bid": [
+        {
+          "price": 40.7,
+          "volume": 6700
+        },
+        {
+          "price": 40.6,
+          "volume": 15700
+        },
+        {
+          "price": 40.5,
+          "volume": 15100
+        }
+      ],
+      "ask": [
+        {
+          "price": 40.8,
+          "volume": 1100
+        },
+        {
+          "price": 40.9,
+          "volume": 5000
+        },
+        {
+          "price": 41,
+          "volume": 11500
+        }
+      ],
+      "matchedVolume": null,
+      "foreignRoom": 1694999815
     }
   ],
   "sectors": [
     {
-      "name": "Công nghệ",
-      "change": 1.02,
-      "flow": 1482,
-      "symbols": [
-        "FPT"
-      ]
+      "name": "Hóa chất",
+      "count": 69,
+      "up": 10,
+      "down": 29,
+      "flat": 7,
+      "change": -0.55,
+      "value": 321.47,
+      "share": 2.68,
+      "covered": 69,
+      "score": 44.2
     },
     {
-      "name": "Nguyên vật liệu",
-      "change": 1.71,
-      "flow": 862,
-      "symbols": [
-        "HPG",
-        "DGC"
-      ]
+      "name": "Thực phẩm và đồ uống",
+      "count": 142,
+      "up": 22,
+      "down": 42,
+      "flat": 14,
+      "change": -0.97,
+      "value": 1040.08,
+      "share": 8.66,
+      "covered": 142,
+      "score": 48.1
+    },
+    {
+      "name": "Hàng cá nhân & Gia dụng",
+      "count": 72,
+      "up": 11,
+      "down": 16,
+      "flat": 12,
+      "change": -0.49,
+      "value": 320.09,
+      "share": 2.66,
+      "covered": 72,
+      "score": 48.6
+    },
+    {
+      "name": "Hàng & Dịch vụ Công nghiệp",
+      "count": 247,
+      "up": 23,
+      "down": 54,
+      "flat": 36,
+      "change": -0.74,
+      "value": 617.63,
+      "share": 5.14,
+      "covered": 247,
+      "score": 50.1
     },
     {
       "name": "Ngân hàng",
-      "change": 1.26,
-      "flow": -324,
-      "symbols": [
-        "MBB",
-        "VCB",
-        "HDB"
-      ]
+      "count": 28,
+      "up": 10,
+      "down": 11,
+      "flat": 7,
+      "change": -0.49,
+      "value": 3690.68,
+      "share": 30.72,
+      "covered": 28,
+      "score": 46.8
     },
     {
-      "name": "Bất động sản",
-      "change": -2.61,
-      "flow": 637,
-      "symbols": [
-        "VIC"
-      ]
+      "name": "Xây dựng và Vật liệu",
+      "count": 300,
+      "up": 41,
+      "down": 62,
+      "flat": 44,
+      "change": -0.43,
+      "value": 294.54,
+      "share": 2.45,
+      "covered": 300,
+      "score": 42.5
     },
     {
-      "name": "Chứng khoán",
-      "change": 0.79,
-      "flow": -210,
-      "symbols": [
-        "SSI",
-        "VND"
-      ]
+      "name": "Tài nguyên Cơ bản",
+      "count": 103,
+      "up": 16,
+      "down": 29,
+      "flat": 18,
+      "change": -0.06,
+      "value": 685.63,
+      "share": 5.71,
+      "covered": 103,
+      "score": 51.1
     },
     {
-      "name": "Tiêu dùng",
-      "change": -0.86,
-      "flow": 420,
-      "symbols": [
-        "VNM",
-        "MSN"
-      ]
-    },
-    {
-      "name": "Năng lượng",
-      "change": -0.17,
-      "flow": 172,
-      "symbols": [
-        "GAS",
-        "PVS"
-      ]
+      "name": "Truyền thông",
+      "count": 31,
+      "up": 3,
+      "down": 6,
+      "flat": 5,
+      "change": -1.12,
+      "value": 9.4,
+      "share": 0.08,
+      "covered": 31,
+      "score": 50.0
     },
     {
       "name": "Bán lẻ",
+      "count": 27,
+      "up": 5,
+      "down": 9,
+      "flat": 0,
       "change": -0.97,
-      "flow": -135,
-      "symbols": [
-        "FRT",
-        "MWG"
-      ]
+      "value": 500.38,
+      "share": 4.17,
+      "covered": 27,
+      "score": 60.0
     },
     {
-      "name": "Vận tải",
-      "change": -1.26,
-      "symbols": [
-        "ACV"
-      ],
-      "flow": 248
+      "name": "Bất động sản",
+      "count": 125,
+      "up": 33,
+      "down": 35,
+      "flat": 21,
+      "change": 0.51,
+      "value": 1936.62,
+      "share": 16.12,
+      "covered": 125,
+      "score": 37.4
+    },
+    {
+      "name": "Dịch vụ tài chính",
+      "count": 48,
+      "up": 7,
+      "down": 25,
+      "flat": 9,
+      "change": -0.22,
+      "value": 1024.1,
+      "share": 8.53,
+      "covered": 48,
+      "score": 33.3
+    },
+    {
+      "name": "Điện, nước & xăng dầu khí đốt",
+      "count": 140,
+      "up": 19,
+      "down": 32,
+      "flat": 19,
+      "change": -0.42,
+      "value": 221.02,
+      "share": 1.84,
+      "covered": 140,
+      "score": 40.4
+    },
+    {
+      "name": "Bảo hiểm",
+      "count": 13,
+      "up": 1,
+      "down": 7,
+      "flat": 4,
+      "change": -0.57,
+      "value": 68.99,
+      "share": 0.57,
+      "covered": 13,
+      "score": 58.0
+    },
+    {
+      "name": "Dầu khí",
+      "count": 12,
+      "up": 1,
+      "down": 6,
+      "flat": 4,
+      "change": -0.11,
+      "value": 634.8,
+      "share": 5.28,
+      "covered": 12,
+      "score": 39.2
+    },
+    {
+      "name": "Công nghệ Thông tin",
+      "count": 27,
+      "up": 6,
+      "down": 9,
+      "flat": 3,
+      "change": -0.47,
+      "value": 398.81,
+      "share": 3.32,
+      "covered": 27,
+      "score": 26.0
+    },
+    {
+      "name": "Ô tô và phụ tùng",
+      "count": 18,
+      "up": 2,
+      "down": 5,
+      "flat": 2,
+      "change": -0.52,
+      "value": 49.44,
+      "share": 0.41,
+      "covered": 18,
+      "score": 30.3
+    },
+    {
+      "name": "Du lịch và Giải trí",
+      "count": 46,
+      "up": 3,
+      "down": 8,
+      "flat": 5,
+      "change": 1.84,
+      "value": 163.03,
+      "share": 1.36,
+      "covered": 46,
+      "score": 46.3
+    },
+    {
+      "name": "Y tế",
+      "count": 61,
+      "up": 10,
+      "down": 15,
+      "flat": 13,
+      "change": -0.27,
+      "value": 22.59,
+      "share": 0.19,
+      "covered": 61,
+      "score": 64.0
+    },
+    {
+      "name": "Viễn thông",
+      "count": 8,
+      "up": 0,
+      "down": 4,
+      "flat": 1,
+      "change": -0.98,
+      "value": 11.76,
+      "share": 0.1,
+      "covered": 8,
+      "score": 41.0
+    },
+    {
+      "name": "Chưa xác định",
+      "count": 5,
+      "up": 1,
+      "down": 0,
+      "flat": 1,
+      "change": 0.49,
+      "value": 1.39,
+      "share": 0.01,
+      "covered": 5,
+      "score": null
     }
-  ]
+  ],
+  "source": {
+    "url": "https://quantik.io.vn/",
+    "provider": "vnstock_price_board",
+    "captureLabel": "14/10/2026 · 00:45 ICT",
+    "note": "Snapshot mẫu chép từ giao diện gốc; chưa xác nhận độ trễ. Không có polling hoặc API thị trường trong repo Design."
+  }
 }

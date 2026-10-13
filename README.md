@@ -1,61 +1,46 @@
 # QuanTik Design
 
-Giao diện QuanTik bằng **Next.js + Tailwind CSS + TypeScript**, với dữ liệu mẫu JSON.
+Vỏ giao diện **Next.js + Tailwind CSS + TypeScript**, lấy QuanTik hiện tại làm gốc.
 
-Trang Home được chuyển từ `kwuangyong/QuanTik-website`, snapshot tree `521a093b56fefd21493026adb4ead77882cdf082`, giữ nội dung, bố cục, màu, logo và các visual mô hình. Chỉ điều chỉnh kiểu TypeScript và điều hướng cho Next.js. Những trang bên trong được dựng lại.
+Home giữ nguyên nội dung, markup, CSS, logo và các visual từ `kwuangyong/QuanTik-website`, snapshot tree `521a093b56fefd21493026adb4ead77882cdf082`. Các trang bên trong được sắp xếp lại và tăng độ dễ đọc.
 
-## Chạy dự án
+## Chạy local
 
-Yêu cầu Node.js 20.9 trở lên.
+Node.js 20.9 trở lên:
 
 ```bash
 npm ci
 npm run dev
 ```
 
-Mở `http://localhost:3000`. Từ Home, bấm **Mở Terminal** để vào Dashboard.
+Mở `http://localhost:3000`. Bấm **Mở Terminal** để vào Dashboard.
+
+## Bố cục
+
+- **Dashboard**: VN-INDEX, VN30, UPCOM, HNX-INDEX → bảng điện có TC/trần/sàn, ba mức dư mua/bán, khớp lệnh, tổng KL, GTGD, thống kê và nước ngoài → bảng nhóm ngành. Theo dõi nằm trong cùng bảng. Bấm mã mở cửa sổ chart với Quant bên cạnh; có thể thu/mở Quant hoặc mở trang phân tích toàn màn hình.
+- **Quét toàn sàn**: hai danh sách, mỗi nhóm 5 mã; lý do và các chỉ tiêu mở/thu trong từng mã. Có phần xem tiêu chí trước khi chạy Quant tổng quát.
+- **Phân tích Quant**: nhập/chọn mã → xem tiêu chí trước khi chạy → vùng kết quả. Các nút chạy cuối cùng chưa nối backend.
+- **Biểu đồ**: giữ đường dẫn `/charts?symbol=FPT` cho chế độ toàn màn hình. Biểu đồ nằm trong luồng chọn mã, không thêm mục riêng vào menu.
+
+## Dữ liệu và phạm vi
+
+`backend/` chỉ có **mock JSON**, không có API server, scheduler, job runner, scoring, backtest hoặc engine Quant. Không dựng lại bộ nạp dữ liệu hay vòng lặp hai lần/ngày. Theme, Theo dõi, lọc và trạng thái mở/thu chỉ là tương tác giao diện cục bộ.
+
+- `market.json`: 16 mã mẫu chép từ bảng điện QuanTik tại thời điểm đọc; nguồn gốc `vnstock_price_board`. Snapshot cố định, không phải realtime. Giá theo nghìn đồng; KL theo cổ phiếu; GTGD bảng điện theo triệu đồng. Bảng ngành là snapshot toàn thị trường, GTGD theo tỷ đồng, không tính từ 16 mã mẫu. GTGD không phải tiền ròng vào/ra. Chỉ số thị trường thiếu nguồn được để `null`, hiển thị “—”.
+- `scan.json`: bản mẫu từ **LỌC CỔ PHIẾU.xlsx**, sheet **Summary_20261005_2338**. Giữ nhãn THEO DÕI/TRÁNH, điều kiện, chỉ tiêu và nhận xét. Hai danh sách lấy 5 dòng đầu của mỗi nhãn theo thứ tự sheet; không tính lại thứ hạng. Đây là mẫu bố cục, không phải bản công bố mới hoặc 5 mã được hệ thống đang chạy lựa chọn.
+- File Excel không chứa bảng hệ số trọng số %. Giao diện ghi rõ phần còn thiếu, không tự đặt hệ số hoặc công thức.
+- `analysis.json`, `charts.json`: vùng dữ liệu để nối sau; không có dự báo giả hoặc nến tự sinh.
+- Chart **TradingView** nhúng script Advanced Chart thật, giữ cách cấu hình của repo gốc. Không dùng SVG giả làm TradingView. Dữ liệu, độ trễ và quyền khung intraday phụ thuộc TradingView. Nguồn “Dữ liệu Quantik” giữ vùng hiển thị trống để nối hệ thống cũ.
+
+## Kiểm tra và xem thử
 
 ```bash
 npm run typecheck
-npm run build
-npm run start
 npm test
+npm run build
+npm run preview:export
 ```
 
-## Các màn hình
+`preview/index.html` dùng cùng các component frontend, với router thay thế để mở độc lập. TradingView cần Internet và môi trường cho phép script/iframe bên ngoài.
 
-| Trang | Đường dẫn | Nội dung |
-| --- | --- | --- |
-| Home | `/` | Giữ Home cũ, visual 2D/3D và popup giải thích |
-| Dashboard | `/dashboard` | Chỉ số thị trường, một bảng cổ phiếu, lọc theo ngành và Theo dõi |
-| Lọc cổ phiếu | `/screener` | Lọc cơ hội/rủi ro, nhóm ngành, khối lượng và CMF |
-| Phân tích Quant | `/analysis?symbol=FPT` | HÀNH ĐỘNG, Monte Carlo, GARCH, HMM, CMF, Hurst, ARX/Ridge |
-| Biểu đồ | `/charts?symbol=FPT` | Nến/đường giá, khối lượng, CMF và khung ngày/tuần/tháng |
-
-**Thị trường, Bảng điện, Nhóm ngành và Theo dõi không còn là các trang riêng.** Dashboard sử dụng một bảng chung; chọn ngành hoặc Theo dõi để lọc. Không có panel trạng thái backend, điểm Quant tổng hợp hoặc Backtest.
-
-## File cần chỉnh
-
-| Thư mục/file | Vai trò |
-| --- | --- |
-| `frontend/src/app/` | Trang và stylesheet |
-| `frontend/src/components/` | Component giao diện dùng chung |
-| `frontend/src/components/home/` | Home và các visual cũ |
-| `frontend/src/app/globals.css` | Token màu, typography, responsive và Tailwind theme |
-| `frontend/src/app/home.css` | CSS Home cũ |
-| `backend/mock/*.json` | Snapshot thị trường, phân tích, biểu đồ, nội dung mô hình |
-| `docs/DESIGN.md` | Quy ước thiết kế và bố cục |
-
-Mọi số liệu, tín hiệu, phân tích và khuyến nghị bên trong Terminal đều là **dữ liệu minh họa cố định**, không phải dữ liệu thực của cổ phiếu. Nút chọn mô hình chỉ thay đổi phần được hiển thị. Biểu đồ dùng SVG từ JSON mẫu, không tích hợp TradingView. Khung tuần/tháng tổng hợp OHLC và khối lượng từ chuỗi mẫu.
-
-Repo này không chứa engine Quant, API tài chính, đăng nhập, execution, hạ tầng VPS hoặc kiến trúc backend production. `backend/` chỉ chứa mock JSON. Danh sách Theo dõi và theme được lưu cục bộ trên trình duyệt; không cần API key.
-
-## Kiểm tra
-
-`npm run typecheck` kiểm tra TypeScript strict. `npm run build` build production. `npm test` kiểm tra tính nhất quán của mock JSON và cách tổng hợp các khung biểu đồ.
-
-`npm run test:e2e` chạy kiểm thử trình duyệt. Lần đầu cần cài Chromium: `npm exec --workspace frontend -- playwright install chromium`. CI cài và chạy bộ này tự động trên pull request.
-
-## Xem thử bản đóng gói
-
-`npm run build && npm run preview:export` tạo `preview/index.html` để mở trực tiếp. Bản xem thử dùng các component giao diện của Next.js, với điều hướng nội bộ thay thế router cho một file độc lập. Màn hình mặc định là Dashboard; có thể mở Home, Lọc cổ phiếu, Phân tích và Biểu đồ từ menu.
+`npm run test:e2e` kiểm tra các luồng giao diện desktop/mobile. CI chạy tự động trên main. Trong kiểm thử, script bên ngoài của TradingView được thay bằng stub để kiểm tra cấu hình và bố cục ổn định; kiểm thử không xác nhận nguồn giá realtime.

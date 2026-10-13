@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useRef, type ReactNode } from "react";
+import { useEffect, useId, useRef, type ReactNode } from "react";
 import { X } from "lucide-react";
 export function PageHeading({
   title,
@@ -7,14 +7,14 @@ export function PageHeading({
   children,
 }: {
   title: string;
-  description: string;
+  description?: string;
   children?: ReactNode;
 }) {
   return (
     <div className="page-heading">
       <div>
         <h1>{title}</h1>
-        <p>{description}</p>
+        {description && <p>{description}</p>}
       </div>
       {children && <div className="heading-actions">{children}</div>}
     </div>
@@ -45,12 +45,15 @@ export function Modal({
   title,
   onClose,
   children,
+  className = "",
 }: {
   title: string;
   onClose: () => void;
   children: ReactNode;
+  className?: string;
 }) {
   const ref = useRef<HTMLDialogElement>(null);
+  const titleId = useId();
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
@@ -64,8 +67,8 @@ export function Modal({
   return (
     <dialog
       ref={ref}
-      className="info-dialog"
-      aria-labelledby="dialog-title"
+      className={`info-dialog ${className}`}
+      aria-labelledby={titleId}
       onCancel={onClose}
       onClick={(event) => {
         if (event.target === event.currentTarget) {
@@ -81,12 +84,12 @@ export function Modal({
       }}
     >
       <header>
-        <h2 id="dialog-title">{title}</h2>
+        <h2 id={titleId}>{title}</h2>
         <button
           autoFocus
           className="icon-button"
           onClick={onClose}
-          aria-label="Đóng giải thích"
+          aria-label="Đóng"
         >
           <X size={20} />
         </button>
@@ -100,12 +103,12 @@ export function EmptyState({
   children,
 }: {
   title: string;
-  children: ReactNode;
+  children?: ReactNode;
 }) {
   return (
     <div className="empty-state">
       <h3>{title}</h3>
-      <p>{children}</p>
+      {children && <p>{children}</p>}
     </div>
   );
 }

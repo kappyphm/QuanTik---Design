@@ -1,52 +1,32 @@
-# Quy ước giao diện QuanTik
+# Giao diện QuanTik
 
-## Home
+## Gốc thiết kế
 
-Giữ Home cũ từ QuanTik-website: nội dung, logo, nền xanh đen, hero Monte Carlo, quy trình kiểm định, thư viện visual, popup và Coming soon. Không dùng các quy tắc typography mới để thay đổi Home.
+Giữ Home cũ nguyên vẹn. Terminal dùng nền xanh đen của bản QuanTik hiện tại, điểm nhấn cam và màu giá theo bảng điện chứng khoán. Inter cho nội dung/menu, IBM Plex Mono cho mã và số.
 
-CSS Home được giữ nguyên trong `frontend/src/app/home.css`. Component giữ markup cũ và chỉ được bổ sung kiểu TypeScript, khai báo client component và callback điều hướng.
+| Thành phần | Cỡ chữ |
+| --- | --- |
+| Tiêu đề trang | 30–32px |
+| Tiêu đề nhóm | 18–20px |
+| Nội dung | 15–16px |
+| Nhãn/điều khiển | 14px |
+| Số trong bảng điện | 14px |
+| Nhãn cột bảng điện | 13px |
 
-## Màu trong Terminal
+Không thêm slogan, eyebrow, ghi chú kỹ thuật lặp lại, điểm tổng hợp tự tạo hoặc thẻ chi tiết FPT dưới bảng.
 
-| Token | Dark | Light | Dùng cho |
-| --- | --- | --- | --- |
-| Background | #0B1013 | #F2F5F6 | Nền chính |
-| Surface | #131C20 | #FFFFFF | Card và sidebar |
-| Border | #26373D | #D7E0E3 | Phân cách |
-| Text | #EAF0F2 | #18292F | Nội dung chính |
-| Muted | #A1B2BA | #526B74 | Nhãn phụ |
-| Accent | #FF914D | #B94B0A | Nút chính, tab đang chọn |
-| Positive | #67D6A5 | #167554 | Giá/CMF dương |
-| Negative | #F08088 | #BA354B | Giá/CMF âm |
-| Neutral | #E3C16C | #896307 | Giá tham chiếu |
+## Luồng và bố cục
 
-Không dùng màu làm dấu hiệu duy nhất: số có dấu +/−, nhãn trạng thái và nút có aria-pressed.
+Menu chỉ gồm Dashboard, Quét toàn sàn, Phân tích Quant. Home vẫn mở từ logo và liên kết Trang chủ.
 
-## Chữ và khoảng cách
+Dashboard xếp dọc: bốn chỉ số → bảng điện → nhóm ngành. Theo dõi là tab trong bảng. Bộ lọc ngành và sàn dùng chung một bảng. Ba mức giá, thống kê và nước ngoài có điều khiển bật/tắt.
 
-- Inter cho menu, tiêu đề và đoạn văn; IBM Plex Mono cho số và mã cổ phiếu. Font được đóng gói cục bộ, gồm tập ký tự tiếng Việt.
-- Tiêu đề trang 30–32px, nhóm lớn 22–24px, tiêu đề card 18px, nội dung 15–16px, nhãn 14px.
-- Card bo góc 12px, padding 20–24px; khoảng cách giữa khối 18–26px.
-- Tránh thêm eyebrow, ghi chú trạng thái kỹ thuật, mô tả lặp lại hoặc chữ nhỏ dưới mỗi thao tác.
+Bấm mã mở dialog chart. Chart mặc định TradingView thật; Quant nằm bên cạnh, có nút mở/thu và mở toàn màn hình. Nguồn Quantik có vùng hiển thị để nối dữ liệu sau. Trên màn hình hẹp, Quant chuyển xuống dưới chart; các bảng cuộn ngang trong vùng riêng.
 
-## Bố cục
+Quét toàn sàn có 5 mã mỗi nhóm, dữ liệu mẫu từ file tham chiếu. Giải thích và bảng chỉ tiêu mở/thu bằng details. Không dựng bộ nạp dữ liệu, loop hoặc thuật toán xếp hạng. Chỉ tiêu chia theo hiệu suất, mô hình, lợi nhuận/chi phí, rủi ro T+2, dữ liệu/thanh khoản và kế hoạch. Không tự tạo trọng số %.
 
-Sidebar gồm Dashboard, Lọc cổ phiếu, Phân tích Quant và Biểu đồ. Logo và link Trang chủ dẫn về Home cũ.
+Phân tích Quant có ô nhập mã, bước xem tiêu chí trước khi chạy và vùng kết quả. Nút chạy cuối cùng để trạng thái chưa kết nối. Không giả tiến trình chạy hoặc kết quả mới. Mẫu Excel giữ rõ ngày và nhãn công bố.
 
-Dashboard: bốn chỉ số ở đầu; bảng cổ phiếu ở khối chính; dòng tiền ngành bên cạnh; chi tiết mã đang chọn bên dưới. Theo dõi nằm trong bảng. Chọn ngành lọc bảng ngay. Bảng có tìm kiếm, sắp xếp và phân trang 8 mã.
+## Truy cập
 
-Phân tích: thông tin mã → đoạn HÀNH ĐỘNG → chọn mô hình hiển thị → phân phối Monte Carlo → các bằng chứng mô hình → giải thích mở rộng. Không thêm điểm tổng hợp hoặc backtest.
-
-Biểu đồ: mã → timeframe → nến/đường → CMF → biểu đồ → ba chỉ số đọc nhanh. Không đưa trạng thái API hoặc log backend vào màn hình.
-
-## Responsive và truy cập
-
-- Từ 1250px trở xuống, dòng tiền ngành chuyển dưới bảng.
-- Từ 900px trở xuống, chỉ số chia hai cột.
-- Từ 700px trở xuống, sidebar chuyển thành menu, mô hình xếp một cột.
-- Bảng và chart có vùng cuộn ngang riêng; trang không dùng chiều rộng cố định.
-- Menu có Escape và vòng focus. Popup dùng dialog native, Escape và khôi phục focus. Có skip link, label cho input, trạng thái sắp xếp và hỗ trợ reduced motion.
-
-## Phạm vi tương tác
-
-Tìm mã mở Phân tích; dấu / focus ô tìm kiếm. Theo dõi và theme được nhớ trên trình duyệt. Lọc, sắp xếp, phân trang, chọn mô hình, popup, chuyển mã, chọn khung và CMF đều dùng dữ liệu mẫu. Không có nút hứa chạy engine thật hoặc giao dịch thật.
+Dùng label cho điều khiển, aria-pressed cho trạng thái mở/thu, dialog native cho chart và bước xem trước. Escape đóng dialog, khôi phục focus về nút mở. Theme và Theo dõi lưu trên thiết bị. Màu luôn đi cùng số hoặc nhãn. Tôn trọng reduced motion.

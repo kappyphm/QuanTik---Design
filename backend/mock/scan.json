@@ -1,0 +1,696 @@
+{
+  "mode": "sample",
+  "source": {
+    "name": "LỌC CỔ PHIẾU.xlsx",
+    "sheet": "Summary_20261005_2338",
+    "publishedLabel": "05/10/2026 · 23:38",
+    "selection": "5 dòng THEO DÕI và 5 dòng TRÁNH đầu tiên theo thứ tự sheet. Không tính lại xếp hạng."
+  },
+  "criteria": [
+    {
+      "title": "Hiệu suất",
+      "metrics": [
+        {
+          "id": "N",
+          "label": "Sharpe",
+          "weight": null
+        },
+        {
+          "id": "O",
+          "label": "Win Rate (%)",
+          "weight": null
+        },
+        {
+          "id": "P",
+          "label": "Max DD (%)",
+          "weight": null
+        },
+        {
+          "id": "Q",
+          "label": "Annual Return (%)",
+          "weight": null
+        }
+      ]
+    },
+    {
+      "title": "Mô hình",
+      "metrics": [
+        {
+          "id": "R",
+          "label": "HMM",
+          "weight": null
+        },
+        {
+          "id": "S",
+          "label": "Volatility Regime",
+          "weight": null
+        },
+        {
+          "id": "U",
+          "label": "Lợi nhuận dự báo (%)",
+          "weight": null
+        },
+        {
+          "id": "V",
+          "label": "Đồng thuận (%)",
+          "weight": null
+        },
+        {
+          "id": "W",
+          "label": "Coverage mô hình (%)",
+          "weight": null
+        },
+        {
+          "id": "X",
+          "label": "Directional support (%)",
+          "weight": null
+        },
+        {
+          "id": "Y",
+          "label": "Số mô hình hoạt động",
+          "weight": null
+        },
+        {
+          "id": "Z",
+          "label": "Meta-label P(win) (%)",
+          "weight": null
+        },
+        {
+          "id": "AA",
+          "label": "Hurst",
+          "weight": null
+        },
+        {
+          "id": "AB",
+          "label": "Hurst regime",
+          "weight": null
+        },
+        {
+          "id": "AC",
+          "label": "LightGBM rank (%)",
+          "weight": null
+        },
+        {
+          "id": "AD",
+          "label": "LightGBM alpha (%)",
+          "weight": null
+        }
+      ]
+    },
+    {
+      "title": "Lợi nhuận & chi phí",
+      "metrics": [
+        {
+          "id": "AE",
+          "label": "Lợi nhuận gộp (%)",
+          "weight": null
+        },
+        {
+          "id": "AF",
+          "label": "Chi phí (%)",
+          "weight": null
+        },
+        {
+          "id": "AG",
+          "label": "Lợi nhuận ròng (%)",
+          "weight": null
+        }
+      ]
+    },
+    {
+      "title": "Rủi ro T+2",
+      "metrics": [
+        {
+          "id": "AI",
+          "label": "Sụt giảm khi chờ T+2 (%)",
+          "weight": null
+        },
+        {
+          "id": "AJ",
+          "label": "Xác suất lỗ trên 3% (%)",
+          "weight": null
+        },
+        {
+          "id": "AQ",
+          "label": "Khoảng trống giá 95% (%)",
+          "weight": null
+        },
+        {
+          "id": "AW",
+          "label": "RiskPctNAV",
+          "weight": null
+        }
+      ]
+    },
+    {
+      "title": "Dữ liệu & thanh khoản",
+      "metrics": [
+        {
+          "id": "AK",
+          "label": "Chất lượng dữ liệu",
+          "weight": null
+        },
+        {
+          "id": "AL",
+          "label": "Điểm dữ liệu",
+          "weight": null
+        },
+        {
+          "id": "AM",
+          "label": "Cảnh báo dữ liệu",
+          "weight": null
+        },
+        {
+          "id": "AN",
+          "label": "Thanh khoản",
+          "weight": null
+        },
+        {
+          "id": "AO",
+          "label": "GTGD TB 20 phiên (tỷ)",
+          "weight": null
+        },
+        {
+          "id": "AP",
+          "label": "Sức chứa tối đa (cổ phiếu)",
+          "weight": null
+        }
+      ]
+    },
+    {
+      "title": "Kế hoạch",
+      "metrics": [
+        {
+          "id": "G",
+          "label": "Thời gian nắm giữ",
+          "weight": null
+        },
+        {
+          "id": "AR",
+          "label": "Entry",
+          "weight": null
+        },
+        {
+          "id": "AS",
+          "label": "SL",
+          "weight": null
+        },
+        {
+          "id": "AT",
+          "label": "TP1",
+          "weight": null
+        },
+        {
+          "id": "AU",
+          "label": "TP2",
+          "weight": null
+        }
+      ]
+    }
+  ],
+  "best": [
+    {
+      "symbol": "DRI",
+      "recommendation": "THEO DÕI",
+      "filter": "KHÔNG ĐẠT",
+      "score": 82.0,
+      "sector": "Không xác định",
+      "conditions": [
+        "Chờ xác nhận thời điểm vào lệnh"
+      ],
+      "explanation": "DRI — Điểm 82 (⭐⭐⭐⭐⭐ MUA LƯỚT SÓNG)\n① Hiệu suất giá–rủi ro tích cực\nLợi nhuận năm hóa 56.1% với Sharpe 1.20 — mỗi đơn vị rủi ro chấp nhận, cổ phiếu trả lại 1.2 đơn vị lợi nhuận. Sortino 1.89 cao hơn Sharpe đáng kể — phần lớn biến động là biến động tăng, không phải giảm. Sụt giảm lớn nhất -25.6% — từng mất hơn 15% từ đỉnh, đây là mức drawdown nặng.\n② Biến động đang mở rộng — thị trường \"nóng\"\nVol Ratio 1.398 — biến động ngắn hạn cao hơn 140% so với trung hạn. Cần cẩn trọng: biến động cao = cả cơ hội lẫn rủi ro lớn hơn. Xu hướng rõ ràng (ER 0.56, slope +26.2%) — giá di chuyển có hướng, không lắc lư ngẫu nhiên. Dòng tiền tích cực (CMF +0.222) — tiền thông minh đang tích lũy. RS 20d +30.1% vs VNINDEX — vượt trội thị trường rõ rệt, dòng tiền ưu tiên mã này (alpha +48.0%/năm, beta 0.59). RSI 85 — vùng quá mua, cẩn trọng đuổi giá.\n③ Tín hiệu đang hình thành nhưng chưa chín muồi\nHMM 🟢 BULL xác suất 100% — xác suất áp đảo, regime ổn định (phân tích 4 chiều: giá, vol, volume, momentum). Directional Alpha +10.15% trong 10 phiên, Đồng thuận 100% — các mô hình khá đồng thuận, Coverage 100% và Support 88%, Meta-label P(win) 91.8% (MC dùng recursive GARCH-t vol). Screener cũng xác nhận tín hiệu MẠNH (đa tiêu chí kỹ thuật) — tăng niềm tin.\n④ Rủi ro cần lưu ý\nGARCH persistence 0.924 (cao) — cú sốc biến động tắt chậm (half-life 9 phiên).\nPhân phối NON-GAUSSIAN (5/5 test bác bỏ), kurtosis 5.6 (STRONG) — đuôi rất dày, \"thiên nga đen\" xảy ra thường hơn mô hình dự đoán.\nVaR 95%: -3.10% (95/100 ngày lỗ không quá mức này), CVaR: -5.38% (trung bình 5 ngày tệ nhất).\nT+2 settlement lock: 62% khả năng lỗ khi chưa bán được. Lịch sử: 90% trường hợp DD trong lock < 5.0%.\nTổng kết DRI: Đủ điều kiện MUA LƯỚT SÓNG — tín hiệu mạnh, rủi ro kiểm soát được.\nChiến lược: Giá mua 16,700.00. SL 15,300.00 (-8%) — TP 18,700.00 (R:R 1:1.4). Số lượng: 4,400 cp (73.5M VND). Nắm giữ: 10 phien (~14 ngay).\nƯu tiên CAO trong danh sách.",
+      "metrics": {
+        "N": "1.199",
+        "O": "43.4",
+        "P": "-25.62",
+        "Q": "56.06",
+        "R": "🟢 BULL",
+        "S": "MỞ RỘNG",
+        "U": "10.15",
+        "V": "100.0",
+        "W": "100.0",
+        "X": "88.0",
+        "Y": "2.0",
+        "Z": "91.8",
+        "AA": "0.6222",
+        "AB": "PERSISTENT",
+        "AC": "98.48",
+        "AD": "2.432",
+        "AE": "10.15",
+        "AF": "0.56",
+        "AG": "9.59",
+        "AI": "-6.12",
+        "AJ": "20.0",
+        "AQ": "1.84",
+        "AW": "1.232",
+        "AK": "TỐT",
+        "AL": "100.0",
+        "AM": null,
+        "AN": "B",
+        "AO": "20.85",
+        "AP": "69900.0",
+        "G": "10 phiên (~14 ngày)",
+        "AR": "16.7",
+        "AS": "15.3",
+        "AT": "17.8",
+        "AU": "18.7"
+      }
+    },
+    {
+      "symbol": "BVH",
+      "recommendation": "THEO DÕI",
+      "filter": "KHÔNG ĐẠT",
+      "score": 82.0,
+      "sector": "Bảo hiểm",
+      "conditions": [
+        "Chờ xác nhận thời điểm vào lệnh"
+      ],
+      "explanation": "BVH — Điểm 82 (⭐⭐⭐⭐⭐ MUA LƯỚT SÓNG)\n① Hiệu suất giá–rủi ro tích cực\nLợi nhuận năm hóa 40.0% với Sharpe 0.89 — mỗi đơn vị rủi ro chấp nhận, cổ phiếu trả lại 0.9 đơn vị lợi nhuận. Sortino 1.50 cao hơn Sharpe đáng kể — phần lớn biến động là biến động tăng, không phải giảm. Sụt giảm lớn nhất -34.2% — từng mất hơn 15% từ đỉnh, đây là mức drawdown nặng.\n② Biến động bình thường\nVol Ratio 0.953 — không có tín hiệu bất thường về biến động. Xu hướng rõ ràng (ER 0.50, slope +18.2%) — giá di chuyển có hướng, không lắc lư ngẫu nhiên. Dòng tiền tích cực (CMF +0.220) — tiền thông minh đang tích lũy. RS 20d +22.1% vs VNINDEX — vượt trội thị trường rõ rệt, dòng tiền ưu tiên mã này (alpha +37.3%/năm, beta 0.75).\n③ Tín hiệu đang hình thành nhưng chưa chín muồi\nHMM 🟢 BULL xác suất 100% — xác suất áp đảo, regime ổn định (phân tích 4 chiều: giá, vol, volume, momentum). Directional Alpha +4.56% trong 10 phiên, Đồng thuận 100% — các mô hình khá đồng thuận, Coverage 100% và Support 75%, Meta-label P(win) 59.4% (MC dùng recursive GARCH-t vol). Screener cũng xác nhận tín hiệu MẠNH (đa tiêu chí kỹ thuật) — tăng niềm tin.\n④ Rủi ro cần lưu ý\nGARCH persistence 0.977 (IGARCH-like) — cú sốc biến động tắt chậm (half-life 30 phiên).\nPhân phối NON-GAUSSIAN (5/5 test bác bỏ).\nVaR 95%: -3.79% (95/100 ngày lỗ không quá mức này), CVaR: -5.04% (trung bình 5 ngày tệ nhất).\nT+2 settlement lock: 62% khả năng lỗ khi chưa bán được, 20% khả năng lỗ >3%. Lịch sử: 90% trường hợp DD trong lock < 5.5%.\nTổng kết BVH: Đủ điều kiện MUA LƯỚT SÓNG — tín hiệu mạnh, rủi ro kiểm soát được.\nChiến lược: Giá mua 75,800.00. SL 71,300.00 (-6%) — TP 80,800.00 (R:R 1:1.1). Số lượng: 900 cp (68.2M VND). Nắm giữ: 10 phien (~14 ngay).\nƯu tiên CAO trong danh sách.",
+      "metrics": {
+        "N": "0.886",
+        "O": "44.2",
+        "P": "-34.19",
+        "Q": "40.01",
+        "R": "🟢 BULL",
+        "S": "BÌNH THƯỜNG",
+        "U": "4.56",
+        "V": "100.0",
+        "W": "100.0",
+        "X": "75.1",
+        "Y": "2.0",
+        "Z": "59.4",
+        "AA": "0.6001",
+        "AB": "PERSISTENT",
+        "AC": "90.91",
+        "AD": "1.404",
+        "AE": "4.56",
+        "AF": "0.56",
+        "AG": "4.0",
+        "AI": "-5.86",
+        "AJ": "20.2",
+        "AQ": "2.03",
+        "AW": "0.81",
+        "AK": "TỐT",
+        "AL": "100.0",
+        "AM": null,
+        "AN": "A",
+        "AO": "66.73",
+        "AP": "46900.0",
+        "G": "10 phiên (~14 ngày)",
+        "AR": "75.8",
+        "AS": "71.3",
+        "AT": "79.2",
+        "AU": "80.8"
+      }
+    },
+    {
+      "symbol": "DGW",
+      "recommendation": "THEO DÕI",
+      "filter": "KHÔNG ĐẠT",
+      "score": 78.0,
+      "sector": "Bán lẻ",
+      "conditions": [
+        "Chờ xác nhận thời điểm vào lệnh"
+      ],
+      "explanation": "DGW — Điểm 78 (⭐⭐⭐⭐ MUA VÀ NẮM GIỮ)\n① Hiệu suất giá–rủi ro tích cực\nLợi nhuận năm hóa 20.6% với Sharpe 0.55 — mỗi đơn vị rủi ro chấp nhận, cổ phiếu trả lại 0.5 đơn vị lợi nhuận. Sortino 0.85 cao hơn Sharpe đáng kể — phần lớn biến động là biến động tăng, không phải giảm. Sụt giảm lớn nhất -39.4% — từng mất hơn 15% từ đỉnh, đây là mức drawdown nặng.\n② Biến động bình thường\nVol Ratio 1.002 — không có tín hiệu bất thường về biến động. Xu hướng nhẹ (ER 0.39) — có hướng nhưng nhiễu khá nhiều. Dòng tiền tích cực (CMF +0.108) — tiền thông minh đang tích lũy. RS 20d +19.8% vs VNINDEX — vượt trội thị trường rõ rệt, dòng tiền ưu tiên mã này (alpha +20.5%/năm, beta 0.89).\n③ Tín hiệu đang hình thành nhưng chưa chín muồi\nHMM 🟢 BULL xác suất 96% — xác suất áp đảo, regime ổn định (phân tích 4 chiều: giá, vol, volume, momentum). Directional Alpha +5.40% trong 10 phiên, Đồng thuận 100% — các mô hình khá đồng thuận, Coverage 100% và Support 75%, Meta-label P(win) 57.4% (MC dùng recursive GARCH-t vol). Screener cũng xác nhận tín hiệu MẠNH (đa tiêu chí kỹ thuật) — tăng niềm tin.\n④ Rủi ro cần lưu ý\nGARCH persistence 0.960 (cao) — cú sốc biến động tắt chậm (half-life 17 phiên).\nPhân phối NON-GAUSSIAN (4/5 test bác bỏ).\nVaR 95%: -3.60% (95/100 ngày lỗ không quá mức này), CVaR: -5.15% (trung bình 5 ngày tệ nhất).\nT+2 settlement lock: 62% khả năng lỗ khi chưa bán được, 24% khả năng lỗ >3%. Lịch sử: 90% trường hợp DD trong lock < 6.2%.\nTổng kết DGW: Có thể MUA với quản lý chặt — tín hiệu tích cực nhưng cần kỷ luật.\nChiến lược: Giá mua 47,400.00. SL 43,800.00 (-8%) — TP 51,300.00 (R:R 1:1.1). Số lượng: 1,500 cp (71.1M VND). Nắm giữ: 10 phien (~14 ngay).\nƯu tiên CAO trong danh sách.",
+      "metrics": {
+        "N": "0.548",
+        "O": "47.4",
+        "P": "-39.38",
+        "Q": "20.58",
+        "R": "🟢 BULL",
+        "S": "BÌNH THƯỜNG",
+        "U": "5.4",
+        "V": "100.0",
+        "W": "100.0",
+        "X": "75.4",
+        "Y": "2.0",
+        "Z": "57.4",
+        "AA": "0.5673",
+        "AB": "PERSISTENT",
+        "AC": "92.42",
+        "AD": "1.425",
+        "AE": "5.4",
+        "AF": "0.56",
+        "AG": "4.84",
+        "AI": "-6.26",
+        "AJ": "23.9",
+        "AQ": "1.97",
+        "AW": "1.08",
+        "AK": "TỐT",
+        "AL": "100.0",
+        "AM": null,
+        "AN": "A",
+        "AO": "94.08",
+        "AP": "105900.0",
+        "G": "10 phiên (~14 ngày)",
+        "AR": "47.4",
+        "AS": "43.8",
+        "AT": "50.1",
+        "AU": "51.3"
+      }
+    },
+    {
+      "symbol": "FRT",
+      "recommendation": "THEO DÕI",
+      "filter": "KHÔNG ĐẠT",
+      "score": 78.0,
+      "sector": "Bán lẻ",
+      "conditions": [
+        "Chờ xác nhận thời điểm vào lệnh"
+      ],
+      "explanation": "FRT — Điểm 78 (⭐⭐⭐⭐ MUA VÀ NẮM GIỮ)\n① Hiệu suất giá–rủi ro tích cực\nLợi nhuận năm hóa 20.7% với Sharpe 0.56 — mỗi đơn vị rủi ro chấp nhận, cổ phiếu trả lại 0.6 đơn vị lợi nhuận. Sortino 0.89 cao hơn Sharpe đáng kể — phần lớn biến động là biến động tăng, không phải giảm. Sụt giảm lớn nhất -37.2% — từng mất hơn 15% từ đỉnh, đây là mức drawdown nặng.\n② Biến động bình thường\nVol Ratio 0.992 — không có tín hiệu bất thường về biến động. Chưa có xu hướng rõ (ER 0.21) — giá lắc lư không phương hướng. Dòng tiền tích cực (CMF +0.199) — tiền thông minh đang tích lũy. RS 20d +11.6% vs VNINDEX — vượt trội thị trường rõ rệt, dòng tiền ưu tiên mã này (alpha +20.2%/năm, beta 0.77). RSI 77 — vùng quá mua, cẩn trọng đuổi giá.\n③ Tín hiệu đang hình thành nhưng chưa chín muồi\nHMM 🟢 BULL xác suất 100% — xác suất áp đảo, regime ổn định (phân tích 4 chiều: giá, vol, volume, momentum). Directional Alpha +6.13% trong 10 phiên, Đồng thuận 100% — các mô hình khá đồng thuận, Coverage 100% và Support 76%, Meta-label P(win) 71.2% (MC dùng recursive GARCH-t vol). Screener cũng xác nhận tín hiệu MẠNH (đa tiêu chí kỹ thuật) — tăng niềm tin.\n④ Rủi ro cần lưu ý\nEGARCH gamma -0.091 — tin xấu tăng biến động MẠNH hơn tin tốt (leverage effect).\nPhân phối NON-GAUSSIAN (5/5 test bác bỏ), kurtosis 1.7 — cần dùng VaR non-parametric thay vì Gaussian.\nVaR 95%: -3.09% (95/100 ngày lỗ không quá mức này), CVaR: -4.98% (trung bình 5 ngày tệ nhất).\nT+2 settlement lock: 60% khả năng lỗ khi chưa bán được. Lịch sử: 90% trường hợp DD trong lock < 5.3%.\nTổng kết FRT: Có thể MUA với quản lý chặt — tín hiệu tích cực nhưng cần kỷ luật.\nChiến lược: Giá mua 147,000.00. SL 136,700.00 (-7%) — TP 159,500.00 (R:R 1:1.2). Số lượng: 500 cp (73.5M VND). Nắm giữ: 10 phien (~14 ngay).\nƯu tiên CAO trong danh sách.",
+      "metrics": {
+        "N": "0.564",
+        "O": "45.0",
+        "P": "-37.18",
+        "Q": "20.67",
+        "R": "🟢 BULL",
+        "S": "BÌNH THƯỜNG",
+        "U": "6.13",
+        "V": "100.0",
+        "W": "100.0",
+        "X": "75.6",
+        "Y": "2.0",
+        "Z": "71.2",
+        "AA": "0.6906",
+        "AB": "PERSISTENT",
+        "AC": "87.88",
+        "AD": "1.255",
+        "AE": "6.13",
+        "AF": "0.56",
+        "AG": "5.57",
+        "AI": "-5.51",
+        "AJ": "18.3",
+        "AQ": "2.25",
+        "AW": "1.03",
+        "AK": "TỐT",
+        "AL": "100.0",
+        "AM": null,
+        "AN": "A",
+        "AO": "83.61",
+        "AP": "29900.0",
+        "G": "10 phiên (~14 ngày)",
+        "AR": "147.0",
+        "AS": "136.7",
+        "AT": "154.8",
+        "AU": "159.5"
+      }
+    },
+    {
+      "symbol": "BFC",
+      "recommendation": "THEO DÕI",
+      "filter": "KHÔNG ĐẠT",
+      "score": 77.0,
+      "sector": "Phân bón - Hoá chất",
+      "conditions": [
+        "Có thể giảm giá trong thời gian chờ T+2",
+        "Chờ xác nhận thời điểm vào lệnh"
+      ],
+      "explanation": "BFC — Điểm 77 (⭐⭐⭐⭐ MUA VÀ NẮM GIỮ)\n① Hiệu suất giá–rủi ro tích cực\nLợi nhuận năm hóa 47.7% với Sharpe 1.01 — mỗi đơn vị rủi ro chấp nhận, cổ phiếu trả lại 1.0 đơn vị lợi nhuận. Sortino 1.64 cao hơn Sharpe đáng kể — phần lớn biến động là biến động tăng, không phải giảm. Sụt giảm lớn nhất -35.6% — từng mất hơn 15% từ đỉnh, đây là mức drawdown nặng.\n② Biến động bình thường\nVol Ratio 1.128 — không có tín hiệu bất thường về biến động. Xu hướng rõ ràng (ER 0.61, slope +22.3%) — giá di chuyển có hướng, không lắc lư ngẫu nhiên. Dòng tiền tích cực (CMF +0.113) — tiền thông minh đang tích lũy. RS 20d +26.2% vs VNINDEX — vượt trội thị trường rõ rệt, dòng tiền ưu tiên mã này (alpha +46.3%/năm, beta 0.25). RSI 84 — vùng quá mua, cẩn trọng đuổi giá.\n③ Tín hiệu đang hình thành nhưng chưa chín muồi\nHMM 🟢 BULL xác suất 100% — xác suất áp đảo, regime ổn định (phân tích 4 chiều: giá, vol, volume, momentum). Directional Alpha +11.96% trong 10 phiên, Đồng thuận 100% — các mô hình khá đồng thuận, Coverage 100% và Support 97%, Meta-label P(win) 83.2% (MC dùng GARCH-t vol). Screener cũng xác nhận tín hiệu MẠNH (đa tiêu chí kỹ thuật) — tăng niềm tin.\n④ Rủi ro cần lưu ý\nGARCH persistence 1.000 (IGARCH-like), Alpha 0.2461 — nếu có tin xấu bất ngờ, biến động cao sẽ kéo dài rất lâu.\nPhân phối NON-GAUSSIAN (5/5 test bác bỏ), kurtosis 1.0 — cần dùng VaR non-parametric thay vì Gaussian.\nVaR 95%: -3.78% (95/100 ngày lỗ không quá mức này), CVaR: -5.46% (trung bình 5 ngày tệ nhất).\nT+2 settlement lock: 64% khả năng lỗ khi chưa bán được, 33% khả năng lỗ >3%. Lịch sử: 90% trường hợp DD trong lock < 6.3%.\nTổng kết BFC: Có thể MUA với quản lý chặt — tín hiệu tích cực nhưng cần kỷ luật.\nChiến lược: Giá mua 57,500.00. SL 54,000.00 (-6%) — TP 62,200.00 (R:R 1:1.3). Số lượng: 1,300 cp (74.8M VND). Nắm giữ: 10 phien (~14 ngay).\nƯu tiên CAO trong danh sách.",
+      "metrics": {
+        "N": "1.012",
+        "O": "45.4",
+        "P": "-35.61",
+        "Q": "47.66",
+        "R": "🟢 BULL",
+        "S": "BÌNH THƯỜNG",
+        "U": "11.96",
+        "V": "100.0",
+        "W": "100.0",
+        "X": "96.7",
+        "Y": "2.0",
+        "Z": "83.2",
+        "AA": "0.687",
+        "AB": "PERSISTENT",
+        "AC": "100.0",
+        "AD": "2.919",
+        "AE": "11.96",
+        "AF": "0.64",
+        "AG": "11.32",
+        "AI": "-8.59",
+        "AJ": "32.9",
+        "AQ": "3.13",
+        "AW": "0.91",
+        "AK": "TỐT",
+        "AL": "100.0",
+        "AM": null,
+        "AN": "C",
+        "AO": "9.5",
+        "AP": "9400.0",
+        "G": "10 phiên (~14 ngày)",
+        "AR": "57.5",
+        "AS": "54.0",
+        "AT": "60.2",
+        "AU": "62.2"
+      }
+    }
+  ],
+  "avoid": [
+    {
+      "symbol": "DCL",
+      "recommendation": "TRÁNH",
+      "filter": "KHÔNG ĐẠT",
+      "score": 82.0,
+      "sector": "Dược phẩm",
+      "conditions": [
+        "Chưa phải thời điểm phù hợp để mua",
+        "Mức giá, mục tiêu hoặc chi phí chưa tạo thành kế hoạch hợp lệ",
+        "Chờ xác nhận thời điểm vào lệnh"
+      ],
+      "explanation": "DCL — Điểm 82 (⭐⭐⭐⭐⭐ MUA LƯỚT SÓNG)\n① Hiệu suất giá–rủi ro tích cực\nLợi nhuận năm hóa 64.4% với Sharpe 1.30 — mỗi đơn vị rủi ro chấp nhận, cổ phiếu trả lại 1.3 đơn vị lợi nhuận. Sortino 2.08 cao hơn Sharpe đáng kể — phần lớn biến động là biến động tăng, không phải giảm. Sụt giảm lớn nhất -40.9% — từng mất hơn 15% từ đỉnh, đây là mức drawdown nặng.\n② Biến động đang mở rộng — thị trường \"nóng\"\nVol Ratio 1.338 — biến động ngắn hạn cao hơn 134% so với trung hạn. Cần cẩn trọng: biến động cao = cả cơ hội lẫn rủi ro lớn hơn. Xu hướng nhẹ (ER 0.37) — có hướng nhưng nhiễu khá nhiều. Dòng tiền tích cực (CMF +0.523) — tiền thông minh đang tích lũy. RS 20d +26.6% vs VNINDEX — vượt trội thị trường rõ rệt, dòng tiền ưu tiên mã này (alpha +55.8%/năm, beta 0.31). RSI 70 — vùng quá mua, cẩn trọng đuổi giá.\n③ Tín hiệu đang hình thành nhưng chưa chín muồi\nHMM 🟢 BULL xác suất 94% — xác suất áp đảo, regime ổn định (phân tích 4 chiều: giá, vol, volume, momentum). Directional Alpha +4.13% trong 10 phiên, Đồng thuận 58% — tín hiệu đang hình thành, chưa chín muồi, Coverage 100% và Support 17%, Meta-label P(win) 5.6% (MC dùng recursive GARCH-t vol). Screener cũng xác nhận tín hiệu MẠNH (đa tiêu chí kỹ thuật) — tăng niềm tin.\n④ Rủi ro cần lưu ý\nGARCH persistence 1.000 (IGARCH-like), Alpha 0.6395 — nếu có tin xấu bất ngờ, biến động cao sẽ kéo dài rất lâu (half-life 6243314768165359 phiên).\nEGARCH gamma -0.548 — tin xấu tăng biến động MẠNH hơn tin tốt (leverage effect).\nPhân phối NON-GAUSSIAN (5/5 test bác bỏ), kurtosis 2.2 — cần dùng VaR non-parametric thay vì Gaussian.\nVaR 95%: -4.22% (95/100 ngày lỗ không quá mức này), CVaR: -6.13% (trung bình 5 ngày tệ nhất).\nT+2 settlement lock: 60% khả năng lỗ khi chưa bán được. Lịch sử: 90% trường hợp DD trong lock < 6.8%.\nTổng kết DCL: Đủ điều kiện MUA LƯỚT SÓNG — tín hiệu mạnh, rủi ro kiểm soát được.\nChiến lược: Giá mua 47,000.00. SL 41,900.00 (-11%) — TP 50,900.00 (R:R 1:0.8). Số lượng: 1,500 cp (70.5M VND). Nắm giữ: 10 phien (~14 ngay).\nƯu tiên CAO trong danh sách.",
+      "metrics": {
+        "N": "1.303",
+        "O": "45.0",
+        "P": "-40.89",
+        "Q": "64.37",
+        "R": "🟢 BULL",
+        "S": "MỞ RỘNG",
+        "U": "4.13",
+        "V": "58.1",
+        "W": "100.0",
+        "X": "16.7",
+        "Y": "2.0",
+        "Z": "5.6",
+        "AA": "0.7173",
+        "AB": "PERSISTENT",
+        "AC": "7.58",
+        "AD": "-2.17",
+        "AE": "4.13",
+        "AF": "0.56",
+        "AG": "3.57",
+        "AI": "-4.41",
+        "AJ": "11.9",
+        "AQ": "3.38",
+        "AW": "1.53",
+        "AK": "TỐT",
+        "AL": "100.0",
+        "AM": null,
+        "AN": "A",
+        "AO": "75.81",
+        "AP": "87700.0",
+        "G": "10 phiên (~14 ngày)",
+        "AR": "47.0",
+        "AS": "41.9",
+        "AT": "50.9",
+        "AU": "50.9"
+      }
+    },
+    {
+      "symbol": "PVP",
+      "recommendation": "TRÁNH",
+      "filter": "KHÔNG ĐẠT",
+      "score": 78.0,
+      "sector": "Cảng biển",
+      "conditions": [
+        "Chưa phải thời điểm phù hợp để mua",
+        "Chờ xác nhận thời điểm vào lệnh"
+      ],
+      "explanation": "PVP — Điểm 78 (⭐⭐⭐⭐ MUA VÀ NẮM GIỮ)\n① Hiệu suất giá–rủi ro xuất sắc\nLợi nhuận năm hóa 72.7% với Sharpe 1.52 — mỗi đơn vị rủi ro chấp nhận, cổ phiếu trả lại 1.5 đơn vị lợi nhuận. Sortino 2.55 cao hơn Sharpe đáng kể — phần lớn biến động là biến động tăng, không phải giảm. Sụt giảm lớn nhất -24.5% — từng mất hơn 15% từ đỉnh, đây là mức drawdown nặng.\n② Biến động đang mở rộng — thị trường \"nóng\"\nVol Ratio 1.495 — biến động ngắn hạn cao hơn 150% so với trung hạn. Cần cẩn trọng: biến động cao = cả cơ hội lẫn rủi ro lớn hơn. Xu hướng rõ ràng (ER 0.56, slope +34.6%) — giá di chuyển có hướng, không lắc lư ngẫu nhiên. Dòng tiền trung tính (CMF -0.015). RS 20d +38.4% vs VNINDEX — vượt trội thị trường rõ rệt, dòng tiền ưu tiên mã này (alpha +58.9%/năm, beta 0.37). RSI 74 — vùng quá mua, cẩn trọng đuổi giá.\n③ Tín hiệu đang hình thành nhưng chưa chín muồi\nHMM 🟢 BULL xác suất 100% — xác suất áp đảo, regime ổn định (phân tích 4 chiều: giá, vol, volume, momentum). Directional Alpha +10.14% trong 10 phiên, Đồng thuận 58% — tín hiệu đang hình thành, chưa chín muồi, Coverage 100% và Support 33%, Meta-label P(win) 34.8% (MC dùng recursive GARCH-t vol). Screener cũng xác nhận tín hiệu MẠNH (đa tiêu chí kỹ thuật) — tăng niềm tin.\n④ Rủi ro cần lưu ý\nGARCH persistence 1.000 (IGARCH-like) — cú sốc biến động tắt chậm (half-life 14370088265 phiên).\nPhân phối NON-GAUSSIAN (5/5 test bác bỏ), kurtosis 1.4 — cần dùng VaR non-parametric thay vì Gaussian.\nVaR 95%: -2.99% (95/100 ngày lỗ không quá mức này), CVaR: -4.75% (trung bình 5 ngày tệ nhất).\nT+2 settlement lock: 61% khả năng lỗ khi chưa bán được, 26% khả năng lỗ >3%. Lịch sử: 90% trường hợp DD trong lock < 4.9%.\nTổng kết PVP: Có thể MUA với quản lý chặt — tín hiệu tích cực nhưng cần kỷ luật.\nChiến lược: Giá mua 22,850.00. SL 20,800.00 (-9%) — TP 24,600.00 (R:R 1:0.9). Số lượng: 3,200 cp (73.1M VND). Nắm giữ: 10 phien (~14 ngay).\nƯu tiên CAO trong danh sách.",
+      "metrics": {
+        "N": "1.518",
+        "O": "44.2",
+        "P": "-24.46",
+        "Q": "72.7",
+        "R": "🟢 BULL",
+        "S": "MỞ RỘNG",
+        "U": "10.14",
+        "V": "58.1",
+        "W": "100.0",
+        "X": "32.6",
+        "Y": "2.0",
+        "Z": "34.8",
+        "AA": "0.6295",
+        "AB": "PERSISTENT",
+        "AC": "9.09",
+        "AD": "-1.755",
+        "AE": "10.14",
+        "AF": "0.56",
+        "AG": "9.58",
+        "AI": "-7.13",
+        "AJ": "25.9",
+        "AQ": "2.18",
+        "AW": "1.312",
+        "AK": "TỐT",
+        "AL": "100.0",
+        "AM": null,
+        "AN": "B",
+        "AO": "28.28",
+        "AP": "71900.0",
+        "G": "10 phiên (~14 ngày)",
+        "AR": "22.85",
+        "AS": "20.8",
+        "AT": "24.4",
+        "AU": "24.6"
+      }
+    },
+    {
+      "symbol": "NVB",
+      "recommendation": "TRÁNH",
+      "filter": "KHÔNG ĐẠT",
+      "score": 74.0,
+      "sector": "Ngân hàng (BANK)",
+      "conditions": [
+        "Chưa phải thời điểm phù hợp để mua",
+        "Chờ xác nhận thời điểm vào lệnh"
+      ],
+      "explanation": "NVB — Điểm 74 (⭐⭐⭐⭐ MUA VÀ NẮM GIỮ)\n① Hiệu suất giá–rủi ro trung bình\nLợi nhuận năm hóa 14.7%, Sharpe 0.43 — lợi nhuận có bù được rủi ro nhưng chưa ấn tượng. Sụt giảm lớn nhất -34.2% — từng mất hơn 15% từ đỉnh, đây là mức drawdown nặng.\n② Biến động đang mở rộng — thị trường \"nóng\"\nVol Ratio 1.562 — biến động ngắn hạn cao hơn 156% so với trung hạn. Cần cẩn trọng: biến động cao = cả cơ hội lẫn rủi ro lớn hơn. Xu hướng rõ ràng (ER 0.52, slope +37.5%) — giá di chuyển có hướng, không lắc lư ngẫu nhiên. Dòng tiền tích cực (CMF +0.342) — tiền thông minh đang tích lũy. RS 20d +41.4% vs VNINDEX — vượt trội thị trường rõ rệt, dòng tiền ưu tiên mã này (alpha +15.6%/năm, beta 0.68). RSI 82 — vùng quá mua, cẩn trọng đuổi giá.\n③ Tín hiệu đang hình thành nhưng chưa chín muồi\nHMM 🟢 BULL xác suất 100% — xác suất áp đảo, regime ổn định (phân tích 4 chiều: giá, vol, volume, momentum). Directional Alpha +9.72% trong 10 phiên, Đồng thuận 58% — tín hiệu đang hình thành, chưa chín muồi, Coverage 100% và Support 18%, Meta-label P(win) 43.4% (MC dùng recursive GARCH-t vol). Screener cũng xác nhận tín hiệu MẠNH (đa tiêu chí kỹ thuật) — tăng niềm tin.\n④ Rủi ro cần lưu ý\nPhân phối NON-GAUSSIAN (5/5 test bác bỏ), kurtosis 4.4 — cần dùng VaR non-parametric thay vì Gaussian.\nVaR 95%: -3.29% (95/100 ngày lỗ không quá mức này), CVaR: -4.55% (trung bình 5 ngày tệ nhất).\nT+2 settlement lock: 58% khả năng lỗ khi chưa bán được, 36% khả năng lỗ >3%. Lịch sử: 90% trường hợp DD trong lock < 5.2%.\nTổng kết NVB: Có thể MUA với quản lý chặt — tín hiệu tích cực nhưng cần kỷ luật.\nChiến lược: Giá mua 16,500.00. SL 14,700.00 (-11%) — TP 18,200.00 (R:R 1:0.9). Số lượng: 4,500 cp (74.2M VND). Nắm giữ: 10 phien (~14 ngay).\nƯu tiên TRUNG BÌNH — cần thêm xác nhận.",
+      "metrics": {
+        "N": "0.428",
+        "O": "39.0",
+        "P": "-34.19",
+        "Q": "14.65",
+        "R": "🟢 BULL",
+        "S": "MỞ RỘNG",
+        "U": "9.72",
+        "V": "58.1",
+        "W": "100.0",
+        "X": "18.2",
+        "Y": "2.0",
+        "Z": "43.4",
+        "AA": "0.696",
+        "AB": "PERSISTENT",
+        "AC": "4.55",
+        "AD": "-6.937",
+        "AE": "9.72",
+        "AF": "0.64",
+        "AG": "9.08",
+        "AI": "-11.71",
+        "AJ": "36.2",
+        "AQ": "1.84",
+        "AW": "1.62",
+        "AK": "TỐT",
+        "AL": "100.0",
+        "AM": null,
+        "AN": "C",
+        "AO": "17.65",
+        "AP": "62500.0",
+        "G": "10 phiên (~14 ngày)",
+        "AR": "16.5",
+        "AS": "14.7",
+        "AT": "17.9",
+        "AU": "18.2"
+      }
+    },
+    {
+      "symbol": "IDC",
+      "recommendation": "TRÁNH",
+      "filter": "KHÔNG ĐẠT",
+      "score": 63.0,
+      "sector": "Bất động sản (BĐS)",
+      "conditions": [
+        "Chưa phải thời điểm phù hợp để mua",
+        "Có thể giảm giá trong thời gian chờ T+2",
+        "Chờ xác nhận thời điểm vào lệnh"
+      ],
+      "explanation": "IDC — Điểm 63 (⭐⭐⭐ THEO DÕI)\n① Hiệu suất giá–rủi ro trung bình\nLợi nhuận năm hóa 4.7%, Sharpe 0.19 — lợi nhuận có bù được rủi ro nhưng chưa ấn tượng. Sụt giảm lớn nhất -33.5% — từng mất hơn 15% từ đỉnh, đây là mức drawdown nặng.\n② Đang \"nén lò xo\" — biến động thấp bất thường\nVol Ratio 0.265 tại Percentile 8.4% — biến động 10 ngày chỉ bằng 26% so với 60 ngày, thấp hơn 92% lịch sử. Im lặng kéo dài thường đi trước bùng nổ — đây là giai đoạn tích lũy. Xu hướng nhẹ (ER 0.38) — có hướng nhưng nhiễu khá nhiều. Dòng tiền tích cực (CMF +0.323) — tiền thông minh đang tích lũy. RS 20d +10.8% vs VNINDEX — vượt trội thị trường rõ rệt, dòng tiền ưu tiên mã này (alpha +5.1%/năm, beta 0.84). RSI 94 — vùng quá mua, cẩn trọng đuổi giá.\n③ Tín hiệu đang hình thành nhưng chưa chín muồi\nHMM 🔴 BEAR xác suất 100% — cổ phiếu đang trong trạng thái giảm. Directional Alpha +1.87% trong 10 phiên, Đồng thuận 100% — các mô hình khá đồng thuận, Coverage 100% và Support 50%, Meta-label P(win) 49.2% (MC dùng recursive GARCH-t vol). Screener cũng xác nhận tín hiệu MẠNH (đa tiêu chí kỹ thuật) — tăng niềm tin.\n④ Rủi ro cần lưu ý\nGARCH persistence 0.972 (IGARCH-like) — cú sốc biến động tắt chậm (half-life 24 phiên).\nEGARCH gamma -0.197 — tin xấu tăng biến động MẠNH hơn tin tốt (leverage effect).\nPhân phối NON-GAUSSIAN (5/5 test bác bỏ), kurtosis 2.6 — cần dùng VaR non-parametric thay vì Gaussian.\nVaR 95%: -3.07% (95/100 ngày lỗ không quá mức này), CVaR: -4.82% (trung bình 5 ngày tệ nhất).\nT+2 settlement lock: 62% khả năng lỗ khi chưa bán được. Lịch sử: 90% trường hợp DD trong lock < 6.9%.\nTổng kết IDC: THEO DÕI — tín hiệu đang hình thành nhưng chưa đủ mạnh để vào lệnh.\nChiến lược: Alert tại 33,800.00, vào khi có xác nhận. SL 31,500.00 (-7%) — TP 36,100.00 (R:R 1:1.0). Số lượng: 2,200 cp (74.4M VND). Nắm giữ: 10 phien (~14 ngay).\nƯu tiên TRUNG BÌNH — cần thêm xác nhận.",
+      "metrics": {
+        "N": "0.186",
+        "O": "42.6",
+        "P": "-33.55",
+        "Q": "4.7",
+        "R": "🔴 BEAR",
+        "S": "THU HẸP",
+        "U": "1.87",
+        "V": "100.0",
+        "W": "100.0",
+        "X": "49.8",
+        "Y": "2.0",
+        "Z": "49.2",
+        "AA": "0.635",
+        "AB": "PERSISTENT",
+        "AC": "89.39",
+        "AD": "1.289",
+        "AE": "1.87",
+        "AF": "0.56",
+        "AG": "1.31",
+        "AI": "-3.66",
+        "AJ": "7.8",
+        "AQ": "1.79",
+        "AW": "1.012",
+        "AK": "TỐT",
+        "AL": "100.0",
+        "AM": null,
+        "AN": "B",
+        "AO": "42.32",
+        "AP": "65200.0",
+        "G": "10 phiên (~14 ngày)",
+        "AR": "33.8",
+        "AS": "31.5",
+        "AT": "35.6",
+        "AU": "36.1"
+      }
+    },
+    {
+      "symbol": "MCH",
+      "recommendation": "TRÁNH",
+      "filter": "KHÔNG ĐẠT",
+      "score": 59.0,
+      "sector": "Không xác định",
+      "conditions": [
+        "Chưa phải thời điểm phù hợp để mua",
+        "Có thể giảm giá trong thời gian chờ T+2",
+        "Lợi nhuận dự kiến không đủ bù chi phí",
+        "Mức giá, mục tiêu hoặc chi phí chưa tạo thành kế hoạch hợp lệ",
+        "Chờ xác nhận thời điểm vào lệnh"
+      ],
+      "explanation": "MCH — Điểm 59 (⭐⭐⭐ THEO DÕI)\n① Hiệu suất giá–rủi ro tích cực\nLợi nhuận năm hóa 36.5% với Sharpe 0.96 — mỗi đơn vị rủi ro chấp nhận, cổ phiếu trả lại 1.0 đơn vị lợi nhuận. Sortino 1.64 cao hơn Sharpe đáng kể — phần lớn biến động là biến động tăng, không phải giảm. Sụt giảm lớn nhất -30.7% — từng mất hơn 15% từ đỉnh, đây là mức drawdown nặng.\n② Biến động bình thường\nVol Ratio 0.704 — không có tín hiệu bất thường về biến động. Chưa có xu hướng rõ (ER 0.11) — giá lắc lư không phương hướng. Dòng tiền tích cực (CMF +0.274) — tiền thông minh đang tích lũy. RS 20d +2.6% vs VNINDEX — mạnh hơn thị trường nhẹ (alpha +32.0%/năm, beta 0.58).\n③ Tín hiệu đang hình thành nhưng chưa chín muồi\nHMM 🔴 BEAR xác suất 100% — cổ phiếu đang trong trạng thái giảm. Directional Alpha +0.62% trong 10 phiên, Đồng thuận 100% — các mô hình khá đồng thuận, Coverage 42% và Support 8%, Meta-label P(win) 8.9% (MC dùng GARCH-t vol). Screener: đang TÍCH LŨY — phù hợp với giai đoạn chờ breakout.\n④ Rủi ro cần lưu ý\nGARCH persistence 1.000 (IGARCH-like), Alpha 0.4851 — nếu có tin xấu bất ngờ, biến động cao sẽ kéo dài rất lâu.\nPhân phối NON-GAUSSIAN (5/5 test bác bỏ), kurtosis 4.1 — cần dùng VaR non-parametric thay vì Gaussian.\nVaR 95%: -2.64% (95/100 ngày lỗ không quá mức này), CVaR: -4.25% (trung bình 5 ngày tệ nhất).\nT+2 settlement lock: 61% khả năng lỗ khi chưa bán được. Lịch sử: 90% trường hợp DD trong lock < 4.7%.\nTổng kết MCH: THEO DÕI — tín hiệu đang hình thành nhưng chưa đủ mạnh để vào lệnh.\nChiến lược: Alert tại 140,000.00, vào khi có xác nhận. SL 134,600.00 (-4%) — TP 144,100.00 (R:R 1:0.8). Số lượng: 500 cp (70.0M VND). Nắm giữ: 10 phien (~14 ngay).",
+      "metrics": {
+        "N": "0.961",
+        "O": "40.6",
+        "P": "-30.73",
+        "Q": "36.55",
+        "R": "🔴 BEAR",
+        "S": "BÌNH THƯỜNG",
+        "U": "0.62",
+        "V": "100.0",
+        "W": "41.9",
+        "X": "8.2",
+        "Y": "1.0",
+        "Z": "8.9",
+        "AA": "0.652",
+        "AB": "PERSISTENT",
+        "AC": "62.12",
+        "AD": "0.383",
+        "AE": "0.62",
+        "AF": "0.56",
+        "AG": "0.06",
+        "AI": "-2.53",
+        "AJ": "3.5",
+        "AQ": "2.8",
+        "AW": "0.54",
+        "AK": "TỐT",
+        "AL": "97.0",
+        "AM": "PRICE_JUMP_OR_CORP_ACTION:1",
+        "AN": "A",
+        "AO": "80.14",
+        "AP": "28000.0",
+        "G": "10 phiên (~14 ngày)",
+        "AR": "140.0",
+        "AS": "134.6",
+        "AT": "144.1",
+        "AU": "144.1"
+      }
+    }
+  ]
+}

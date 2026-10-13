@@ -1,12 +1,14 @@
-# Mock JSON
+# Mock JSON cho vỏ giao diện
 
-Thư mục này chỉ cung cấp dữ liệu minh họa để dựng giao diện.
+Thư mục này không chứa backend thực thi.
 
-- `mock/market.json`: bốn chỉ số, cổ phiếu, nhóm ngành; giá theo nghìn đồng, khối lượng theo triệu cổ phiếu, dòng tiền ngành theo tỷ đồng.
-- `mock/analysis.json`: phân vị giá, xác suất HMM, biến động GARCH, Hurst, ARX và đoạn HÀNH ĐỘNG cho từng mã.
-- `mock/charts.json`: chuỗi OHLC, khối lượng theo cổ phiếu và CMF.
-- `mock/models.json`: nội dung giải thích đầu vào, đầu ra và giới hạn của sáu mô hình.
+| File | Nội dung |
+| --- | --- |
+| `mock/market.json` | Snapshot mẫu đọc từ bảng điện và bảng ngành của QuanTik; nguồn và thời điểm đọc nằm trong JSON |
+| `mock/scan.json` | Mẫu kết quả, lý do và các chỉ tiêu từ file LỌC CỔ PHIẾU.xlsx, sheet Summary_20261005_2338 |
+| `mock/analysis.json` | Vùng kết quả trống để nối hệ thống Quant có sẵn |
+| `mock/charts.json` | Tên nguồn chart, khung thời gian và chỉ báo; không có nến tự tạo |
 
-JSON được import trực tiếp qua `frontend/src/lib/mock-data.ts`, với kiểu được TypeScript suy luận. Mọi số liệu đều giả lập; không có kết nối đến thị trường, máy chủ Quant hay cơ sở dữ liệu.
+Các snapshot cố định chỉ phục vụ dựng bố cục. Không lấy lại dữ liệu, không chấm điểm, không huấn luyện, không chạy Quant, không đặt lịch cập nhật. Giá trị còn thiếu giữ `null`; không thay bằng 0. Trọng số phần trăm chưa có trong file tham chiếu.
 
-Khi thêm một mã, thêm đồng thời vào market, analysis và charts để các màn hình nhất quán. Giữ OHLC hợp lệ, phân vị tăng theo thứ tự và tổng xác suất HMM bằng 100%.
+Bảng điện dùng GTGD theo triệu đồng; bảng ngành dùng GTGD theo tỷ đồng và giữ phạm vi toàn thị trường. Đây là giá trị giao dịch, không phải dòng tiền ròng. Các số trong hai bảng không được tính lại ở frontend.

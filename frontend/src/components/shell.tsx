@@ -4,7 +4,6 @@ import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import {
   ArrowUpRight,
-  ChartCandlestick,
   ChevronRight,
   LayoutDashboard,
   Menu,
@@ -20,9 +19,8 @@ import { usePreferences } from "./preferences";
 
 const navigation = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/screener", label: "Lọc cổ phiếu", icon: SlidersHorizontal },
+  { href: "/screener", label: "Quét toàn sàn", icon: SlidersHorizontal },
   { href: "/analysis", label: "Phân tích Quant", icon: Sparkles },
-  { href: "/charts", label: "Biểu đồ", icon: ChartCandlestick },
 ];
 export function Shell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
@@ -208,7 +206,7 @@ export function Shell({ children }: { children: ReactNode }) {
             )}
           </form>
           <div className="topbar-actions">
-            <span className="mock-badge">Dữ liệu minh họa</span>
+            <span className="mock-badge">Vỏ giao diện</span>
             <button
               className="icon-button"
               onClick={toggleTheme}

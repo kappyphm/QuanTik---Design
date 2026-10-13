@@ -22,7 +22,7 @@ jobs:
       - run: npm exec --workspace frontend -- playwright install --with-deps chromium
       - run: npm run test:e2e
       - uses: actions/upload-artifact@v4
-        if: failure()
+        if: always()
         with:
           name: browser-test-results
           path: frontend/test-results/

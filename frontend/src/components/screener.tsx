@@ -1,118 +1,39 @@
 "use client";
+import Link from "next/link";
 import { useState } from "react";
-import { RotateCcw } from "lucide-react";
-import { sectors, stocks } from "@/lib/mock-data";
-import { PageHeading, Panel, EmptyState } from "./ui";
-import { StockTable } from "./stock-table";
+import { scanSnapshot, type ScanResult } from "@/lib/mock-data";
+import { PageHeading, Panel, Modal } from "./ui";
+import { Criteria } from "./quant-panel";
+
 export function Screener() {
-  const [group, setGroup] = useState("all"),
-    [sector, setSector] = useState("all"),
-    [minVolume, setMinVolume] = useState("0"),
-    [flow, setFlow] = useState("all");
-  const reset = () => {
-    setGroup("all");
-    setSector("all");
-    setMinVolume("0");
-    setFlow("all");
-  };
-  const items = stocks.filter(
-    (s) =>
-      (group === "all" ||
-        s.signal ===
-          (group === "opportunity" ? "Chờ xác nhận" : "Thận trọng")) &&
-      (sector === "all" || s.sector === sector) &&
-      s.volume >= Number(minVolume) &&
-      (flow === "all" ||
-        (flow === "positive" && s.cmf > 0) ||
-        (flow === "negative" && s.cmf < 0)),
-  );
-  return (
-    <>
-      <PageHeading
-        title="Lọc cổ phiếu"
-        description="Tìm cơ hội và nhận diện rủi ro theo điều kiện bạn chọn."
-      >
-        <button className="button secondary" onClick={reset}>
-          <RotateCcw size={16} />
-          Đặt lại
-        </button>
-      </PageHeading>
-      <div className="screener-summary">
-        <button
-          className={group === "all" ? "active" : ""}
-          aria-pressed={group === "all"}
-          onClick={() => setGroup("all")}
-        >
-          <span>Toàn bộ</span>
-          <strong>{stocks.length}</strong>
-        </button>
-        <button
-          className={group === "opportunity" ? "active" : ""}
-          aria-pressed={group === "opportunity"}
-          onClick={() => setGroup("opportunity")}
-        >
-          <span>Chờ xác nhận</span>
-          <strong className="positive">
-            {stocks.filter((s) => s.signal === "Chờ xác nhận").length}
-          </strong>
-        </button>
-        <button
-          className={group === "caution" ? "active" : ""}
-          aria-pressed={group === "caution"}
-          onClick={() => setGroup("caution")}
-        >
-          <span>Cần thận trọng</span>
-          <strong className="negative">
-            {stocks.filter((s) => s.signal === "Thận trọng").length}
-          </strong>
-        </button>
-      </div>
-      <Panel title="Điều kiện lọc">
-        <div className="filter-grid">
-          <label>
-            Nhóm ngành
-            <select value={sector} onChange={(e) => setSector(e.target.value)}>
-              <option value="all">Tất cả ngành</option>
-              {sectors.map((s) => (
-                <option key={s.name}>{s.name}</option>
-              ))}
-            </select>
-          </label>
-          <label>
-            Khối lượng tối thiểu
-            <select
-              value={minVolume}
-              onChange={(e) => setMinVolume(e.target.value)}
-            >
-              <option value="0">Không giới hạn</option>
-              <option value="2">2 triệu cổ phiếu</option>
-              <option value="5">5 triệu cổ phiếu</option>
-              <option value="10">10 triệu cổ phiếu</option>
-            </select>
-          </label>
-          <label>
-            Dòng tiền CMF
-            <select value={flow} onChange={(e) => setFlow(e.target.value)}>
-              <option value="all">Tất cả</option>
-              <option value="positive">CMF dương</option>
-              <option value="negative">CMF âm</option>
-            </select>
-          </label>
-        </div>
-      </Panel>
-      <Panel
-        title="Kết quả"
-        className="mt-5"
-        action={<span className="count-label">{items.length} mã phù hợp</span>}
-      >
-        {items.length ? (
-          <StockTable items={items} />
-        ) : (
-          <EmptyState title="Không có mã đáp ứng điều kiện">
-            Thử giảm ngưỡng khối lượng hoặc thay đổi nhóm ngành.
-          </EmptyState>
-        )}
-      </Panel>
-    </>
-  );
+  const [review, setReview] = useState(false);
+  const [period, setPeriod] = useState("published");
+  return <>
+    <PageHeading title="Quét toàn sàn"><button className="button primary" onClick={() => setReview(true)}>Chạy Quant tổng quát</button></PageHeading>
+    <div className="scan-published-bar">
+      <span>Bản mẫu Excel · {scanSnapshot.source.publishedLabel}</span>
+      <label><span className="sr-only">Đợt công bố</span><select value={period} onChange={(event) => setPeriod(event.target.value)}><option value="published">Bản công bố trong file</option><option value="morning" disabled>Đợt sáng</option><option value="afternoon" disabled>Đợt chiều</option></select></label>
+    </div>
+    <div className="scan-grid">
+      <Panel title="5 mã nổi bật"><ScanList items={scanSnapshot.best} /></Panel>
+      <Panel title="5 mã nên tránh"><ScanList items={scanSnapshot.avoid} caution /></Panel>
+    </div>
+    <details className="criteria-overview"><summary>Tiêu chí đánh giá & trọng số</summary><Criteria /><p className="weight-note">File tham chiếu có chỉ tiêu đánh giá; chưa có hệ số trọng số %.</p></details>
+    {review && <Modal title="Trước khi chạy Quant toàn sàn" onClose={() => setReview(false)} className="criteria-dialog">
+      <Criteria /><p className="weight-note">Trọng số % chưa có trong file tham chiếu.</p>
+      <div className="review-actions"><button className="button secondary" onClick={() => setReview(false)}>Quay lại</button><button className="button primary" disabled>Chạy phân tích</button></div>
+      <p className="shell-note">Bản giao diện chưa kết nối bộ chạy Quant.</p>
+    </Modal>}
+  </>;
+}
+function ScanList({ items, caution = false }: { items: ScanResult[]; caution?: boolean }) {
+  return <div className="scan-list">{items.map((item) => <article className="scan-item" key={item.symbol}>
+    <div className="scan-item-heading"><div><Link className="symbol-link" href={`/analysis?symbol=${item.symbol}`}>{item.symbol}</Link><span className={caution ? "negative" : "neutral"}>{item.recommendation}</span></div><strong className="number">{item.score}<span>/100</span></strong></div>
+    <div className="scan-item-summary"><span>{item.sector}</span><Link className="text-link" href={`/analysis?symbol=${item.symbol}`}>Phân tích Quant ↗</Link></div>
+    <details className="scan-explanation"><summary>Vì sao {caution ? "nên tránh" : "nổi bật"}?</summary>
+      <ul className="condition-list">{item.conditions.map((condition) => <li key={condition}>{condition}</li>)}</ul>
+      <Criteria result={item} />
+      <details className="result-explanation"><summary>Nhận xét đầy đủ</summary><p>{item.explanation}</p></details>
+    </details>
+  </article>)}</div>;
 }
