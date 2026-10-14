@@ -1,6 +1,7 @@
 import market from "../../../backend/mock/market.json";
 import charts from "../../../backend/mock/charts.json";
 import scan from "../../../backend/mock/scan.json";
+import demo from "../../../backend/mock/demo.json";
 
 type Quote = number | null;
 export type Stock = {
@@ -27,12 +28,23 @@ export type Stock = {
   ask: { price: Quote; volume: Quote }[];
 };
 
-export const stocks: Stock[] = market.stocks;
+export const demoEnabled = demo.enabled;
+export const demoWeights = demo.groupWeights;
+export const stocks: Stock[] = market.stocks.map((stock) => demoEnabled ? { ...stock, matchedVolume: demo.matchedVolumes.find((item) => item.symbol === stock.symbol)?.volume ?? null } : stock);
 export const sectors = market.sectors;
-export const indices = market.indices;
+export const indices = demoEnabled ? demo.indices : market.indices;
 export const chartOptions = charts;
 export const scanSnapshot = scan;
-export type ScanResult = (typeof scan.best)[number] | (typeof scan.avoid)[number];
+export type ScanResult = {
+  symbol: string; recommendation: string; filter: string; score: number; sector: string;
+  conditions: string[]; explanation: string; metrics: Record<string, string | null>;
+};
+export const getDemoResult = (symbol: string): ScanResult | undefined =>
+  demoEnabled ? demo.results.find((result) => result.symbol === symbol) : undefined;
+export const getDemoCandles = (symbol: string, interval: string) => {
+  const key = interval === "1W" ? "1W" : interval === "1M" ? "1M" : "1D";
+  return demo.series.find((series) => series.symbol === symbol)?.frames[key] ?? [];
+};
 export const getScanResult = (symbol: string) =>
   [...scan.best, ...scan.avoid].find((result) => result.symbol === symbol);
 export const getStock = (symbol: string) =>

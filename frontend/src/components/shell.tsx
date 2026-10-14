@@ -14,7 +14,7 @@ import {
   Sun,
   X,
 } from "lucide-react";
-import { stocks } from "@/lib/mock-data";
+import { stocks, demoEnabled } from "@/lib/mock-data";
 import { usePreferences } from "./preferences";
 
 const navigation = [
@@ -206,7 +206,7 @@ export function Shell({ children }: { children: ReactNode }) {
             )}
           </form>
           <div className="topbar-actions">
-            <span className="mock-badge">Vỏ giao diện</span>
+            <span className="mock-badge">{demoEnabled ? "Dữ liệu mô phỏng" : "Vỏ giao diện"}</span>
             <button
               className="icon-button"
               onClick={toggleTheme}

@@ -1,26 +1,27 @@
 "use client";
 import Link from "next/link";
 import { useState } from "react";
-import { scanSnapshot, type ScanResult } from "@/lib/mock-data";
+import { scanSnapshot, demoEnabled, type ScanResult } from "@/lib/mock-data";
 import { PageHeading, Panel, Modal } from "./ui";
 import { Criteria } from "./quant-panel";
 
 export function Screener() {
   const [review, setReview] = useState(false);
+  const [loaded, setLoaded] = useState(false);
   return <>
     <PageHeading title="Quét toàn sàn"><button className="button primary" onClick={() => setReview(true)}>Chạy Quant tổng quát</button></PageHeading>
     <div className="scan-published-bar">
-      <span>Bản mẫu Excel · {scanSnapshot.source.publishedLabel}</span>
+      <span role="status">{loaded ? "Đã nạp 10 mã mẫu · không chạy quét thật" : `Bản mẫu Excel · ${scanSnapshot.source.publishedLabel}`}</span>
     </div>
     <div className="scan-grid">
       <Panel title="5 mã nổi bật"><ScanList items={scanSnapshot.best} /></Panel>
       <Panel title="5 mã nên tránh"><ScanList items={scanSnapshot.avoid} caution /></Panel>
     </div>
-    <details className="criteria-overview"><summary>Tiêu chí đánh giá & trọng số</summary><Criteria /><p className="weight-note">File tham chiếu có chỉ tiêu đánh giá; chưa có hệ số trọng số %.</p></details>
+    <details className="criteria-overview"><summary>Tiêu chí đánh giá & trọng số</summary><Criteria /><p className="weight-note">{demoEnabled ? "Trọng số mẫu để kiểm tra giao diện." : "File tham chiếu có chỉ tiêu đánh giá; chưa có hệ số trọng số %."}</p></details>
     {review && <Modal title="Trước khi chạy Quant toàn sàn" onClose={() => setReview(false)} className="criteria-dialog">
-      <Criteria /><p className="weight-note">Trọng số % chưa có trong file tham chiếu.</p>
-      <div className="review-actions"><button className="button secondary" onClick={() => setReview(false)}>Quay lại</button><button className="button primary" disabled>Chạy phân tích</button></div>
-      <p className="shell-note">Bản giao diện chưa kết nối bộ chạy Quant.</p>
+      <Criteria /><p className="weight-note">{demoEnabled ? "Trọng số mẫu để kiểm tra giao diện." : "Trọng số % chưa có trong file tham chiếu."}</p>
+      <div className="review-actions"><button className="button secondary" onClick={() => setReview(false)}>Quay lại</button><button className="button primary" disabled={!demoEnabled} onClick={() => { setLoaded(true); setReview(false); }}>Chạy phân tích mẫu</button></div>
+      <p className="shell-note">Nạp kết quả đã có trong JSON mẫu, không chạy bộ lọc.</p>
     </Modal>}
   </>;
 }

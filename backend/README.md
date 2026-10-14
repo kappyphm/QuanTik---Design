@@ -12,3 +12,5 @@ Thư mục này không chứa backend thực thi.
 Các snapshot cố định chỉ phục vụ dựng bố cục. Không lấy lại dữ liệu, không chấm điểm, không huấn luyện, không chạy Quant, không đặt lịch cập nhật. Giá trị còn thiếu giữ `null`; không thay bằng 0. Trọng số phần trăm chưa có trong file tham chiếu.
 
 Bảng điện dùng GTGD theo triệu đồng; bảng ngành dùng GTGD theo tỷ đồng và giữ phạm vi toàn thị trường. Đây là giá trị giao dịch, không phải dòng tiền ròng. Các số trong hai bảng không được tính lại ở frontend.
+
+`mock/demo.json` là dữ liệu tự do dành riêng cho kiểm tra UI. Các số chỉ số, trọng số, nến và kết quả Quant được mô phỏng, không đại diện cho thị trường. Không dùng file này làm nguồn chấm điểm production.

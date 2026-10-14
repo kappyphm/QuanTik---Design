@@ -50,6 +50,7 @@ test("Bấm mã mở TradingView cùng Quant, mở/thu sidebar và toàn màn h�
   await page.getByRole("button", { name: "FPT", exact: true }).click();
   const chart = page.getByRole("dialog", { name: "Biểu đồ FPT", exact: true });
   await expect(chart).toBeVisible();
+  await chart.getByLabel("Nguồn biểu đồ", { exact: true }).selectOption("TradingView");
   const frame = chart.locator("iframe");
   await expect(frame).toHaveAttribute("data-symbol", "HOSE:FPT");
   await chart.getByLabel("Khung thời gian", { exact: true }).selectOption("1W");
@@ -60,7 +61,7 @@ test("Bấm mã mở TradingView cùng Quant, mở/thu sidebar và toàn màn h�
   await chart.getByRole("button", { name: "Chạy Quant FPT", exact: true }).click();
   const review = page.getByRole("dialog", { name: "Trước khi chạy Quant FPT", exact: true });
   await expect(review.getByText("Sharpe", { exact: true })).toBeVisible();
-  await expect(review.getByRole("button", { name: "Chạy phân tích" })).toBeDisabled();
+  await expect(review.getByRole("button", { name: "Chạy phân tích mẫu" })).toBeEnabled();
   await page.keyboard.press("Escape");
   await expect(chart.getByRole("button", { name: "Chạy Quant FPT", exact: true })).toBeFocused();
   await chart.getByRole("link", { name: "Mở Quant toàn màn hình" }).click();

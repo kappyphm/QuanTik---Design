@@ -30,8 +30,8 @@ export function Dashboard() {
       <div className="index-grid">
         {indices.map((index) => (
           <article className="index-card" key={index.name}>
-            <div><span>{index.name}</span><span className="number muted">{signed(index.change)}</span></div>
-            <strong className="number muted">{format(index.value)}</strong>
+            <div><span>{index.name}</span><span className={`number ${tone(index.change)}`}>{signed(index.change)}</span></div>
+            <strong className="number">{format(index.value)}</strong>
           </article>
         ))}
       </div>

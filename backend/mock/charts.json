@@ -1,6 +1,7 @@
 {
   "mode": "shell",
   "sources": [
+    "Dữ liệu mẫu",
     "Dữ liệu Quantik",
     "TradingView"
   ],

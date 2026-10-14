@@ -1809,3 +1809,11 @@ button:disabled {
     animation: none !important;
   }
 }
+
+.sample-group-weight { float: right; margin-left: 12px; color: var(--accent); font-size: 14px; }
+.sample-chart { min-width: 0; margin: 12px 16px 20px; }
+.sample-chart-head { display:flex; flex-wrap:wrap; justify-content:space-between; gap:8px; font-size:14px; padding:12px 0; }
+.sample-chart-head strong { font-weight:500; }
+.sample-chart-head span, .sample-ohlc { color:var(--muted); }
+.sample-ohlc { font-size:14px; line-height:1.7; padding:0 0 10px; overflow-wrap:anywhere; }
+.sample-chart-svg { display:block; width:100%; height:auto; }

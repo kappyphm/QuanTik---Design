@@ -3,10 +3,11 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { ChartCandlestick, PanelRightClose, PanelRightOpen } from "lucide-react";
-import { stocks, getStock, chartOptions } from "@/lib/mock-data";
+import { stocks, getStock, chartOptions, demoEnabled } from "@/lib/mock-data";
 import { PageHeading, EmptyState } from "./ui";
 import { TradingViewChart } from "./tradingview-chart";
 import { QuantPanel } from "./quant-panel";
+import { SampleChart } from "./sample-chart";
 
 export function ChartWorkspace() {
   const router = useRouter();
@@ -15,7 +16,7 @@ export function ChartWorkspace() {
 }
 export function ChartSurface({ symbol, onSymbolChange }: { symbol: string; onSymbolChange: (symbol: string) => void }) {
   const stock = getStock(symbol);
-  const [source, setSource] = useState("TradingView");
+  const [source, setSource] = useState(demoEnabled ? "Dữ liệu mẫu" : "TradingView");
   const [timeframe, setTimeframe] = useState("1D");
   const [indicators, setIndicators] = useState<string[]>(["SMA", "RSI"]);
   const [sidebar, setSidebar] = useState(true);
@@ -36,7 +37,7 @@ export function ChartSurface({ symbol, onSymbolChange }: { symbol: string; onSym
         {source === "TradingView" && <div className="chart-indicators" role="group" aria-label="Chỉ báo">
           {chartOptions.indicators.map((indicator) => <button className={`button secondary ${indicators.includes(indicator) ? "is-saved" : ""}`} key={indicator} aria-pressed={indicators.includes(indicator)} onClick={() => setIndicators((items) => items.includes(indicator) ? items.filter((item) => item !== indicator) : [...items, indicator])}>{indicator}</button>)}
         </div>}
-        {source === "TradingView" ? <TradingViewChart symbol={symbol} exchange={stock.exchange} interval={timeframe} indicators={indicators} /> : <div className="chart-placeholder"><ChartCandlestick size={36} aria-hidden="true" /><strong>Chưa có dữ liệu Quantik</strong></div>}
+        {source === "Dữ liệu mẫu" ? <SampleChart symbol={symbol} interval={timeframe} /> : source === "TradingView" ? <TradingViewChart symbol={symbol} exchange={stock.exchange} interval={timeframe} indicators={indicators} /> : <div className="chart-placeholder"><ChartCandlestick size={36} aria-hidden="true" /><strong>Chưa có dữ liệu Quantik</strong></div>}
       </div>
       {sidebar && <aside className="chart-quant" aria-label={`Phân tích bên chart ${symbol}`}><QuantPanel key={symbol} symbol={symbol} compact /></aside>}
     </div>
