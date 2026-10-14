@@ -42,14 +42,20 @@ export function QuantReport({ result, compact = false, showAction = true }: { re
   const [guide, setGuide] = useState<GuideKey | null>(null);
   const m = result.metrics;
   const caution = ["TRÁNH", "THẬN TRỌNG"].includes(result.recommendation);
-  const value = (key: string, suffix = "") => m[key] == null ? "—" : `${m[key]}${suffix}`;
+  const value = (key: string, suffix = "") => {
+    const raw = m[key];
+    if (raw == null) return "—";
+    const number = Number(raw);
+    return `${Number.isFinite(number) ? number.toLocaleString("vi-VN", { maximumFractionDigits: 3 }) : raw}${suffix}`;
+  };
+  const conditions = result.conditions.filter(condition => !/^Dữ liệu mẫu|^Các giá trị chỉ/.test(condition));
   const explain = (key: GuideKey) => <button className="quant-learn-button" onClick={() => setGuide(key)}><Info size={16} aria-hidden="true" />Hiểu mô hình</button>;
   const state = report?.hmm.state === "bull" ? "Tăng" : report?.hmm.state === "bear" ? "Giảm" : "Đi ngang";
   return <div className={`quant-report ${compact ? "is-compact" : ""}`}>
     {showAction && <section className="quant-action quant-action-reading" aria-label="Hành động">
       <div><h3>HÀNH ĐỘNG</h3><strong className={caution ? "negative" : "neutral"}>{result.recommendation}</strong></div>
       <p>{caution ? "Bằng chứng hiện tại chưa thuận lợi để mở vị thế. Nếu chưa mua, nên chờ điều kiện cải thiện. Nếu đang cầm hàng, chưa tăng tỷ trọng và bám mức dừng lỗ trong kế hoạch." : "Tín hiệu có điểm tích cực nhưng chưa đủ xác nhận để mua. Nếu chưa mua, nên tiếp tục theo dõi. Nếu đang cầm hàng, giữ kỷ luật dừng lỗ và chỉ tăng tỷ trọng khi có thêm xác nhận."}</p>
-      <ul className="quant-action-conditions">{result.conditions.map(condition => <li key={condition}>{condition}</li>)}</ul>
+      {!!conditions.length && <ul className="quant-action-conditions">{conditions.map(condition => <li key={condition}>{condition}</li>)}</ul>}
       {report && <span className="quant-result-mode" role="status">Mô phỏng</span>}
     </section>}
     {report && <div className="quant-report-sections">
