@@ -14,3 +14,7 @@ Các snapshot cố định chỉ phục vụ dựng bố cục. Không lấy l�
 Bảng điện dùng GTGD theo triệu đồng; bảng ngành dùng GTGD theo tỷ đồng và giữ phạm vi toàn thị trường. Đây là giá trị giao dịch, không phải dòng tiền ròng. Các số trong hai bảng không được tính lại ở frontend.
 
 `mock/demo.json` là dữ liệu tự do dành riêng cho kiểm tra UI. Các số chỉ số, trọng số, nến và kết quả Quant được mô phỏng, không đại diện cho thị trường. Không dùng file này làm nguồn chấm điểm production.
+# Fixture diễn giải Quant
+
+`mock/analysis-visuals.json` lưu sẵn dữ liệu trình bày cho 25 mã: HMM, GARCH, Monte Carlo và các minh họa dòng tiền. Các hình này là dữ liệu thử giao diện, không phải các đầu ra đã khớp từ engine. GARCH surface dùng chung để giải thích cơ chế với bộ tham số mẫu; không phải implied volatility surface. Không có API, job hoặc thuật toán tính Quant mới.
+

@@ -22,7 +22,8 @@ test("Dữ liệu mẫu: mở nến và nạp kết quả Quant FPT trong sideba
   const review = page.getByRole("dialog", { name: "Trước khi chạy Quant FPT", exact: true });
   await expect(review.getByText("20% mẫu", { exact: true })).toBeVisible();
   await review.getByRole("button", { name: "Chạy phân tích mẫu", exact: true }).click();
-  await expect(chart.locator(".quant-action")).toContainText("KẾT QUẢ MÔ PHỎNG");
+  await expect(chart.locator(".quant-action")).toContainText("THEO DÕI");
+  await expect(chart.getByRole("status")).toHaveText("Mô phỏng");
   expect(errors).toEqual([]);
   expect(apiCalls).toEqual([]);
 });
@@ -40,7 +41,7 @@ test("Dữ liệu mẫu: quét 10 mã và đổi mã Quant độc lập", async 
   await page.goto("/analysis?symbol=HPG");
   await page.getByRole("button", { name: "Chạy Quant HPG", exact: true }).click();
   await page.getByRole("dialog").getByRole("button", { name: "Chạy phân tích mẫu", exact: true }).click();
-  await expect(page.locator(".quant-action")).toContainText("KẾT QUẢ MÔ PHỎNG");
+  await expect(page.locator(".quant-action")).toContainText("THẬN TRỌNG");
   await page.getByLabel("Chọn mã phân tích", { exact: true }).fill("ZZZ");
   await page.getByRole("button", { name: "Chọn mã", exact: true }).click();
   await page.getByRole("button", { name: "Chạy Quant ZZZ", exact: true }).click();

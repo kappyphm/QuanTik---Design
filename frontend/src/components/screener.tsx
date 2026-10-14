@@ -5,6 +5,7 @@ import { ArrowUpRight, Search, ShieldCheck, ChartNoAxesCombined } from "lucide-r
 import { scanSnapshot, demoEnabled, type ScanResult } from "@/lib/mock-data";
 import { PageHeading, Panel, Modal } from "./ui";
 import { Criteria } from "./quant-panel";
+import { QuantReport } from "./quant-report";
 
 export function Screener() {
   const [review, setReview] = useState(false);
@@ -51,7 +52,8 @@ function ScanList({ items, caution = false }: { items: ScanResult[]; caution?: b
     <div className="scan-item-summary"><span>{item.sector}</span><Link className="text-link" href={`/analysis?symbol=${item.symbol}`}>Phân tích Quant ↗</Link></div>
     <details className="scan-explanation"><summary>Vì sao {caution ? "nên tránh" : "nổi bật"}?</summary>
       <ul className="condition-list">{item.conditions.map((condition) => <li key={condition}>{condition}</li>)}</ul>
-      <Criteria result={item} weightSuffix="" />
+      <QuantReport result={item} compact showAction={false} />
+      <details className="quant-raw-metrics"><summary>Tất cả chỉ tiêu</summary><Criteria result={item} weightSuffix="" /></details>
       <details className="result-explanation"><summary>Nhận xét đầy đủ</summary><p>{item.explanation}</p></details>
     </details>
   </article>)}</div>;

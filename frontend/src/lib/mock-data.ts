@@ -2,6 +2,7 @@ import market from "../../../backend/mock/market.json";
 import charts from "../../../backend/mock/charts.json";
 import scan from "../../../backend/mock/scan.json";
 import demo from "../../../backend/mock/demo.json";
+import analysisVisuals from "../../../backend/mock/analysis-visuals.json";
 
 type Quote = number | null;
 export type Stock = {
@@ -41,6 +42,11 @@ export type ScanResult = {
 };
 export const getDemoResult = (symbol: string): ScanResult | undefined =>
   demoEnabled ? demo.results.find((result) => result.symbol === symbol) : undefined;
+export const getAnalysisVisuals = (symbol: string) => {
+  const report = demoEnabled ? analysisVisuals.reports.find((item) => item.symbol === symbol) : undefined;
+  return report ? { ...report, garch: { ...report.garch, surface: analysisVisuals.garchSurface } } : undefined;
+};
+export type AnalysisVisuals = NonNullable<ReturnType<typeof getAnalysisVisuals>>;
 export const getDemoCandles = (symbol: string, interval: string) => {
   const key = interval === "1W" ? "1W" : interval === "1M" ? "1M" : "1D";
   return demo.series.find((series) => series.symbol === symbol)?.frames[key] ?? [];

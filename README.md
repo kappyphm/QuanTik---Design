@@ -50,3 +50,11 @@ npm run preview:export
 `backend/mock/demo.json` bật `enabled: true` để nạp 4 chỉ số mô phỏng, khối lượng lần khớp mẫu, 16 kết quả Quant và các bộ nến mẫu 48/24/12 phiên cho ngày/tuần/tháng. Các trọng số nhóm cộng 100% là ví dụ kiểm thử, không được lấy từ Excel hay hệ thống thật. Đặt `enabled: false` để trở về vỏ chưa nối bộ chạy.
 
 Ở chế độ này, **Chạy phân tích mẫu** nạp JSON có sẵn và không gọi API, không chạy mô hình, không tạo kết quả phân tích mới. Nguồn **Dữ liệu mẫu** dùng nến giả lập, ghi rõ không phải TradingView. Chọn **TradingView** vẫn dùng widget thật trong bản Next.js hoặc HTML độc lập. Home và các snapshot gốc được giữ nguyên.
+
+## Diễn giải và biểu đồ Quant
+
+Phân tích Quant đọc theo thứ tự Hành động → Hiệu suất & dòng tiền → HMM/Hurst → GARCH → Monte Carlo → Rủi ro & kế hoạch. Biểu đồ nằm trong phần diễn giải tương ứng; **Hiểu mô hình** mở định nghĩa, đầu vào, đầu ra và giới hạn. Nhận định gốc và toàn bộ chỉ tiêu vẫn có thể mở khi cần.
+
+`backend/mock/analysis-visuals.json` chứa 25 báo cáo minh họa, xác suất trạng thái, đường biến động, các đường giá và phân vị đã lưu. Đây là fixture trình bày, không phải kết quả mô hình của các mã và không phải trọng số mới. Không khớp GARCH/HMM hoặc chạy Monte Carlo trong trình duyệt.
+
+3D dùng canvas nhẹ, mặc định đứng yên; phát chuyển động tối đa 30 khung/giây, dừng lịch vẽ khi không còn trong màn hình hoặc tab bị ẩn. Tôn trọng reduced motion, hỗ trợ kéo/phím mũi tên và đổi theme. Sidebar chỉ dựng biểu đồ khi mở phần diễn giải. Home giữ nguyên renderer cũ.
