@@ -10,6 +10,11 @@ test("Dữ liệu mẫu: mở nến và nạp kết quả Quant FPT trong sideba
   await page.getByRole("button", { name: "FPT", exact: true }).click();
   const chart = page.getByRole("dialog", { name: "Biểu đồ FPT", exact: true });
   await expect(chart.getByRole("img", { name: /48 phiên mẫu/ })).toBeVisible();
+  const plot = await chart.getByRole("img").boundingBox();
+  const panel = await chart.locator(".chart-quant").boundingBox();
+  if (plot && panel && panel.y < plot.y + plot.height) {
+    expect(plot.x + plot.width).toBeLessThanOrEqual(panel.x);
+  }
   await chart.getByRole("img").hover({ position: { x: 250, y: 130 } });
   await chart.getByLabel("Khung thời gian", { exact: true }).selectOption("1M");
   await expect(chart.getByRole("img", { name: /12 phiên mẫu/ })).toBeVisible();
