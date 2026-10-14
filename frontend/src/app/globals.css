@@ -34,6 +34,7 @@ button:disabled {
 }
 .terminal {
   overflow-x: clip;
+  font-family: "IBM Plex Mono", ui-monospace, monospace;
   --background: #080d0b;
   --surface: #0d1913;
   --raised: #17271f;
@@ -1819,3 +1820,38 @@ button:disabled {
 .sample-chart-head span, .sample-ohlc { color:var(--muted); }
 .sample-ohlc { font-size:14px; line-height:1.7; padding:0 0 10px; overflow-wrap:anywhere; }
 .sample-chart-svg { display:block; width:100%; height:auto; }
+
+.scan-intro { overflow: hidden; border: 1px solid var(--border); border-radius: 16px; background: linear-gradient(145deg, transparent 43%, color-mix(in srgb, var(--positive) 7%, transparent) 43%, color-mix(in srgb, var(--positive) 7%, transparent) 65%, var(--accent-soft) 65%, transparent 90%), var(--surface); }
+.scan-intro-main { display: grid; grid-template-columns: 1.05fr 1fr; align-items: center; gap: 24px; padding: clamp(28px, 4vw, 56px); min-height: 420px; }
+.scan-intro-copy { min-width: 0; }
+.scan-intro-eyebrow { display: inline-flex; align-items: center; gap: 10px; color: var(--positive); font-size: 15px; font-weight: 500; }
+.scan-intro-eyebrow::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+.scan-intro-copy h2 { font-size: clamp(34px, 3.2vw, 54px); font-weight: 600; line-height: 1.16; letter-spacing: -.04em; margin: 26px 0 20px; }
+.scan-intro-copy h2 em { color: var(--accent); font-style: normal; }
+.scan-intro-copy > p { font-size: 18px; line-height: 1.7; max-width: 490px; color: var(--muted); margin: 0; }
+.scan-intro-actions { display: flex; align-items: center; flex-wrap: wrap; gap: 12px; margin-top: 30px; }
+.scan-intro-actions .button { min-height: 52px; padding: 13px 20px; font-size: 16px; }
+.scan-intro-visual { min-width: 0; }
+.scan-intro-visual svg { display: block; width: 100%; height: auto; }
+.scan-visual-grid { opacity: .22; }
+.scan-intro-features { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; border-top: 1px solid var(--border); padding: 28px 0; margin: 0 clamp(28px, 4vw, 56px); }
+.scan-intro-features > div { display: flex; align-items: flex-start; gap: 12px; min-width: 0; }
+.scan-intro-features svg { color: var(--positive); flex-shrink: 0; margin-top: 3px; }
+.scan-intro-features h3 { font-size: 17px; font-weight: 500; margin: 0 0 6px; }
+.scan-intro-features p { font-size: 15px; color: var(--muted); margin: 0; }
+.scan-results-heading { display: flex; align-items: baseline; justify-content: space-between; flex-wrap: wrap; gap: 12px; margin-bottom: 20px; }
+.scan-results-heading h2 { font-size: 22px; font-weight: 500; margin: 0; }
+.scan-results-heading span { color: var(--muted); font-size: 16px; }
+.info-dialog.scan-criteria-dialog { max-width: 980px; }
+@media (max-width: 1000px) {
+  .scan-intro-main { grid-template-columns: 1fr; gap: 12px; }
+  .scan-intro-visual { max-width: 520px; width: 100%; justify-self: center; }
+}
+@media (max-width: 700px) {
+  .scan-intro-main { padding: 28px 22px 8px; min-height: 0; }
+  .scan-intro-copy > p { font-size: 17px; }
+  .scan-intro-actions { align-items: stretch; }
+  .scan-intro-actions .button { justify-content: center; width: 100%; }
+  .scan-intro-features { grid-template-columns: 1fr; gap: 22px; margin: 0 22px; padding: 24px 0; }
+  .scan-intro-copy h2 { margin-top: 22px; }
+}

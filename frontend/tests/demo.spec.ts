@@ -29,9 +29,14 @@ test("Dữ liệu mẫu: mở nến và nạp kết quả Quant FPT trong sideba
 
 test("Dữ liệu mẫu: quét 10 mã và đổi mã Quant độc lập", async ({ page }) => {
   await page.goto("/screener");
-  await page.getByRole("button", { name: "Chạy Quant tổng quát", exact: true }).click();
-  await page.getByRole("dialog").getByRole("button", { name: "Chạy phân tích mẫu", exact: true }).click();
-  await expect(page.getByRole("status")).toContainText("Đã nạp 10 mã mẫu");
+  await expect(page.locator(".scan-item")).toHaveCount(0);
+  await page.getByRole("button", { name: "Quét toàn sàn", exact: true }).click();
+  await expect(page.getByRole("status")).toContainText("10 mã · 2 nhóm");
+  await page.getByRole("button", { name: "Quét lại", exact: true }).click();
+  await expect(page.locator(".scan-item")).toHaveCount(0);
+  await page.getByRole("button", { name: "Tiêu chí & trọng số", exact: true }).click();
+  await page.getByRole("dialog").getByRole("button", { name: "Quét toàn sàn", exact: true }).click();
+  await expect(page.locator(".scan-item")).toHaveCount(10);
   await page.goto("/analysis?symbol=HPG");
   await page.getByRole("button", { name: "Chạy Quant HPG", exact: true }).click();
   await page.getByRole("dialog").getByRole("button", { name: "Chạy phân tích mẫu", exact: true }).click();

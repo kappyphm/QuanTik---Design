@@ -2,7 +2,7 @@
 
 ## Gốc thiết kế
 
-Giữ Home cũ nguyên vẹn. Terminal dùng nền xanh đen của bản QuanTik hiện tại, điểm nhấn cam và màu giá theo bảng điện chứng khoán. Inter cho nội dung/menu, IBM Plex Mono cho mã và số.
+Giữ Home cũ nguyên vẹn. Terminal dùng nền xanh đen của bản QuanTik hiện tại, điểm nhấn cam và màu giá theo bảng điện chứng khoán. IBM Plex Mono cho nội dung, menu, điều khiển, mã và số; có bộ ký tự tiếng Việt.
 
 | Thành phần | Cỡ chữ |
 | --- | --- |
@@ -13,7 +13,7 @@ Giữ Home cũ nguyên vẹn. Terminal dùng nền xanh đen của bản QuanTik
 | Số trong bảng điện | 14px |
 | Nhãn cột bảng điện | 13px |
 
-Không thêm slogan, eyebrow, ghi chú kỹ thuật lặp lại, điểm tổng hợp tự tạo hoặc thẻ chi tiết FPT dưới bảng.
+Không thêm ghi chú kỹ thuật lặp lại, điểm tổng hợp tự tạo hoặc thẻ chi tiết FPT dưới bảng. Trang mở đầu Quét toàn sàn bám ảnh tham chiếu: tiêu đề lớn, hình nến và kính lúp trang trí, nút quét rõ ràng.
 
 ## Luồng và bố cục
 
@@ -23,7 +23,7 @@ Dashboard xếp dọc: bốn chỉ số → bảng điện → nhóm ngành. The
 
 Bấm mã mở dialog chart. Chart mặc định TradingView thật; Quant nằm bên cạnh, có nút mở/thu và mở toàn màn hình. Nguồn Quantik có vùng hiển thị để nối dữ liệu sau. Trên màn hình hẹp, Quant chuyển xuống dưới chart; các bảng cuộn ngang trong vùng riêng.
 
-Quét toàn sàn có 5 mã mỗi nhóm, dữ liệu mẫu từ file tham chiếu. Giải thích và bảng chỉ tiêu mở/thu bằng details. Không dựng bộ nạp dữ liệu, loop hoặc thuật toán xếp hạng. Chỉ tiêu chia theo hiệu suất, mô hình, lợi nhuận/chi phí, rủi ro T+2, dữ liệu/thanh khoản và kế hoạch. Không tự tạo trọng số %.
+Quét toàn sàn ban đầu chỉ hiện trang mở đầu; bấm Quét toàn sàn mới nạp và hiện 5 mã mỗi nhóm từ dữ liệu mẫu. Xem Tiêu chí & trọng số qua nút phụ; đóng bước này không nạp kết quả. Quét lại trở về trang mở đầu. Giải thích và bảng chỉ tiêu mở/thu bằng details. Không dựng bộ nạp dữ liệu, loop hoặc thuật toán xếp hạng. Chỉ tiêu chia theo hiệu suất, mô hình, lợi nhuận/chi phí, rủi ro T+2, dữ liệu/thanh khoản và kế hoạch. Trọng số ví dụ lấy từ demo.json, không phải hệ số của hệ thống thật. Giao diện chỉ giữ nhãn mô phỏng chung ở thanh trên, bỏ ghi chú Excel/JSON nhỏ trong trang quét.
 
 Phân tích Quant có ô nhập mã, bước xem tiêu chí trước khi chạy và vùng kết quả. Nút chạy cuối cùng để trạng thái chưa kết nối. Không giả tiến trình chạy hoặc kết quả mới. Mẫu Excel giữ rõ ngày và nhãn công bố.
 

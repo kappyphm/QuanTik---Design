@@ -51,7 +51,7 @@ const css = (
   .join("\n")
   .replace(/@font-face\s*\{[^}]*\}/g, "");
 const fontImport =
-  '@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap");';
+  '@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap");';
 const fragment =
   '<div id="quantik-design-preview"></div>\n<style>' +
   fontImport +

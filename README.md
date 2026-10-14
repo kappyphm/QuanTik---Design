@@ -18,7 +18,7 @@ Mở `http://localhost:3000`. Bấm **Mở Terminal** để vào Dashboard.
 ## Bố cục
 
 - **Dashboard**: VN-INDEX, VN30, UPCOM, HNX-INDEX → bảng điện có TC/trần/sàn, ba mức dư mua/bán, khớp lệnh, tổng KL, GTGD, thống kê và nước ngoài → bảng nhóm ngành. Theo dõi nằm trong cùng bảng. Bấm mã mở cửa sổ chart với Quant bên cạnh; có thể thu/mở Quant hoặc mở trang phân tích toàn màn hình.
-- **Quét toàn sàn**: hai danh sách, mỗi nhóm 5 mã; lý do và các chỉ tiêu mở/thu trong từng mã. Có phần xem tiêu chí trước khi chạy Quant tổng quát.
+- **Quét toàn sàn**: mở đầu bằng trang giới thiệu; bấm **Quét toàn sàn** mới hiện hai danh sách, mỗi nhóm 5 mã. **Tiêu chí & trọng số** mở phần xem tiêu chí; lý do và các chỉ tiêu mở/thu trong từng mã. Terminal dùng IBM Plex Mono, Home giữ thiết kế cũ.
 - **Phân tích Quant**: nhập/chọn mã → xem tiêu chí trước khi chạy → vùng kết quả. Các nút chạy cuối cùng chưa nối backend.
 - **Biểu đồ**: giữ đường dẫn `/charts?symbol=FPT` cho chế độ toàn màn hình. Biểu đồ nằm trong luồng chọn mã, không thêm mục riêng vào menu.
 

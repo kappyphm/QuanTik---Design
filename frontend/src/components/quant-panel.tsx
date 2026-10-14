@@ -3,10 +3,10 @@ import { useState } from "react";
 import { scanSnapshot, getScanResult, getDemoResult, demoEnabled, demoWeights, type ScanResult } from "@/lib/mock-data";
 import { Modal, EmptyState } from "./ui";
 
-export function Criteria({ result, expanded = !result }: { result?: ScanResult; expanded?: boolean }) {
+export function Criteria({ result, expanded = !result, weightSuffix = " mẫu" }: { result?: ScanResult; expanded?: boolean; weightSuffix?: string }) {
   return <div className="criteria-grid">
     {scanSnapshot.criteria.map((group) => <details className="criteria-group" key={group.title} open={expanded}>
-      <summary>{group.title}{demoEnabled && <span className="sample-group-weight">{demoWeights.find((item) => item.title === group.title)?.weight}% mẫu</span>}</summary>
+      <summary>{group.title}{demoEnabled && <span className="sample-group-weight">{demoWeights.find((item) => item.title === group.title)?.weight}%{weightSuffix}</span>}</summary>
       <dl>{group.metrics.map((metric) => <div key={metric.id}>
         <dt>{metric.label}</dt>
         <dd className="number">{result?.metrics[metric.id] ?? "—"}</dd>
