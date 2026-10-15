@@ -67,9 +67,10 @@ test("Mua gói: retry giữ Idempotency-Key, mở lại đơn và nhận thanh t
   await expect(page).toHaveURL(new RegExp(`/orders/${orderId}$`));
   await expect(page.getByText("000123456", { exact: false }).first()).toBeVisible();
   expect(state.keys).toHaveLength(2); expect(state.keys[0]).toBeTruthy(); expect(state.keys[0]).toBe(state.keys[1]);
-  await page.reload(); await expect(page.getByRole("button", { name: "Kiểm tra thanh toán" })).toBeVisible();
-  state.paid = true; await page.getByRole("button", { name: "Kiểm tra thanh toán" }).click();
-  await expect(page.getByText("Đã thanh toán", { exact: true })).toBeVisible();
+  await page.reload(); await expect(page.getByRole("button", { name: "Hủy đơn", exact: true })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Kiểm tra thanh toán" })).toHaveCount(0);
+  state.paid = true;
+  await expect(page.getByText("Đã thanh toán", { exact: true })).toBeVisible({ timeout: 12000 });
   await expect(page.getByRole("button", { name: "Hủy đơn", exact: true })).toHaveCount(0);
   expect(await page.evaluate(() => Object.values(localStorage).join(" "))).not.toContain("fixture-access-only");
   await expect(page.getByText(/Gói hiện tại còn 25 lượt/)).toBeVisible();
