@@ -71,7 +71,8 @@ test("Hồ sơ nhân tố có số liệu gốc, diễn giải và cột 3D đi�
   await expect(page.getByRole('img',{name:'Cột nhân tố 3D FPT',exact:true})).toBeVisible();
   const world=profile.locator('.factor-three-world');
   const before=await world.getAttribute('style');
-  await profile.getByLabel('Xoay góc nhìn').fill('30');
+  await profile.getByLabel('Xoay góc nhìn').focus();
+  await page.keyboard.press('ArrowRight');
   expect(await world.getAttribute('style')).not.toBe(before);
   await expect(page.getByRole('img',{name:'Drawdown từ chuỗi giá mẫu FPT',exact:true})).toBeVisible();
 });
