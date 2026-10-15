@@ -86,3 +86,7 @@ npx playwright test tests/account-admin.spec.ts --workers=2
 ## Hoàn thiện thanh toán và gói
 
 Xem [vận hành thanh toán](BILLING-OPERATIONS.md). Bổ sung sao chép phiên bản gói, trạng thái kỳ hiện tại/sắp tới/đã kết thúc, entitlement sau PAID, ẩn hướng dẫn chuyển tiền khi hết hạn; sửa refresh bảng sau tạo/mở bán/đối soát. Kiểm chứng đợt này: build/typecheck, 18 Node, 32 Playwright account/admin và test backend billing trên DB tạm đều đạt. Không đổi source backend, không bật thanh toán hoặc tạo gói vận hành.
+
+## Bổ sung quản lý đơn được duyệt
+
+Người dùng đã cho phép bổ sung BE admin GET /orders và /orders/{id}. BILL-02 đã khép lại. FE /admin/orders có lọc, chi tiết và liên kết từ gói/giao dịch/kỳ gói. Danh mục gói chuyển sang thẻ và checklist công bố; bước mở bán rõ trên cả mobile. Xem BILLING-OPERATIONS.md cho nguyên nhân danh mục trống và hướng dẫn vận hành. Không triển khai hoàn tiền.

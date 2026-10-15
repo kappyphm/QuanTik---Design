@@ -17,6 +17,7 @@ const adminNavigation = [
     { href: "/admin", label: "Quản trị", icon: LayoutDashboard },
     { href: "/admin/users", label: "Người dùng", icon: LayoutDashboard },
     { href: "/admin/plans", label: "Gói dịch vụ", icon: SlidersHorizontal },
+    { href: "/admin/orders", label: "Đơn hàng", icon: SlidersHorizontal },
     { href: "/admin/payments", label: "Giao dịch", icon: SlidersHorizontal },
     { href: "/admin/reconciliation", label: "Đối soát", icon: SlidersHorizontal },
     { href: "/admin/config/integrations", label: "Cấu hình tích hợp", icon: SlidersHorizontal },

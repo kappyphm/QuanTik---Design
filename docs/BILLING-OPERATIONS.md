@@ -1,6 +1,6 @@
 # Thanh toán và quản lý gói
 
-Triển khai trên nhánh FE feat/backend-alignment. Không thay đổi backend cho đợt này.
+Triển khai trên nhánh FE feat/backend-alignment. Theo ngoại lệ người dùng đã duyệt, BE bổ sung API admin chỉ đọc danh sách/chi tiết đơn; không thay đổi quy tắc thu tiền/cấp gói.
 
 ## Luồng vận hành
 
@@ -15,7 +15,7 @@ Triển khai trên nhánh FE feat/backend-alignment. Không thay đổi backend 
 
 ## Giới hạn hợp đồng BE
 
-- BE-GAP BILL-02: chưa có danh sách đơn hàng toàn hệ thống hoặc đọc chi tiết đơn bất kỳ cho admin. Dùng payments/subscriptions/reconciliation theo API hiện tại.
+- BILL-02 đã xử lý: /admin/orders liệt kê/lọc/phân trang toàn bộ đơn; API chi tiết trả khách hàng, gói đã mua, giao dịch và kỳ gói. Chỉ JWT admin được truy cập.
 - BE-GAP BILL-03: chưa có API hoàn tiền ngân hàng, chiết khấu/mã giảm giá, đổi/hủy kỳ gói thủ công, prorate hay tự động trừ tiền định kỳ. Không dựng thao tác giả. Nút hủy đơn chỉ áp dụng đơn chưa thanh toán.
 - Tạo gói admin chưa có Idempotency-Key trong BE. Nếu mạng lỗi khi tạo phiên bản, cập nhật danh mục để kiểm tra trước khi tạo lại.
 
@@ -26,3 +26,13 @@ GET /api/v1/plans trên BE local trả payments_enabled=false, items=[]. Chưa b
 Kiểm chứng tự động dùng dữ liệu riêng: kiểm thử backend với DB tạm bao phủ webhook trùng, sai tiền/tài khoản, nối kỳ, thu hồi mở bán, hủy đơn, đối soát đến muộn và rollback cấp quyền. Playwright bao phủ mua/retry/poll PAID, tạo/mở bán phiên bản, hạn chuyển khoản, kỳ sử dụng, hủy đơn và đối soát trên desktop/mobile.
 
 Kết quả đợt này: production build và typecheck đạt; Node 18/18; Playwright account/admin 32/32 (desktop/mobile); backend test_billing.py 1/1 đạt trên DB tạm. Đã sửa lỗi revision của bảng không kích hoạt tải lại sau mutation. Ảnh kiểm tra nằm trong frontend/test-results/billing/.
+
+## Cập nhật quản trị đơn và mở bán
+
+Trang /admin/plans dùng thẻ gói, trạng thái đóng bán nêu rõ khách chưa thấy, nút mở bán hiển thị trên thẻ và sau tạo mới. Checklist ở trang gói/cấu hình tích hợp phân biệt bật SePay với công bố gói. /plans tải lại khi quay về tab hoặc bấm cập nhật.
+
+Thêm /admin/orders: lọc trạng thái, mã chuyển khoản, tài khoản, phiên bản gói; chi tiết giao dịch và kỳ được cấp. Liên kết từ danh mục gói/giao dịch/kỳ gói đến đơn. Không có thao tác hoàn tiền hoặc tự đánh dấu PAID.
+
+Kiểm tra runtime: SePay đã bật; gói “goi co ban” 100.000 VND tồn tại nhưng available=false, vì vậy danh mục công khai rỗng. Không tự thay trạng thái bán của gói vận hành. Backend đã restart, ready schema0014; GET admin/orders không có phiên trả401 qua Next.
+
+Kiểm chứng bản quản trị đơn/mở bán: production build và typecheck đạt, Node 18/18, Playwright account/admin 36/36 desktop/mobile; sau sửa tương phản nút chạy lại 6 kiểm thử gói/đơn đều đạt. Backend billing 1/1 gồm phân quyền admin, lọc đơn hết hạn theo thời gian, pagination, chi tiết payment/subscription và không lộ trường nội bộ. Không chuyển khoản hoặc tạo đơn vận hành để test.

@@ -6,8 +6,10 @@ import { ErrorNotice } from "../account/common";
 import { PageHeading, Panel } from "../ui";
 import { IntegrationsPage } from "./integrations";
 import { ConfigurationPage } from "./configuration";
-import { AdminPaymentsPage, AdminPlansPage, AuditPage, JobsPage, ReconciliationPage, TasksPage, UsersPage } from "./management";
+import { AdminPaymentsPage, AuditPage, JobsPage, ReconciliationPage, TasksPage, UsersPage } from "./management";
+import { AdminPlansPage, AdminOrdersPage } from "./billing";
 const pages = [
+    ["orders", "Đơn hàng", "Tra cứu đơn, khách hàng, giao dịch và kỳ gói."],
     ["users", "Người dùng", "Khóa, mở và tra cứu tài khoản."],
     ["plans", "Gói dịch vụ", "Tạo phiên bản gói và quản lý mở bán."],
     ["payments", "Giao dịch", "Theo dõi thanh toán đã ghi nhận."],
@@ -37,7 +39,7 @@ export function AdminConsole({ section }: {
     section: string;
 }) {
     const views: Record<string, React.ReactNode> = {
-        "": <Overview />, users: <UsersPage />, plans: <AdminPlansPage />, payments: <AdminPaymentsPage />,
+        "": <Overview />, users: <UsersPage />, plans: <AdminPlansPage />, orders: <AdminOrdersPage />, payments: <AdminPaymentsPage />,
         subscriptions: <AdminPaymentsPage subscription/>, reconciliation: <ReconciliationPage />,
         "config/integrations": <IntegrationsPage />, "config/operations": <ConfigurationPage key="operations"/>,
         "config/calendar": <ConfigurationPage key="calendar" calendar/>, audit: <AuditPage />, "scheduled-tasks": <TasksPage />, jobs: <JobsPage />,

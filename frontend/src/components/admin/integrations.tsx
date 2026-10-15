@@ -4,8 +4,9 @@ import { api, mutation } from "@/lib/api/client";
 import { stamp, type Integration } from "@/lib/api/contracts";
 import { Panel, PageHeading } from "../ui";
 import { Confirm, ErrorNotice, Field, Reason, ResourceState, useResource } from "../account/common";
+import { BillingReadiness } from "./billing";
 export function IntegrationsPage() {
-    return <><PageHeading title="Cấu hình tích hợp" description="Quản lý thông tin kết nối và trạng thái dịch vụ."/><div className="account-config-stack grid [gap:24px]"><IntegrationForm provider="sepay"/><IntegrationForm provider="vnstock"/></div></>;
+    return <><PageHeading title="Cấu hình tích hợp" description="Quản lý thông tin kết nối và trạng thái dịch vụ."/><BillingReadiness/><div className="account-config-stack grid [gap:24px]"><IntegrationForm provider="sepay"/><IntegrationForm provider="vnstock"/></div></>;
 }
 function IntegrationForm({ provider }: {
     provider: "sepay" | "vnstock";
@@ -36,6 +37,7 @@ function IntegrationForm({ provider }: {
             setMode("keep");
             setReview(null);
             setSaved(true);
+            window.dispatchEvent(new Event("quantik-billing-updated"));
             result.reload();
         }
         catch (err) {

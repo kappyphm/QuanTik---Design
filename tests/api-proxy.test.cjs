@@ -19,6 +19,9 @@ test('API boundary: rejects unsupported routes and cross-origin mutations before
   try {
     assert.equal(allowed('POST', 'webhooks/sepay'), false);
     assert.equal(allowed('GET', 'internal/metrics'), false);
+    assert.equal(allowed('GET', 'admin/orders'), true);
+    assert.equal(allowed('GET', 'admin/orders/123-test'), true);
+    assert.equal(allowed('POST', 'admin/orders/123-test/paid'), false);
     assert.equal(allowed('GET', '../admin/users'), false);
     assert.equal(allowed('POST', 'admin/users/a/delete'), false);
     assert.equal(allowed('POST', 'admin/configs/OPERATIONS/' + 'a'.repeat(64) + '/activate'), true);

@@ -17,7 +17,7 @@ async function fixture(page: Page, options: { user?: boolean; admin?: boolean } 
     if (path === "auth/refresh" || path === "admin/auth/refresh") return json(state[path.startsWith("admin") ? "admin" : "user"] ? token : { code: "UNAUTHENTICATED" }, state[path.startsWith("admin") ? "admin" : "user"] ? 200 : 401, path.startsWith("admin") && state.admin ? gate : {});
     if (path === "admin/auth/login") { state.admin = request.postDataJSON().password === "fixture-password"; return json(state.admin ? token : { code: "UNAUTHENTICATED" }, state.admin ? 200 : 401, state.admin ? gate : {}); }
     if (path.endsWith("auth/logout")) { state[path.startsWith("admin") ? "admin" : "user"] = false; return route.fulfill({ status: 204, headers: path.startsWith("admin") ? { "set-cookie": "quantik_admin_gate=; Path=/admin; HttpOnly; SameSite=Strict; Max-Age=0" } : {} }); }
-    if (path === "plans") return json({ payments_enabled: true, items: [plan] });
+    if (path === "plans") return json({ payments_enabled: true, items: state.plans.filter(p => p.available) });
     if (path === "me") return json({ id: accountId, role: "user", display_name: "Người dùng QuanTik", email: "customer@example.test" });
     if (path === "admin/me") return json({ id: "fixture-admin", role: "admin", username: "operator" });
     if (path === "me/entitlements") return json({ active: state.paid, remaining: state.paid ? 25 : 0, active_limit: state.paid ? 2 : 0, valid_until: null, cancel_after_compute_consumes: true });
@@ -50,7 +50,7 @@ async function fixture(page: Page, options: { user?: boolean; admin?: boolean } 
       if (path.endsWith("/versions")) return json({ id, kind: "OPERATIONS", payload: request.postDataJSON().payload, created_at: 1792000000 }, 201);
       return json({ active_version: previous, items: [{ id, kind: "OPERATIONS", payload, created_at: 1792000000 }], next_cursor: null, runtime_gates: { scheduled_provider_enabled: false } });
     }
-    if (["admin/jobs", "admin/subscriptions", "admin/payments", "admin/reconciliation", "admin/audit", "admin/scheduled-tasks"].includes(path)) return json({ items: [], next_cursor: null });
+    if (["admin/orders", "admin/jobs", "admin/subscriptions", "admin/payments", "admin/reconciliation", "admin/audit", "admin/scheduled-tasks"].includes(path)) return json({ items: [], next_cursor: null });
     unknown.push(`${method} ${path}`); return json({ code: "UNHANDLED_FIXTURE" }, 500);
   });
   function order() { return { id: orderId, plan_id: planId, amount_vnd: 150000, reference: "QTKFIXTURE", status: state.paid ? "PAID" : "PENDING", created_at: Math.floor(Date.now() / 1000), expires_at: Math.floor(Date.now() / 1000) + 1800, paid_at: state.paid ? Math.floor(Date.now() / 1000) : null, bank: "TPBANK", account_number: "000123456", account_name: "QUANTIK", transfer_content: "QTKFIXTURE", qr_url: null }; }
@@ -147,7 +147,7 @@ test("Customer không có phiên admin: chặn màn quản trị; mobile không 
 test("Mở các màn mới với API fixture, giữ bố cục và chụp preview cấu hình", async ({ page }) => {
   const { unknown } = await fixture(page, { user: true, admin: true });
   const errors: string[] = []; page.on("pageerror", error => errors.push(error.message));
-  for (const route of ["/admin", "/admin/plans", "/admin/payments", "/admin/subscriptions", "/admin/reconciliation", "/admin/jobs", "/admin/audit", "/admin/scheduled-tasks", "/admin/config/calendar", "/account/orders", "/account/payments"]) {
+  for (const route of ["/admin", "/admin/orders", "/admin/plans", "/admin/payments", "/admin/subscriptions", "/admin/reconciliation", "/admin/jobs", "/admin/audit", "/admin/scheduled-tasks", "/admin/config/calendar", "/account/orders", "/account/payments"]) {
     await page.goto(route);
     await expect(page.locator("main h1")).toBeVisible();
     await expect(page.getByText("Đang kiểm tra phiên đăng nhập…", { exact: true })).toHaveCount(0);
@@ -232,7 +232,7 @@ test("Quản lý gói: sao chép phiên bản, sửa quyền lợi, tạo đóng
   await expect(page.getByRole("status").filter({ hasText: "Đã tạo phiên bản gói mới" })).toBeVisible();
   expect(state.plans[0]).toEqual(plan);
   expect(state.plans[1]).toMatchObject({ name: "Gói nâng cấp", price_vnd: 250000, available: false });
-  const row = page.getByRole("row").filter({ hasText: "Gói nâng cấp" });
+  const row = page.locator("article").filter({ has: page.getByRole("heading", { name: "Gói nâng cấp", exact: true }) });
   await expect(row).toContainText("Đang đóng bán");
   let body: unknown;
   await page.route("**/api/v1/admin/plans/new-plan/availability", route => {
@@ -300,4 +300,46 @@ test("Đối soát: review số tiền, đơn và lý do trước khi áp dụng
   await expect(page.getByRole("status").filter({ hasText: "Đã áp dụng giao dịch" })).toBeVisible();
   expect(body).toEqual({ order_id: orderId, reason: "Đã đối chiếu giao dịch đến muộn với ngân hàng" });
   await expect(page.getByRole("button", { name: "Đối soát", exact: true })).toHaveCount(0);
+});
+
+test("Gói đóng bán: admin thấy bước thiếu, mở bán xong khách thấy gói từ API", async ({ page }) => {
+  const { state } = await fixture(page, { admin: true, user: true });
+  state.plans[0] = { ...plan, available: false };
+  await page.route("**/api/v1/admin/plans/" + planId + "/availability", route => {
+    state.plans[0].available = route.request().postDataJSON().available;
+    return route.fulfill({ contentType: "application/json", body: JSON.stringify(state.plans[0]) });
+  });
+  await page.goto("/plans");
+  await expect(page.getByRole("heading", { name: "Gói dịch vụ đang được cập nhật" })).toBeVisible();
+  await page.goto("/admin/plans");
+  await expect(page.getByLabel("Tình trạng mở bán")).toContainText("0 gói đang mở bán");
+  const card = page.locator("article").filter({ has: page.getByRole("heading", { name: plan.name, exact: true }) });
+  await expect(card).toContainText("khách chưa thấy");
+  await card.getByRole("button", { name: "Mở bán", exact: true }).click();
+  await page.getByRole("button", { name: "Xác nhận", exact: true }).click();
+  await expect(page.getByLabel("Tình trạng mở bán")).toContainText("1 gói đang mở bán");
+  await page.goto("/plans");
+  await expect(page.getByRole("heading", { name: plan.name, exact: true })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Chọn gói", exact: true })).toBeEnabled();
+});
+
+test("Đơn admin: lọc, xem khách/giao dịch/kỳ gói và mở từ liên kết trực tiếp", async ({ page }) => {
+  const { unknown } = await fixture(page, { admin: true }); let status = "";
+  const record = { id: orderId, reference: "QTKADMIN", status: "PAID", amount_vnd: 150000, created_at: 1792000000, expires_at: 1792001800, paid_at: 1792000010, bank: "TPBANK", account_number: "000123456", account_name: "QUANTIK", transfer_content: "QTKADMIN", qr_url: null, account_id: accountId, display_name: "Khách mua gói", email: "buyer@example.test", plan_name: plan.name };
+  await page.route("**/api/v1/admin/orders?*", route => {
+    status = new URL(route.request().url()).searchParams.get("status") || "";
+    return route.fulfill({ contentType: "application/json", body: JSON.stringify({ items: [record], next_cursor: null }) });
+  });
+  await page.route("**/api/v1/admin/orders/" + orderId, route => route.fulfill({ contentType: "application/json", body: JSON.stringify({ ...record, customer: { id: accountId, display_name: record.display_name, email: record.email }, plan, payments: [{ id: "bank-123", status: "APPLIED", amount_vnd: 150000, received_at: 1792000010 }], subscription: { id: "period-123", bucket_id: "bucket-123", valid_from: 1792000010, valid_until: 1794592010 } }) }));
+  await page.goto("/admin/orders");
+  await page.getByLabel("Trạng thái đơn", { exact: true }).selectOption("PAID");
+  await page.getByRole("button", { name: "Lọc đơn hàng" }).click();
+  await expect(page.getByRole("row").filter({ hasText: "QTKADMIN" })).toContainText("buyer@example.test");
+  await page.getByRole("button", { name: "Xem chi tiết", exact: true }).click();
+  const detail = page.locator("section.panel").filter({ has: page.getByRole("heading", { name: "Chi tiết đơn hàng", exact: true }) });
+  await expect(detail).toContainText("bank-123"); await expect(detail).toContainText("period-123");
+  expect(status).toBe("PAID"); expect(unknown).toEqual([]);
+  await page.screenshot({ path: "test-results/billing/" + test.info().project.name + "-admin-orders.png", fullPage: true });
+  await page.goto("/admin/orders?order_id=" + orderId);
+  await expect(page.getByRole("heading", { name: "Chi tiết đơn hàng", exact: true })).toBeVisible();
 });
