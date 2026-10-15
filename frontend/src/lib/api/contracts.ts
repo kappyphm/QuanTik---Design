@@ -11,3 +11,11 @@ export type ConfigVersion = { id: string; kind: string; payload: Record<string, 
 export type ConfigPage = Page<ConfigVersion> & { active_version: string | null; runtime_gates: { scheduled_provider_enabled?: boolean } };
 export const money = (value: number) => new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND", maximumFractionDigits: 0 }).format(value);
 export const stamp = (value: number | string | null | undefined) => value == null ? "—" : new Intl.DateTimeFormat("vi-VN", { timeZone: "Asia/Ho_Chi_Minh", dateStyle: "short", timeStyle: "short" }).format(new Date(typeof value === "number" ? value * 1000 : value));
+
+export function paymentStatus(value: unknown): string {
+  return ({ APPLIED: "Đã xác nhận", RECONCILIATION: "Cần đối soát" } as Record<string, string>)[String(value)] || "Đang xử lý";
+}
+export function paymentReason(value: unknown): string {
+  if (!value) return "—";
+  return ({ AMOUNT_MISMATCH: "Số tiền không khớp đơn", WRONG_BANK_ACCOUNT: "Tài khoản nhận tiền không khớp", OUTBOUND_TRANSFER: "Giao dịch chuyển tiền đi", REFERENCE_MISSING_OR_AMBIGUOUS: "Thiếu hoặc không xác định được mã đơn", ORDER_NOT_FOUND: "Không tìm thấy đơn", ORDER_CLOSED_OR_LATE: "Giao dịch đến sau hạn hoặc đơn đã đóng", ORDER_CANCELLED: "Đơn đã hủy", ORDER_ALREADY_PAID: "Đơn đã được thanh toán", ACCOUNT_DISABLED: "Tài khoản đang bị khóa", FUTURE_TRANSACTION: "Thời gian giao dịch cần kiểm tra" } as Record<string, string>)[String(value)] || "Giao dịch cần kiểm tra thêm";
+}

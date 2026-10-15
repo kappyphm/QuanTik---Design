@@ -19,8 +19,12 @@ function broadcast() {
     if (!channel && typeof BroadcastChannel !== "undefined") {
         channel = new BroadcastChannel("quantik-session");
         channel.onmessage = event => {
-            if (event.data === "user" || event.data === "admin")
-                forget(event.data);
+            const message = event.data;
+            if (message === "user" || message === "admin") forget(message);
+            else if ((message?.role === "user" || message?.role === "admin") && message.action === "login") {
+                forget(message.role);
+                void loadSession(message.role);
+            }
         };
     }
     return channel;
@@ -64,7 +68,7 @@ export async function adminLogin(username: string, password: string) {
     epochs.admin++;
     set("admin", { state: "idle" });
     await loadSession("admin");
-    broadcast()?.postMessage("admin");
+    broadcast()?.postMessage({ role: "admin", action: "login" });
     if (sessions.admin.state !== "ready")
         throw sessions.admin.error || new Error("Không xác nhận được phiên quản trị.");
 }

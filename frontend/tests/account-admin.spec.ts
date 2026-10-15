@@ -36,6 +36,7 @@ async function fixture(page: Page, options: { user?: boolean; admin?: boolean } 
       return json({ provider: "sepay", revision: state.revision, source: "ADMIN_DATABASE", encryption_ready: true, updated_at: null, bank_code: "TPBANK", account_number: "000123456", account_name: "QUANTIK", transfer_prefix: "", requires_transfer_prefix: false, payments_enabled: false, webhook_api_key_configured: true, configuration_complete: true, missing_fields: [] });
     }
     if (path === "admin/integrations/vnstock") return json({ provider: "vnstock", revision: 0, source: "ENVIRONMENT", encryption_ready: true, updated_at: null, api_key_configured: false, scheduled_provider_enabled: false });
+    if (path === `admin/orders/${orderId}`) return json({ ...order(), customer: { id: accountId, display_name: "Người mua kiểm thử", email: "buyer@example.test" }, plan, payments: [], subscription: null });
     if (path === "admin/users") return json({ items: [{ id: accountId, enabled: state.enabled }], next_cursor: null });
     if (path === `admin/users/${accountId}/state`) { state.userChanges.push(request.postDataJSON()); state.enabled = request.postDataJSON().enabled; return json({ id: accountId, enabled: state.enabled }); }
     if (path === "admin/plans") {
@@ -60,10 +61,10 @@ async function fixture(page: Page, options: { user?: boolean; admin?: boolean } 
 test("Mua gói: retry giữ Idempotency-Key, mở lại đơn và nhận thanh toán từ BE", async ({ page }) => {
   const { state, unknown } = await fixture(page, { user: true }); state.failOrder = true;
   await page.goto("/plans");
-  await page.getByRole("button", { name: "Chọn gói", exact: true }).click();
-  await page.getByRole("button", { name: "Xác nhận", exact: true }).click();
+  await page.getByRole("button", { name: "Tiếp tục thanh toán", exact: true }).click();
+  await expect(page.getByRole("heading", { name: "Xác nhận tạo đơn", exact: true })).toHaveCount(0);
   await expect(page.locator(".account-notice[role=alert]")).toContainText("Chưa kết nối");
-  await page.getByRole("button", { name: "Xác nhận", exact: true }).click();
+  await page.getByRole("button", { name: "Tiếp tục thanh toán", exact: true }).click();
   await expect(page).toHaveURL(new RegExp(`/orders/${orderId}$`));
   await expect(page.getByText("000123456", { exact: false }).first()).toBeVisible();
   expect(state.keys).toHaveLength(2); expect(state.keys[0]).toBeTruthy(); expect(state.keys[0]).toBe(state.keys[1]);
@@ -321,7 +322,7 @@ test("Gói đóng bán: admin thấy bước thiếu, mở bán xong khách th�
   await expect(page.getByLabel("Tình trạng mở bán")).toContainText("1 gói đang mở bán");
   await page.goto("/plans");
   await expect(page.getByRole("heading", { name: plan.name, exact: true })).toBeVisible();
-  await expect(page.getByRole("button", { name: "Chọn gói", exact: true })).toBeEnabled();
+  await expect(page.getByRole("button", { name: "Tiếp tục thanh toán", exact: true })).toBeEnabled();
 });
 
 test("Đơn admin: lọc, xem khách/giao dịch/kỳ gói và mở từ liên kết trực tiếp", async ({ page }) => {
@@ -354,4 +355,73 @@ test("Danh mục công khai vẫn hiện gói khi refresh phiên khách trả 40
   await expect(page.getByRole("link", { name: "Đăng nhập để mua", exact: true })).toBeVisible();
   await expect(page.getByRole("alert").filter({ hasText: "Phiên đăng nhập" })).toHaveCount(0);
   expect(publicRequests).toBeGreaterThan(0);
+});
+
+test("Phiên admin: cookie bảo vệ trang hết hạn được phục hồi, không lặp login", async ({ page }) => {
+  await fixture(page, { admin: true }); await page.context().clearCookies();
+  let refreshes = 0;
+  await page.route("**/api/v1/admin/auth/refresh", route => {
+    refreshes++;
+    return route.fulfill({ contentType: "application/json", headers: refreshes > 1 ? { "set-cookie": "quantik_admin_gate=fixture-access-only; Path=/admin; HttpOnly; SameSite=Strict; Max-Age=900" } : {}, body: JSON.stringify(token) });
+  });
+  await page.goto("/admin/plans");
+  await expect(page.getByRole("heading", { name: "Gói dịch vụ", exact: true })).toBeVisible();
+  expect(refreshes).toBe(2);
+});
+
+test("Gói: chưa kiểm tra xong phiên thì không gợi ý đăng nhập sai", async ({ page }) => {
+  await fixture(page);
+  let release!: () => void;
+  const pending = new Promise<void>(resolve => { release = resolve; });
+  await page.route("**/api/v1/auth/refresh", async route => {
+    await pending; return route.fulfill({ status: 401, contentType: "application/json", body: JSON.stringify({ code: "UNAUTHENTICATED" }) });
+  });
+  await page.goto("/plans");
+  await expect(page.getByRole("button", { name: "Đang kiểm tra đăng nhập…", exact: true })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Đăng nhập để mua" })).toHaveCount(0);
+  release();
+  await expect(page.getByRole("link", { name: "Đăng nhập để mua" })).toBeVisible();
+});
+
+test("Thanh toán mất kết nối: ẩn QR/thông tin cũ, tự phục hồi và nhận PAID", async ({ page }) => {
+  await fixture(page, { user: true }); await page.clock.install(); let reads = 0;
+  await page.route("**/api/v1/orders/" + orderId, route => {
+    reads++;
+    if (reads === 2) return route.fulfill({ status: 502, contentType: "application/json", body: JSON.stringify({ code: "BACKEND_UNAVAILABLE" }) });
+    return route.fulfill({ contentType: "application/json", body: JSON.stringify({ id: orderId, reference: "QTKRECONNECT", status: reads > 2 ? "PAID" : "PENDING", amount_vnd: 150000, expires_at: Math.floor(Date.now()/1000)+1800, created_at: 1, bank: "TPBANK", account_number: "000123456", account_name: "QUANTIK", transfer_content: "QTKRECONNECT", qr_url: null }) });
+  });
+  await page.goto("/orders/" + orderId);
+  await expect(page.getByText("000123456", { exact: false })).toBeVisible();
+  await page.clock.fastForward(6000);
+  await expect(page.getByText(/Tạm ẩn thông tin chuyển khoản/)).toBeVisible();
+  await expect(page.getByRole("button", { name: "Sao chép", exact: true })).toHaveCount(0);
+  await page.clock.fastForward(21000);
+  await expect(page.getByText("Đã thanh toán", { exact: true })).toBeVisible();
+});
+
+test("Đối soát: HTTP200 chưa APPLIED không được báo thành công", async ({ page }) => {
+  await fixture(page, { admin: true });
+  await page.route("**/api/v1/admin/reconciliation?*", route => route.fulfill({ contentType: "application/json", body: JSON.stringify({ items: [{ id: "pending-review", amount_vnd: 150000, reason: "ACCOUNT_DISABLED" }], next_cursor: null }) }));
+  await page.route("**/api/v1/admin/reconciliation/pending-review/apply", route => route.fulfill({ contentType: "application/json", body: JSON.stringify({ status: "RECONCILIATION" }) }));
+  await page.goto("/admin/reconciliation");
+  await page.getByRole("button", { name: "Đối soát", exact: true }).click();
+  await page.getByLabel("Mã đơn hàng", { exact: true }).fill(orderId);
+  await page.getByLabel("Lý do (10–500 ký tự)").fill("Kiểm tra giao dịch với tài khoản bị khóa");
+  await page.getByRole("button", { name: "Xem lại đối soát" }).click();
+  await expect(page.getByText(/Người mua kiểm thử/)).toBeVisible();
+  await page.getByRole("button", { name: "Xác nhận", exact: true }).click();
+  await expect(page.getByRole("alert").filter({ hasText: "Giao dịch chưa được áp dụng" })).toBeVisible();
+  await expect(page.getByRole("status").filter({ hasText: "Đã áp dụng giao dịch" })).toHaveCount(0);
+});
+
+test("Admin đăng nhập ở tab khác: cập nhật phiên thay vì đẩy tab hiện tại ra login", async ({ page }) => {
+  await fixture(page, { admin: true }); let meReads = 0;
+  page.on("request", request => { if (new URL(request.url()).pathname === "/api/v1/admin/me") meReads++; });
+  await page.goto("/admin/plans"); await expect(page.getByRole("heading", { name: "Gói dịch vụ", exact: true })).toBeVisible();
+  const before = meReads;
+  const other = await page.context().newPage(); await fixture(other); await other.goto("/plans");
+  await other.evaluate(() => { const channel = new BroadcastChannel("quantik-session"); channel.postMessage({ role: "admin", action: "login" }); channel.close(); });
+  await expect.poll(() => meReads).toBeGreaterThan(before);
+  await expect(page.getByRole("heading", { name: "Gói dịch vụ", exact: true })).toBeVisible();
+  await other.close();
 });

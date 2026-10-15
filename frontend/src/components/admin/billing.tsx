@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { api, mutation } from "@/lib/api/client";
-import { money, stamp, type Page, type Plan, type Order } from "@/lib/api/contracts";
+import { money, stamp, paymentStatus, paymentReason, type Page, type Plan, type Order } from "@/lib/api/contracts";
 import { PageHeading, Panel } from "../ui";
 import { Confirm, ErrorNotice, Field, PagedTable, ResourceState, DataTable, useResource, type Row } from "../account/common";
 import { orderStatus } from "../account/customer";
@@ -103,7 +103,7 @@ export function AdminPlansPage() {
     </>;
 }
 
-type AdminOrder = Order & { customer: { id: string; display_name: string | null; email: string | null }; plan: Plan; payments: Row[]; subscription: { id: string; bucket_id: string; valid_from: number; valid_until: number } | null };
+export type AdminOrder = Order & { customer: { id: string; display_name: string | null; email: string | null }; plan: Plan; payments: Row[]; subscription: { id: string; bucket_id: string; valid_from: number; valid_until: number } | null };
 export function AdminOrdersPage() {
     const initial = useSearchParams();
     const [draft, setDraft] = useState({ status: "", reference: "", account_id: "", plan_id: initial.get("plan_id") || "" });
@@ -140,7 +140,7 @@ function OrderInspection({ id, close }: { id: string; close: () => void }) {
           <div><dt className="text-[var(--muted)]">Thời gian</dt><dd>Tạo: {stamp(order.created_at)}<br/>Hạn: {stamp(order.expires_at)}<br/>Thanh toán: {stamp(order.paid_at)}</dd></div>
         </dl>
         <div><h3 className="mb-3 font-semibold">Kỳ gói được cấp</h3>{order.subscription ? <p>{stamp(order.subscription.valid_from)} → {stamp(order.subscription.valid_until)}<br/><span className="break-all text-xs">Mã kỳ: {order.subscription.id}</span></p> : <p>Đơn chưa được cấp kỳ gói.</p>}</div>
-        <div><h3 className="mb-3 font-semibold">Giao dịch gắn với đơn</h3><DataTable items={order.payments} columns={[{ key: "id", label: "Mã giao dịch" }, { key: "amount_vnd", label: "Số tiền", render: v => money(Number(v)) }, { key: "status", label: "Trạng thái" }, { key: "reason", label: "Lý do" }, { key: "received_at", label: "Ghi nhận", render: v => stamp(Number(v)) }]}/></div>
+        <div><h3 className="mb-3 font-semibold">Giao dịch gắn với đơn</h3><DataTable items={order.payments} columns={[{ key: "id", label: "Mã giao dịch" }, { key: "amount_vnd", label: "Số tiền", render: v => money(Number(v)) }, { key: "status", label: "Trạng thái", render: paymentStatus }, { key: "reason", label: "Lý do", render: paymentReason }, { key: "received_at", label: "Ghi nhận", render: v => stamp(Number(v)) }]}/></div>
         <div className="flex flex-wrap gap-3"><button className={button} onClick={result.reload}>Cập nhật chi tiết</button><Link className={button} href="/admin/reconciliation">Mở đối soát giao dịch</Link></div>
       </>}
     </div></Panel>;
