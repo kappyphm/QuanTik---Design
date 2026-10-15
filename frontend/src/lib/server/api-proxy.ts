@@ -7,7 +7,7 @@ const routes: [string, RegExp][] = [
   ["POST", /^auth\/(refresh|logout)$/],
   ["POST", /^admin\/auth\/(login|refresh|logout)$/],
   ["GET", /^admin\/(me|users|jobs|payments|subscriptions|orders|orders\/[a-zA-Z0-9-]+|plans|reconciliation|audit|scheduled-tasks|operations\/health)$/],
-  ["POST", /^admin\/(plans|plans\/[a-zA-Z0-9-]+\/availability|users\/[a-zA-Z0-9-]+\/state|jobs\/[a-zA-Z0-9-]+\/quota-refund|reconciliation\/[a-zA-Z0-9-]+\/apply)$/],
+  ["POST", /^admin\/(plans|plans\/[a-zA-Z0-9-]+\/availability|users\/[a-zA-Z0-9-]+\/state|reconciliation\/[a-zA-Z0-9-]+\/apply)$/],
   ["GET", /^admin\/integrations\/(sepay|vnstock)$/],
   ["PATCH", /^admin\/integrations\/(sepay|vnstock)$/],
   ["GET", /^admin\/configs\/(OPERATIONS|TRADING_CALENDAR)$/],

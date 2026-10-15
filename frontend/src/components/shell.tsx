@@ -6,6 +6,7 @@ import { useEffect, useRef, useState, type ReactNode } from "react";
 import { ArrowUpRight, ChevronRight, LayoutDashboard, Menu, Moon, Search, SlidersHorizontal, Sparkles, Sun, X, } from "lucide-react";
 import { stocks, demoEnabled } from "@/lib/mock-data";
 import { usePreferences } from "./preferences";
+import { SessionMenu } from "./account/session-menu";
 const navigation = [
     { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
     { href: "/screener", label: "Quét toàn sàn", icon: SlidersHorizontal },
@@ -161,7 +162,7 @@ export function Shell({ children }: {
           </form>
           <div className="topbar-actions flex items-center [gap:14px] [flex-shrink:0] max-[700px]:[margin-left:auto]">
             <span className="mock-badge [font-size:14px] [color:var(--muted)] whitespace-nowrap flex items-center [gap:8px] [&:before]:[content:''] [&:before]:[width:6px] [&:before]:[height:6px] [&:before]:[border-radius:50%] [&:before]:[background:var(--accent)] max-[700px]:[font-size:14px]">{isAdmin ? "Quản trị" : ["/dashboard", "/screener", "/analysis", "/charts"].includes(pathname) ? demoEnabled ? "Dữ liệu mô phỏng" : "Vỏ giao diện" : "Tài khoản"}</span>
-            <button className="icon-button inline-flex items-center justify-center [width:40px] [height:40px] [flex-shrink:0] [border-width:1px] [border-style:solid] [border-color:var(--border)] [border-radius:4px] [background:transparent] [color:var(--muted)] [transition:background_0.18s,_color_0.18s] [&:hover]:[background:var(--raised)] [&:hover]:[color:var(--text)]" onClick={toggleTheme} aria-label={theme === "dark" ? "Chuyển chế độ sáng" : "Chuyển chế độ tối"}>
+            <SessionMenu role={isAdmin ? "admin" : "user"}/><button className="icon-button inline-flex items-center justify-center [width:40px] [height:40px] [flex-shrink:0] [border-width:1px] [border-style:solid] [border-color:var(--border)] [border-radius:4px] [background:transparent] [color:var(--muted)] [transition:background_0.18s,_color_0.18s] [&:hover]:[background:var(--raised)] [&:hover]:[color:var(--text)]" onClick={toggleTheme} aria-label={theme === "dark" ? "Chuyển chế độ sáng" : "Chuyển chế độ tối"}>
               {theme === "dark" ? <Sun size={20}/> : <Moon size={20}/>}
             </button>
           </div>

@@ -3,7 +3,7 @@ import { test, expect, type Page, type Route } from "@playwright/test";
 const accountId = "11111111-1111-4111-8111-111111111111";
 const planId = "22222222-2222-4222-8222-222222222222";
 const orderId = "33333333-3333-4333-8333-333333333333";
-const plan = { id: planId, name: "Gói kiểm thử", price_vnd: 150000, duration_days: 30, analysis_quota: 25, active_limit: 2, available: true, currency: "VND", features: { screening: true, analysis: true } };
+const plan = { id: planId, name: "Gói kiểm thử", price_vnd: 150000, duration_days: 30, analysis_quota: 25, daily_request_limit: 25, replaces_plan_id: null, active_limit: 2, available: true, currency: "VND", features: { screening: true, analysis: true } };
 const token = { access_token: "fixture-access-only", expires_in: 900 };
 async function fixture(page: Page, options: { user?: boolean; admin?: boolean } = {}) {
   const origin = String(test.info().project.use.baseURL || "http://127.0.0.1:3107");
@@ -20,7 +20,7 @@ async function fixture(page: Page, options: { user?: boolean; admin?: boolean } 
     if (path === "plans") return json({ payments_enabled: true, items: state.plans.filter(p => p.available) });
     if (path === "me") return json({ id: accountId, role: "user", display_name: "Người dùng QuanTik", email: "customer@example.test" });
     if (path === "admin/me") return json({ id: "fixture-admin", role: "admin", username: "operator" });
-    if (path === "me/entitlements") return json({ active: state.paid, remaining: state.paid ? 25 : 0, active_limit: state.paid ? 2 : 0, valid_until: null, cancel_after_compute_consumes: true });
+    if (path === "me/entitlements") return json({ active: state.paid, remaining: state.paid ? 25 : 0, active_limit: state.paid ? 2 : 0, valid_until: null, daily_limit: 25, created_today: 0, cancel_after_compute_consumes: false });
     if (path === "me/usage") return json({ buckets: [] });
     if (path === "subscription") return json({ items: [], next_cursor: null });
     if (path === "orders" && method === "POST") {
@@ -40,7 +40,7 @@ async function fixture(page: Page, options: { user?: boolean; admin?: boolean } 
     if (path === "admin/users") return json({ items: [{ id: accountId, enabled: state.enabled }], next_cursor: null });
     if (path === `admin/users/${accountId}/state`) { state.userChanges.push(request.postDataJSON()); state.enabled = request.postDataJSON().enabled; return json({ id: accountId, enabled: state.enabled }); }
     if (path === "admin/plans") {
-      if (method === "POST") { const created = { ...request.postDataJSON(), id: "new-plan", available: false, currency: "VND" }; state.plans.push(created); return json(created, 201); }
+      if (method === "POST") { const created = { ...request.postDataJSON(), analysis_quota: request.postDataJSON().daily_request_limit, id: "new-plan", available: false, currency: "VND" }; state.plans.push(created); return json(created, 201); }
       return json({ items: state.plans, next_cursor: null });
     }
     if (path === `admin/plans/${planId}/availability`) return json({ ...plan, available: request.postDataJSON().available });
@@ -54,7 +54,7 @@ async function fixture(page: Page, options: { user?: boolean; admin?: boolean } 
     if (["admin/orders", "admin/jobs", "admin/subscriptions", "admin/payments", "admin/reconciliation", "admin/audit", "admin/scheduled-tasks"].includes(path)) return json({ items: [], next_cursor: null });
     unknown.push(`${method} ${path}`); return json({ code: "UNHANDLED_FIXTURE" }, 500);
   });
-  function order() { return { id: orderId, plan_id: planId, amount_vnd: 150000, reference: "QTKFIXTURE", status: state.paid ? "PAID" : "PENDING", created_at: Math.floor(Date.now() / 1000), expires_at: Math.floor(Date.now() / 1000) + 1800, paid_at: state.paid ? Math.floor(Date.now() / 1000) : null, bank: "TPBANK", account_number: "000123456", account_name: "QUANTIK", transfer_content: "QTKFIXTURE", qr_url: null }; }
+  function order() { return { plan, id: orderId, plan_id: planId, amount_vnd: 150000, reference: "QTKFIXTURE", status: state.paid ? "PAID" : "PENDING", created_at: Math.floor(Date.now() / 1000), expires_at: Math.floor(Date.now() / 1000) + 1800, paid_at: state.paid ? Math.floor(Date.now() / 1000) : null, bank: "TPBANK", account_number: "000123456", account_name: "QUANTIK", transfer_content: "QTKFIXTURE", qr_url: null }; }
   return { state, unknown };
 }
 
@@ -74,7 +74,7 @@ test("Mua gói: retry giữ Idempotency-Key, mở lại đơn và nhận thanh t
   await expect(page.getByText("Đã thanh toán", { exact: true })).toBeVisible({ timeout: 12000 });
   await expect(page.getByRole("button", { name: "Hủy đơn", exact: true })).toHaveCount(0);
   expect(await page.evaluate(() => Object.values(localStorage).join(" "))).not.toContain("fixture-access-only");
-  await expect(page.getByText(/Gói hiện tại còn 25 lượt/)).toBeVisible();
+  await expect(page.getByText(/Hôm nay còn 25 yêu cầu/)).toBeVisible();
   await page.screenshot({ path: `test-results/billing/${test.info().project.name}-paid.png`, fullPage: true });
   expect(unknown).toEqual([]);
 });
@@ -140,7 +140,7 @@ test("Customer không có phiên admin: chặn màn quản trị; mobile không 
   await expect(page.getByLabel("Tên chủ tài khoản", { exact: true })).toHaveCount(0);
   await page.goto("/account");
   await expect(page.getByRole("heading", { name: "Người dùng QuanTik", exact: true })).toBeVisible();
-  await expect(page.getByText("customer@example.test", { exact: true })).toBeVisible();
+  await expect(page.locator("#workspace").getByText("customer@example.test", { exact: true })).toBeVisible();
   await expect(page.getByRole("link", { name: "Quản trị", exact: true })).toHaveCount(0);
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth + 1)).toBeTruthy();
   expect(unknown).toEqual([]);
@@ -244,7 +244,7 @@ test("Quản lý gói: sao chép phiên bản, sửa quyền lợi, tạo đóng
   await row.getByRole("button", { name: "Mở bán", exact: true }).click();
   await page.getByRole("button", { name: "Xác nhận", exact: true }).click();
   await expect(row).toContainText("Đang mở bán");
-  expect(body).toEqual({ available: true }); expect(unknown).toEqual([]);
+  expect(body).toEqual({ available: true, replace_existing: true }); expect(unknown).toEqual([]);
   await page.screenshot({ path: `test-results/billing/${test.info().project.name}-plans.png`, fullPage: true });
 });
 
@@ -260,12 +260,13 @@ test("Đơn hết thời gian: ngừng hiển thị thông tin chuyển khoản 
 test("Tài khoản: phân biệt kỳ hiện tại, sắp tới và đã kết thúc", async ({ page }) => {
   await fixture(page, { user: true }); const now = Math.floor(Date.now() / 1000);
   await page.route("**/api/v1/subscription*", route => route.fulfill({ contentType: "application/json", body: JSON.stringify({ items: [
-    { id: "past", plan_id: "Gói cũ", order_id: orderId, valid_from: now - 300, valid_until: now - 200 },
-    { id: "current", plan_id: "Gói hiện tại", order_id: orderId, valid_from: now - 100, valid_until: now + 100 },
-    { id: "next", plan_id: "Gói tiếp theo", order_id: orderId, valid_from: now + 100, valid_until: now + 200 }
+    { id: "past", plan_id: "Gói cũ", plan: { ...plan, name: "Gói cũ" }, order_id: orderId, valid_from: now - 300, valid_until: now - 200 },
+    { id: "current", plan_id: "Gói hiện tại", plan: { ...plan, name: "Gói hiện tại" }, order_id: orderId, valid_from: now - 100, valid_until: now + 100 },
+    { id: "next", plan_id: "Gói tiếp theo", plan: { ...plan, name: "Gói tiếp theo" }, order_id: orderId, valid_from: now + 100, valid_until: now + 200 }
   ], next_cursor: null }) }));
   await page.goto("/account");
   const panel = page.locator("section.panel").filter({ has: page.getByRole("heading", { name: "Các kỳ gói", exact: true }) });
+  await panel.getByText("Xem các kỳ đã mua", { exact: true }).click();
   await expect(panel.getByRole("row").filter({ hasText: "Gói cũ" })).toContainText("Đã kết thúc");
   await expect(panel.getByRole("row").filter({ hasText: "Gói hiện tại" })).toContainText("Đang hiệu lực");
   await expect(panel.getByRole("row").filter({ hasText: "Gói tiếp theo" })).toContainText("Sắp tới");
@@ -424,4 +425,86 @@ test("Admin đăng nhập ở tab khác: cập nhật phiên thay vì đẩy tab
   await expect.poll(() => meReads).toBeGreaterThan(before);
   await expect(page.getByRole("heading", { name: "Gói dịch vụ", exact: true })).toBeVisible();
   await other.close();
+});
+
+test("Gói tháng hiển thị giới hạn ngày và admin không có hủy/hoàn lượt", async ({ page }) => {
+  await fixture(page, { admin: true, user: true });
+  await page.goto("/plans");
+  await expect(page.getByText("Yêu cầu mỗi ngày", { exact: true })).toBeVisible();
+  await expect(page.getByText(/Hạn mức yêu cầu đặt lại lúc 00:00/)).toBeVisible();
+  await page.goto("/admin/jobs");
+  await expect(page.getByRole("button", { name: /hoàn lượt|hủy yêu cầu/i })).toHaveCount(0);
+  await page.locator("header details summary").click();
+  await page.getByRole("button", { name: "Đăng xuất", exact: true }).click();
+  await expect(page.getByRole("heading", { name: "Đăng nhập quản trị", exact: true })).toBeVisible();
+});
+
+test("Đơn hết hạn có giao dịch cần đối soát: không gợi ý trả tiền lại", async ({ page }) => {
+  await fixture(page, { user: true });
+  await page.route("**/api/v1/orders/" + orderId, route => route.fulfill({ contentType: "application/json", body: JSON.stringify({ id: orderId, reference: "QTKREVIEW", amount_vnd: 150000, status: "EXPIRED", plan, created_at: 1, expires_at: 2, paid_at: null, payment_resolution: "RECONCILIATION", qr_url: null }) }));
+  await page.goto("/orders/" + orderId);
+  await expect(page.getByRole("heading", { name: "Giao dịch đang được đối soát" })).toBeVisible();
+  await expect(page.getByText(/không cần chuyển thêm tiền/)).toBeVisible();
+  await expect(page.getByRole("link", { name: /tạo đơn mới/ })).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "Hủy đơn", exact: true })).toHaveCount(0);
+});
+
+test("Chọn gói trước login: dashboard giữ bước tiếp tục, không tự tạo đơn", async ({ page }) => {
+  const { state } = await fixture(page);
+  await page.goto("/plans");
+  await page.getByRole("link", { name: "Đăng nhập để mua", exact: true }).click();
+  await expect(page.getByRole("heading", { name: "Đăng nhập hệ thống", exact: true })).toBeVisible();
+  state.user = true;
+  await page.goto("/dashboard");
+  await page.getByRole("link", { name: "Tiếp tục mua gói", exact: true }).click();
+  await expect(page).toHaveURL(new RegExp("/plans\\?selected=" + planId));
+  await expect(page.getByRole("button", { name: "Tiếp tục thanh toán", exact: true })).toBeEnabled();
+  expect(state.creates).toBe(0);
+});
+
+test("Google login event: cập nhật phiên khách ở các tab đang mở", async ({ page }) => {
+  const first = await fixture(page); await page.goto("/plans");
+  await expect(page.getByRole("link", { name: "Đăng nhập để mua", exact: true })).toBeVisible();
+  const second = await page.context().newPage(); const other = await fixture(second); await second.goto("/plans");
+  await expect(second.getByRole("link", { name: "Đăng nhập để mua", exact: true })).toBeVisible();
+  first.state.user = true; other.state.user = true;
+  await page.evaluate(() => { document.cookie = "quantik_login_event=test-event; Path=/; Max-Age=60; SameSite=Lax"; window.dispatchEvent(new Event("focus")); });
+  await expect(page.getByRole("button", { name: "Tiếp tục thanh toán", exact: true })).toBeEnabled();
+  await expect(second.getByRole("button", { name: "Tiếp tục thanh toán", exact: true })).toBeEnabled();
+  expect(first.state.creates + other.state.creates).toBe(0);
+  await second.close();
+});
+
+test("Tạo gói mất phản hồi: retry dùng lại key, không nhân phiên bản", async ({ page }) => {
+  const { state } = await fixture(page, { admin: true }); let created: any; const keys: string[] = [];
+  await page.route("**/api/v1/admin/plans", route => {
+    keys.push(route.request().headers()["idempotency-key"]);
+    if (!created) { created = { ...route.request().postDataJSON(), id: "new-plan", analysis_quota: route.request().postDataJSON().daily_request_limit, available: false, currency: "VND" }; state.plans.push(created); }
+    return route.fulfill({ status: keys.length === 1 ? 502 : 201, contentType: "application/json", body: JSON.stringify(keys.length === 1 ? { code: "BACKEND_UNAVAILABLE" } : created) });
+  });
+  await page.goto("/admin/plans"); await page.getByLabel("Tên gói", { exact: true }).fill("Gói hạn mức ngày");
+  await page.getByRole("button", { name: "Xem lại gói mới" }).click();
+  await page.getByRole("button", { name: "Xác nhận", exact: true }).click();
+  await expect(page.locator(".account-notice[role=alert]")).toBeVisible();
+  await page.getByRole("button", { name: "Xác nhận", exact: true }).click();
+  await expect(page.getByRole("status").filter({ hasText: "Đã tạo phiên bản gói mới" })).toBeVisible();
+  expect(keys).toHaveLength(2); expect(keys[0]).toBeTruthy(); expect(keys[1]).toBe(keys[0]); expect(state.plans).toHaveLength(2);
+});
+
+test("GET đơn lỗi đầu tiên: tự phục hồi, hạn thanh toán theo đồng hồ server", async ({ page }) => {
+  await fixture(page, { user: true }); await page.clock.install(); let reads = 0;
+  const serverNow = Math.floor(Date.now() / 1000) - 3600;
+  await page.route("**/api/v1/orders/" + orderId, route => {
+    reads++;
+    return route.fulfill({ status: reads === 1 ? 502 : 200, contentType: "application/json", body: JSON.stringify(reads === 1 ? { code: "BACKEND_UNAVAILABLE" } : {
+      id: orderId, reference: "QTKCLOCK", status: "PENDING", amount_vnd: 150000, plan, server_now: serverNow,
+      expires_at: serverNow + 600, created_at: serverNow, bank: "TPBANK", account_number: "000123456", account_name: "QUANTIK", transfer_content: "QTKCLOCK", qr_url: null,
+    }) });
+  });
+  await page.goto("/orders/" + orderId);
+  await expect(page.getByRole("alert")).toBeVisible();
+  await page.clock.fastForward(2100);
+  await expect(page.getByText("000123456", { exact: false })).toBeVisible();
+  expect(reads).toBe(2);
+  await expect(page.getByText(/Đơn đã hết thời gian/)).toHaveCount(0);
 });

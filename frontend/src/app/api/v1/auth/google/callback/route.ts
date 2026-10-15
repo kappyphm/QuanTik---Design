@@ -23,6 +23,7 @@ export async function GET(request: Request) {
     if (!exchange.ok) return redirect("/login?error=google");
     copyCookies(result, headers);
     copyCookies(exchange, headers);
+    headers.append("Set-Cookie", "quantik_login_event=" + crypto.randomUUID() + "; Path=/; Max-Age=60; SameSite=Lax" + (appOrigin(request).startsWith("https:") ? "; Secure" : ""));
     return redirect("/dashboard");
   } catch {
     return redirect("/login?error=backend");

@@ -1,6 +1,6 @@
 # Rà soát đầu-cuối: tài khoản, người dùng và thương mại
 
-Ngày rà soát: 15/10/2026. Phạm vi là UI/UX → Next proxy/session → API → dữ liệu/quyền lợi → phản hồi cho khách/admin. Đây là báo cáo đề xuất; không thay source hoặc nghiệp vụ FE/BE trong lượt này, không thêm hoàn tiền. Các sửa chữa đã hoàn thành trước đó được ghi trong ACCOUNT-COMMERCE-UX-AUDIT.md.
+Ngày rà soát: 15/10/2026. Phạm vi là UI/UX → Next proxy/session → API → dữ liệu/quyền lợi → phản hồi cho khách/admin. Các bảng bên dưới giữ phát hiện tại thời điểm rà soát. Trạng thái triển khai ngày16/10/2026 được ghi trong [ACCOUNT-COMMERCE-IMPLEMENTATION.md](ACCOUNT-COMMERCE-IMPLEMENTATION.md); chính sách đã được người dùng chốt trong tài liệu triển khai thay thế các phương án còn đề xuất ở đây. Không thêm hoàn tiền.
 
 ## Kết luận
 

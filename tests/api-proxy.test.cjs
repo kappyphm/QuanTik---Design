@@ -24,6 +24,7 @@ test('API boundary: rejects unsupported routes and cross-origin mutations before
     assert.equal(allowed('POST', 'admin/orders/123-test/paid'), false);
     assert.equal(allowed('GET', '../admin/users'), false);
     assert.equal(allowed('POST', 'admin/users/a/delete'), false);
+    assert.equal(allowed('POST', 'admin/jobs/a/quota-refund'), false);
     assert.equal(allowed('POST', 'admin/configs/OPERATIONS/' + 'a'.repeat(64) + '/activate'), true);
     assert.equal((await proxy(new Request('http://localhost:3000/api/v1/orders', { method: 'POST', headers: { Origin: 'https://evil.example' } }), 'orders')).status, 403);
     assert.equal((await proxy(new Request('http://localhost:3000/api/v1/orders', { method: 'POST' }), 'orders')).status, 403);
@@ -92,7 +93,8 @@ test('Google callback exchanges with the browser-bound cookie; redirects without
     assert.equal(result.status, 303);
     assert.equal(result.headers.get('Location'), 'http://localhost:3000/dashboard');
     assert.equal(result.headers.get('Referrer-Policy'), 'no-referrer');
-    assert.equal(result.headers.getSetCookie().length, 2);
+    assert.equal(result.headers.getSetCookie().length, 3);
+    assert.match(result.headers.getSetCookie()[2], /quantik_login_event=/);
     assert.equal(await result.text(), '');
     assert.equal(calls.length, 2);
   } finally { global.fetch = previous; }

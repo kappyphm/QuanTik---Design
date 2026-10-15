@@ -7,6 +7,7 @@ import { PageHeading, Panel, EmptyState, Modal } from "./ui";
 import { ChartSurface } from "./chart-workspace";
 import { StockTable } from "./stock-table";
 import { usePreferences } from "./preferences";
+import { PurchaseResume } from "./account/purchase-resume";
 export function Dashboard() {
     const { watchlist } = usePreferences();
     const [tab, setTab] = useState("all");
@@ -21,7 +22,7 @@ export function Dashboard() {
         (sector === "all" || stock.sector === sector) &&
         (exchange === "all" || stock.exchange === exchange) &&
         `${stock.symbol} ${stock.name}`.toUpperCase().includes(query.toUpperCase()));
-    return (<>
+    return (<><PurchaseResume/>
       <PageHeading title="Dashboard"/>
       <div className="index-grid grid [grid-template-columns:repeat(4,_minmax(0,_1fr))] [gap:16px] [margin-bottom:26px] max-[900px]:[grid-template-columns:repeat(2,_minmax(0,_1fr))] max-[700px]:[gap:12px] max-[700px]:[margin-bottom:20px]">
         {indices.map((index) => (<article className="index-card [padding:20px_22px_13px] [border-width:1px] [border-style:solid] [border-color:var(--border)] [background:var(--surface)] [border-radius:4px] [&_>_div:first-child]:flex [&_>_div:first-child]:items-center [&_>_div:first-child]:justify-between [&_>_div:first-child]:[gap:8px] [&_>_div:first-child]:[font-size:14px] [&_>_div:first-child]:[font-weight:500] [&_strong]:block [&_strong]:[font-size:29px] [&_strong]:[font-weight:500] [&_strong]:[margin-top:11px] [&_strong]:[line-height:1.3] max-[1250px]:[padding:17px_16px_10px] max-[1250px]:[&_strong]:[font-size:25px] max-[900px]:[&_strong]:[font-size:29px] max-[700px]:[padding:16px_14px_10px] max-[700px]:[&_strong]:[font-size:26px] max-[700px]:[&_>_div:first-child]:flex-wrap max-[700px]:[&_>_div:first-child]:[gap:4px]" key={index.name}>
