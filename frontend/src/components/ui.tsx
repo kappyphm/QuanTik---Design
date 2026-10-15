@@ -1,118 +1,85 @@
 "use client";
+import { tw } from "@/lib/tailwind";
 import { useEffect, useId, useRef, type ReactNode } from "react";
 import { X } from "lucide-react";
-export function PageHeading({
-  title,
-  description,
-  children,
-}: {
-  title: string;
-  description?: string;
-  children?: ReactNode;
+export function PageHeading({ title, description, children, }: {
+    title: string;
+    description?: string;
+    children?: ReactNode;
 }) {
-  return (
-    <div className="page-heading">
+    return (<div className="page-heading flex items-center justify-between [gap:24px] [margin-bottom:28px] [&_h1]:[font-size:32px] [&_h1]:[line-height:1.2] [&_h1]:[font-weight:600] [&_h1]:[letter-spacing:-1.1px] [&_h1]:[margin:0_0_9px] [&_p]:[font-size:16px] [&_p]:[color:var(--muted)] [&_p]:[margin:0] max-[900px]:[&_h1]:[font-size:30px] max-[900px]:[&_p]:[font-size:15px] max-[900px]:items-start max-[900px]:[gap:16px] max-[700px]:flex-wrap max-[700px]:[margin-bottom:22px] max-[700px]:[&_h1]:[font-size:30px] max-[700px]:[&_p]:[line-height:1.65]">
       <div>
         <h1>{title}</h1>
         {description && <p>{description}</p>}
       </div>
-      {children && <div className="heading-actions">{children}</div>}
-    </div>
-  );
+      {children && <div className="heading-actions flex items-center [gap:10px] [flex-shrink:0] max-[700px]:[gap:8px]">{children}</div>}
+    </div>);
 }
-export function Panel({
-  title,
-  action,
-  children,
-  className = "",
-}: {
-  title: string;
-  action?: ReactNode;
-  children: ReactNode;
-  className?: string;
+export function Panel({ title, action, children, className = "", }: {
+    title: string;
+    action?: ReactNode;
+    children: ReactNode;
+    className?: string;
 }) {
-  return (
-    <section className={`panel ${className}`}>
-      <div className="panel-heading">
+    return (<section className={tw(`panel ${className}`)}>
+      <div className="panel-heading flex items-center justify-between [gap:12px] [padding:19px_22px] [border-bottom-width:1px] [border-bottom-style:solid] [border-bottom-color:var(--border)] [&_h2]:[font-size:18px] [&_h2]:[font-weight:600] [&_h2]:[line-height:1.4] [&_h2]:[margin:0] [&_h2]:[letter-spacing:-0.35px] max-[700px]:[padding:17px_18px] max-[700px]:[&_h2]:[font-size:18px]">
         <h2>{title}</h2>
         {action}
       </div>
       {children}
-    </section>
-  );
+    </section>);
 }
-export function Modal({
-  title,
-  onClose,
-  children,
-  className = "",
-}: {
-  title: string;
-  onClose: () => void;
-  children: ReactNode;
-  className?: string;
+export function Modal({ title, onClose, children, className = "", }: {
+    title: string;
+    onClose: () => void;
+    children: ReactNode;
+    className?: string;
 }) {
-  const ref = useRef<HTMLDialogElement>(null);
-  const titleId = useId();
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    const previous = document.activeElement;
-    if (!el.open) el.showModal();
-    return () => {
-      if (el.open) el.close();
-      if (previous instanceof HTMLElement && previous.isConnected) previous.focus();
-    };
-  }, []);
-  return (
-    <dialog
-      ref={ref}
-      className={`info-dialog ${className}`}
-      aria-labelledby={titleId}
-      onCancel={(event) => {
-        event.preventDefault();
-        event.stopPropagation();
-        onClose();
-      }}
-      onClick={(event) => {
-        if (event.target === event.currentTarget) {
-          const bounds = event.currentTarget.getBoundingClientRect();
-          if (
-            event.clientX < bounds.left ||
-            event.clientX > bounds.right ||
-            event.clientY < bounds.top ||
-            event.clientY > bounds.bottom
-          )
+    const ref = useRef<HTMLDialogElement>(null);
+    const titleId = useId();
+    useEffect(() => {
+        const el = ref.current;
+        if (!el)
+            return;
+        const previous = document.activeElement;
+        if (!el.open)
+            el.showModal();
+        return () => {
+            if (el.open)
+                el.close();
+            if (previous instanceof HTMLElement && previous.isConnected)
+                previous.focus();
+        };
+    }, []);
+    return (<dialog ref={ref} className={tw(`info-dialog ${className}`)} aria-labelledby={titleId} onCancel={(event) => {
+            event.preventDefault();
+            event.stopPropagation();
             onClose();
-        }
-      }}
-    >
+        }} onClick={(event) => {
+            if (event.target === event.currentTarget) {
+                const bounds = event.currentTarget.getBoundingClientRect();
+                if (event.clientX < bounds.left ||
+                    event.clientX > bounds.right ||
+                    event.clientY < bounds.top ||
+                    event.clientY > bounds.bottom)
+                    onClose();
+            }
+        }}>
       <header>
         <h2 id={titleId}>{title}</h2>
-        <button
-          autoFocus
-          className="icon-button"
-          onClick={onClose}
-          aria-label="Đóng"
-        >
-          <X size={20} />
+        <button autoFocus className="icon-button inline-flex items-center justify-center [width:40px] [height:40px] [flex-shrink:0] [border-width:1px] [border-style:solid] [border-color:var(--border)] [border-radius:4px] [background:transparent] [color:var(--muted)] [transition:background_0.18s,_color_0.18s] [&:hover]:[background:var(--raised)] [&:hover]:[color:var(--text)]" onClick={onClose} aria-label="Đóng">
+          <X size={20}/>
         </button>
       </header>
       {children}
-    </dialog>
-  );
+    </dialog>);
 }
-export function EmptyState({
-  title,
-  children,
-}: {
-  title: string;
-  children?: ReactNode;
+export function EmptyState({ title, children, }: {
+    title: string;
+    children?: ReactNode;
 }) {
-  return (
-    <div className="empty-state">
+    return (<div className="empty-state [.quant-panel.compact_&]:[padding:42px_8px]">
       <h3>{title}</h3>
       {children && <p>{children}</p>}
-    </div>
-  );
+    </div>);
 }

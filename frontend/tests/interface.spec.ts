@@ -7,7 +7,7 @@ async function stubTradingView(page: Page) {
   }));
 }
 
-test("Home cũ giữ nội dung và dẫn đến Dashboard", async ({ page }) => {
+test("Home giữ nội dung và dẫn đến đăng nhập hệ thống", async ({ page }) => {
   const errors: string[] = [];
   page.on("pageerror", error => errors.push(error.message));
   await page.goto("/");
@@ -15,8 +15,12 @@ test("Home cũ giữ nội dung và dẫn đến Dashboard", async ({ page }) =>
   await page.locator(".home-live-heading button").click();
   await expect(page.getByRole("dialog")).toBeVisible();
   await page.keyboard.press("Escape");
-  await page.getByRole("button", { name: "Mở Terminal" }).click();
-  await expect(page).toHaveURL(/dashboard/);
+  await page.route("**/api/v1/auth/refresh", route => route.fulfill({ status: 401, contentType: "application/json", body: '{"code":"UNAUTHENTICATED"}' }));
+  await page.getByRole("button", { name: "Đăng nhập hệ thống" }).click();
+  await expect(page).toHaveURL(/login/);
+  await expect(page.getByRole("heading", { name: "Đăng nhập hệ thống" })).toBeVisible();
+  await expect(page.getByRole("navigation")).toHaveCount(0);
+  await expect(page.getByRole("link", { name: "Khu vực quản trị" })).toHaveCount(0);
   expect(errors).toEqual([]);
 });
 

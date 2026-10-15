@@ -18,7 +18,7 @@ import "@fontsource/ibm-plex-mono/vietnamese-400.css";
 import "@fontsource/ibm-plex-mono/vietnamese-500.css";
 import "@fontsource/ibm-plex-mono/vietnamese-600.css";
 import "./globals.css";
-import "./home.css";
+
 import "katex/dist/katex.min.css";
 import { Preferences } from "@/components/preferences";
 export const metadata: Metadata = {

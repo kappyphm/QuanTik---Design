@@ -1,0 +1,13 @@
+export type Role = "user" | "admin";
+export type Profile = { id: string; role: Role; username?: string; display_name?: string | null; email?: string | null };
+export type Page<T> = { items: T[]; next_cursor: string | null };
+export type Plan = { id: string; name: string; price_vnd: number; duration_days: number; analysis_quota: number; active_limit: number; available: boolean; currency: string; features: Record<string, boolean> };
+export type Order = { id: string; plan_id: string; amount_vnd: number; reference: string; status: "PENDING" | "PAID" | "EXPIRED" | "CANCELLED"; created_at: number; expires_at: number; paid_at: number | null; bank: string; account_number: string; account_name: string; transfer_content: string; qr_url: string | null };
+export type Entitlement = { active: boolean; remaining: number; active_limit: number; valid_until: number | null; cancel_after_compute_consumes: boolean };
+export type Bucket = { id: string; total: number; reserved: number; consumed: number; active_jobs: number; active_limit: number; valid_from: number; valid_until: number };
+export type Subscription = { id: string; plan_id: string; order_id: string; valid_from: number; valid_until: number; account_id?: string; bucket_id: string };
+export type Integration = { provider: "sepay" | "vnstock"; revision: number; source: string; encryption_ready: boolean; updated_at: number | null; api_key_configured?: boolean; scheduled_provider_enabled?: boolean; bank_code?: string; account_number?: string; account_name?: string; transfer_prefix?: string; requires_transfer_prefix?: boolean; payments_enabled?: boolean; webhook_api_key_configured?: boolean; configuration_complete?: boolean; missing_fields?: string[] };
+export type ConfigVersion = { id: string; kind: string; payload: Record<string, unknown>; created_at: number };
+export type ConfigPage = Page<ConfigVersion> & { active_version: string | null; runtime_gates: { scheduled_provider_enabled?: boolean } };
+export const money = (value: number) => new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND", maximumFractionDigits: 0 }).format(value);
+export const stamp = (value: number | string | null | undefined) => value == null ? "—" : new Intl.DateTimeFormat("vi-VN", { timeZone: "Asia/Ho_Chi_Minh", dateStyle: "short", timeStyle: "short" }).format(new Date(typeof value === "number" ? value * 1000 : value));

@@ -1,8 +1,16 @@
 # QuanTik Design
 
+UI hiện dùng Tailwind CSS v4 trên các component; stylesheet nền chỉ giữ theme/reset và font/KaTeX. Xem [Tailwind, luồng đăng nhập và bảo vệ admin](docs/TAILWIND-AND-ACCESS.md).
+
+## Tài khoản, mua gói và quản trị
+
+Đã bổ sung các màn `/login`, `/account`, `/plans`, `/orders/{id}` và `/admin` theo API Quantik hiện có. Các màn này gọi API thật; dữ liệu demo của dashboard/Quant vẫn giữ riêng như bên dưới. Cấu hình kết nối mẫu ở `frontend/.env.example`.
+
+Xem [bàn giao và điều kiện callback Google](docs/ACCOUNT-ADMIN-IMPLEMENTATION.md), [kế hoạch nhóm ưu tiên](docs/AUTH-USERS-BILLING-ADMIN-PLAN.md) và [bản đồ tích hợp tổng thể](docs/BACKEND-ALIGNMENT.md). Không có thay đổi backend trong repo này.
+
 Vỏ giao diện **Next.js + Tailwind CSS + TypeScript**, lấy QuanTik hiện tại làm gốc.
 
-Home giữ nguyên nội dung, markup, CSS, logo và các visual từ `kwuangyong/QuanTik-website`, snapshot tree `521a093b56fefd21493026adb4ead77882cdf082`. Các trang bên trong được sắp xếp lại và tăng độ dễ đọc.
+Home giữ nội dung, logo và các visual tham chiếu từ `kwuangyong/QuanTik-website`, snapshot tree `521a093b56fefd21493026adb4ead77882cdf082`; phần trình bày đã chuyển sang utility Tailwind. Các trang bên trong dùng chung theme và component.
 
 ## Chạy local
 
@@ -13,7 +21,7 @@ npm ci
 npm run dev
 ```
 
-Mở `http://localhost:3000`. Bấm **Mở Terminal** để vào Dashboard.
+Mở `http://localhost:3000`. Bấm **Đăng nhập hệ thống**; sau đăng nhập Google sẽ vào Dashboard. Admin dùng đường dẫn riêng `/admin`, chỉ hiện form đăng nhập khi chưa có phiên admin hợp lệ.
 
 ## Bố cục
 
