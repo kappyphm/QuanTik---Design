@@ -4,6 +4,7 @@ import { ArrowUpRight, Info } from "lucide-react";
 import Link from "next/link";
 import { getAnalysisVisuals, format, type AnalysisVisuals, type ScanResult } from "@/lib/mock-data";
 import { QuantPlot, QuantDistribution } from "./quant-plots";
+import {FactorProfile, DrawdownProfile} from "./factor-profile";
 import { QuantModelVisual } from "./quant-model-visual";
 import { Modal } from "./ui";
 import TermHint, {TermContent} from "./term-hint";
@@ -64,24 +65,27 @@ export function QuantReport({ result, compact = false, showAction = true }: { re
       {report && <span className="quant-result-mode" role="status">Mô phỏng</span>}
     </section>}
     {report && <div className="quant-report-sections">
-      <ReportSection title="Hiệu suất & dòng tiền" headline={caution ? "Dòng tiền chưa ủng hộ" : "Có lực mua, vẫn cần xác nhận"} compact={compact}>
+      <ReportSection title="Hồ sơ nhân tố" headline="Sáu góc nhìn · số liệu gốc và điểm quy đổi" compact={compact}>
+        <FactorProfile result={result} report={report}/>
+      </ReportSection>
+      <ReportSection title="Hiệu suất & dòng tiền" headline={report.performance.cmf < 0 ? "Dòng tiền nghiêng về bên bán" : "Dòng tiền nghiêng về bên mua"} compact={compact}>
         <div className="quant-section-reading"><p><TermHint id="sharpe">Sharpe</TermHint> <strong>{value("N")}</strong> mô tả hiệu suất so với biến động trong quá khứ. Mức giảm sâu nhất <strong>{value("P", "%")}</strong> cho thấy tổn thất từng xuất hiện; đây không phải mức lỗ tối đa trong tương lai.</p>
           <p><TermHint id="cmf">CMF</TermHint> <strong>{format(report.performance.cmf)}</strong>: {report.performance.cmf < 0 ? "áp lực bán đang chiếm ưu thế trong mẫu." : "giá và khối lượng nghiêng về áp lực mua trong mẫu."} Đọc cùng sức mạnh tương đối với VN-Index.</p>{explain("stats")}</div>
         <MetricRow items={[{ label: "Sharpe", value: value("N") }, { label: "Giảm từ đỉnh", value: value("P", "%"), tone: "negative" }, { label: "CMF", value: format(report.performance.cmf), tone: report.performance.cmf < 0 ? "negative" : "positive" }, { label: "So với VN-Index", value: `${format(report.performance.relativeStrengthPct)}%` }]} />
       </ReportSection>
       <ReportSection title="HMM & Hurst" headline={`Bối cảnh ${state.toLowerCase()} · chưa phải xác nhận mua`} compact={compact}>
-        <div className="quant-explained-visual"><div className="quant-section-reading"><p><TermHint id="hmm">HMM</TermHint> đang nhận diện trạng thái <strong>{state.toLowerCase()}</strong> trong dữ liệu mẫu. Xác suất dưới đây mô tả trạng thái, không phải xác suất lệnh thắng.</p><p><TermHint id="hurst">Hurst</TermHint> <strong>{value("AA")}</strong> cho biết cấu trúc dai dẳng hay hồi quy của chuỗi; không tự kết luận cổ phiếu sẽ tăng.</p>
+        <div className="quant-explained-visual"><QuantPlot report={report} kind="regime" /><div className="quant-section-reading"><p><TermHint id="hmm">HMM</TermHint> đang nhận diện trạng thái <strong>{state.toLowerCase()}</strong> trong dữ liệu mẫu. Xác suất dưới đây mô tả trạng thái, không phải xác suất lệnh thắng.</p><p><TermHint id="hurst">Hurst</TermHint> <strong>{value("AA")}</strong> cho biết cấu trúc dai dẳng hay hồi quy của chuỗi; không tự kết luận cổ phiếu sẽ tăng.</p>
           <dl className="quant-state-probabilities">{([['bull', 'Tăng'], ['sideways', 'Đi ngang'], ['bear', 'Giảm']] as const).map(([key, label]) => <div key={key}><dt>{label}</dt><dd><span className={`quant-state-fill ${key}`} style={{ width: `${report.hmm.probabilities[key] * 100}%` }} /><strong>{format(report.hmm.probabilities[key] * 100, 0)}%</strong></dd></div>)}</dl>{explain("hmm")}</div>
-          <QuantPlot report={report} kind="regime" />
         </div>
       </ReportSection>
       <ReportSection title="GARCH · Biến động" headline="Đo mức dao động, không dự báo chiều giá" compact={compact}>
-        <div className="quant-explained-visual"><div className="quant-section-reading"><p>Biến động mẫu đang tăng về cuối cửa sổ. Giá có thể dao động rộng hơn, nên đối chiếu quy mô vị thế với mức dừng lỗ.</p><p>α + β = <strong>{format(report.garch.alpha + report.garch.beta)}</strong>: tác động của cú sốc suy giảm chậm trong cấu hình minh họa.</p><MetricRow items={[{ label: "α · cú sốc mới", value: format(report.garch.alpha) }, { label: "β · phương sai cũ", value: format(report.garch.beta) }]} />{explain("garch")}</div><ChartViews report={report} type="garch" /></div>
+        <div className="quant-explained-visual"><ChartViews report={report} type="garch" /><div className="quant-section-reading"><p>Biến động cuối mẫu <strong>{format(report.garch.volatility.at(-1)?.valuePct ?? null)}%</strong>, so với đầu mẫu <strong>{format(report.garch.volatility[0]?.valuePct ?? null)}%</strong>: mức dao động đang {(report.garch.volatility.at(-1)?.valuePct ?? 0) > (report.garch.volatility[0]?.valuePct ?? 0) ? "mở rộng" : "thu hẹp"}. Đối chiếu quy mô vị thế với mức dừng lỗ; GARCH không xác định chiều tăng hay giảm.</p><p>α + β = <strong>{format(report.garch.alpha + report.garch.beta)}</strong>: {report.garch.alpha + report.garch.beta >= 1 ? "cấu hình có độ dai dẳng từ 1 trở lên; không suy luận phương sai dài hạn ổn định." : report.garch.alpha + report.garch.beta >= .9 ? "cú sốc biến động có xu hướng suy giảm chậm trong cấu hình mẫu." : "cú sốc biến động có xu hướng suy giảm nhanh hơn cấu hình sát 1."}</p><MetricRow items={[{ label: "α · cú sốc mới", value: format(report.garch.alpha) }, { label: "β · phương sai cũ", value: format(report.garch.beta) }]} />{explain("garch")}</div></div>
       </ReportSection>
       <ReportSection title="Monte Carlo · Kịch bản" headline="Một dải khả năng, không có đường giá chắc chắn" compact={compact}>
-        <div className="quant-explained-visual"><div className="quant-section-reading"><p>Vùng màu thể hiện các phân vị giá qua <strong>{report.monteCarlo.horizon} phiên mẫu</strong>. Đường giữa là P50; vùng rộng hơn cho thấy bất định lớn hơn.</p><p>Dự báo có hướng <strong>{value("U", "%")}</strong>, sau chi phí <strong>{value("AG", "%")}</strong>. Đây là chỉ tiêu mẫu được đọc cùng rủi ro, không phải cam kết lợi nhuận.</p>{explain("monte")}</div><ChartViews report={report} type="monte" /></div>
+        <div className="quant-explained-visual"><ChartViews report={report} type="monte" /><div className="quant-section-reading"><p>Vùng màu thể hiện các phân vị giá qua <strong>{report.monteCarlo.horizon} phiên mẫu</strong>. Đường giữa là P50; vùng rộng hơn cho thấy bất định lớn hơn.</p><p>Dự báo có hướng <strong>{value("U", "%")}</strong>, sau chi phí <strong>{value("AG", "%")}</strong>. Đây là chỉ tiêu mẫu được đọc cùng rủi ro, không phải cam kết lợi nhuận.</p>{explain("monte")}</div></div>
       </ReportSection>
       <ReportSection title="Rủi ro & kế hoạch" headline="Đối chiếu khả năng chịu lỗ trước khi đặt lệnh" compact={compact}>
+        <DrawdownProfile report={report}/>
         <div className="quant-section-reading"><p>Trong thời gian chờ T+2, cổ phiếu có thể giảm khi chưa bán được. Chỉ dùng các mốc dưới đây làm kế hoạch có điều kiện; không coi là lệnh đã được hệ thống xác nhận.</p></div>
         <MetricRow items={[{ label: "Sụt giảm T+2", value: value("AI", "%"), tone: "negative" }, { label: "P(lỗ trên 3%)", value: value("AJ", "%") }, { label: "Chi phí", value: value("AF", "%") }, { label: "Nắm giữ", value: value("G") }]} />
         <dl className="quant-trade-levels">{[['AR', 'Giá vào'], ['AS', 'Dừng lỗ'], ['AT', 'Mục tiêu 1'], ['AU', 'Mục tiêu 2']].map(([key, label]) => <div key={key}><dt><TermHint id={key === "AR" ? "entry" : key === "AS" ? "stop_loss" : "take_profit"}>{label}</TermHint></dt><dd className={key === "AS" ? "negative" : key === "AR" ? "" : "positive"}>{value(key)}<span>nghìn ₫</span></dd></div>)}</dl>

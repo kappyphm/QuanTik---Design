@@ -59,3 +59,19 @@ test("Sidebar chỉ nạp biểu đồ khi mở diễn giải, mã quét cũng c
   await first.locator(".quant-report-section > summary").filter({ hasText: "Monte Carlo" }).click();
   await expect(first.getByRole("img", { name: /Dải giá Monte Carlo DRI/ })).toBeVisible();
 });
+
+test("Hồ sơ nhân tố có số liệu gốc, diễn giải và cột 3D điều khiển được",async({page})=>{
+  await page.goto('/analysis?symbol=FPT');
+  await page.getByRole('button',{name:'Xem kết quả mẫu',exact:true}).click();
+  await expect(page.getByRole('img',{name:/Hồ sơ nhân tố FPT/})).toBeVisible();
+  const profile=page.locator('.factor-profile');
+  await profile.locator('.factor-row').filter({hasText:'Dòng tiền'}).click();
+  await expect(profile.locator('.factor-interpretation')).toContainText('áp lực mua');
+  await profile.getByRole('button',{name:'Cột 3D',exact:true}).click();
+  await expect(page.getByRole('img',{name:'Cột nhân tố 3D FPT',exact:true})).toBeVisible();
+  const world=profile.locator('.factor-three-world');
+  const before=await world.getAttribute('style');
+  await profile.getByLabel('Xoay góc nhìn').fill('30');
+  expect(await world.getAttribute('style')).not.toBe(before);
+  await expect(page.getByRole('img',{name:'Drawdown từ chuỗi giá mẫu FPT',exact:true})).toBeVisible();
+});
