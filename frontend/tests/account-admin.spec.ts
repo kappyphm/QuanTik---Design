@@ -343,3 +343,14 @@ test("Đơn admin: lọc, xem khách/giao dịch/kỳ gói và mở từ liên k
   await page.goto("/admin/orders?order_id=" + orderId);
   await expect(page.getByRole("heading", { name: "Chi tiết đơn hàng", exact: true })).toBeVisible();
 });
+
+test("Danh mục công khai vẫn hiện gói khi refresh phiên khách trả 401", async ({ page }) => {
+  await fixture(page);
+  let publicRequests = 0;
+  page.on("request", request => { if (new URL(request.url()).pathname === "/api/v1/plans") publicRequests++; });
+  await page.goto("/plans");
+  await expect(page.getByRole("heading", { name: plan.name, exact: true })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Đăng nhập để mua", exact: true })).toBeVisible();
+  await expect(page.getByRole("alert").filter({ hasText: "Phiên đăng nhập" })).toHaveCount(0);
+  expect(publicRequests).toBeGreaterThan(0);
+});

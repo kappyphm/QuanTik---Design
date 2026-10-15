@@ -36,3 +36,9 @@ Thêm /admin/orders: lọc trạng thái, mã chuyển khoản, tài khoản, ph
 Kiểm tra runtime: SePay đã bật; gói “goi co ban” 100.000 VND tồn tại nhưng available=false, vì vậy danh mục công khai rỗng. Không tự thay trạng thái bán của gói vận hành. Backend đã restart, ready schema0014; GET admin/orders không có phiên trả401 qua Next.
 
 Kiểm chứng bản quản trị đơn/mở bán: production build và typecheck đạt, Node 18/18, Playwright account/admin 36/36 desktop/mobile; sau sửa tương phản nút chạy lại 6 kiểm thử gói/đơn đều đạt. Backend billing 1/1 gồm phân quyền admin, lọc đơn hết hạn theo thời gian, pagination, chi tiết payment/subscription và không lộ trường nội bộ. Không chuyển khoản hoặc tạo đơn vận hành để test.
+
+## Sửa lỗi danh mục công khai yêu cầu đăng nhập
+
+Kiểm tra browser thật phát hiện useResource("plans") mặc định dùng bearer customer: refresh401 khiến trang danh mục không gọi GET plans. Đã thêm chế độ public dùng raw fetch không refresh/bearer cho API công khai; quyền tạo đơn vẫn dùng session user như cũ. Thêm kiểm thử không đăng nhập: refresh401 nhưng gói vẫn hiển thị và nút đăng nhập để mua vẫn có.
+
+Theo yêu cầu hiển thị gói cơ bản, đã mở bán gói hiện có id2fe7d9ef-a74c-42e8-b8d7-73edc1af9965 qua POST admin/plans/{id}/availability, không sửa trực tiếp DB; phiên admin kiểm thử đã logout204. GET plans thật qua backend và Next trả gói100.000 VND. Browser thật tại localhost3000/plans hiển thị goi co ban, 30ngày,20lượt,1yêu cầu đồng thời trên1440px và390px, không lỗi JavaScript hoặc tràn ngang. Ảnh live-plans-1440.png/live-plans-390.png dưới frontend/test-results/billing. Không tạo đơn/chuyển tiền thật.

@@ -1,8 +1,8 @@
 "use client";
 import { cloneElement, isValidElement, useCallback, useEffect, useId, useRef, useState, type ReactElement, type ReactNode } from "react";
-import { api, ApiError } from "@/lib/api/client";
+import { api, raw, ApiError } from "@/lib/api/client";
 import type { Page, Role } from "@/lib/api/contracts";
-export function useResource<T>(path: string, role: Role = "user", revision = 0) {
+export function useResource<T>(path: string, role: Role | "public" = "user", revision = 0) {
     const [value, setValue] = useState<{
         path: string;
         data?: T;
@@ -15,7 +15,7 @@ export function useResource<T>(path: string, role: Role = "user", revision = 0) 
     useEffect(() => {
         const current = ++epoch.current;
         setValue(old => ({ path, data: old.path === path ? old.data : undefined, loading: true }));
-        void api<T>(role, path).then(data => {
+        void (role === "public" ? raw<T>(path) : api<T>(role, path)).then(data => {
             if (epoch.current === current)
                 setValue({ path, data, loading: false });
         })

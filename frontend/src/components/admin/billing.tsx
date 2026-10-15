@@ -16,7 +16,7 @@ type Draft = Pick<Plan, "name" | "price_vnd" | "duration_days" | "analysis_quota
 const defaults: Draft = { name: "", price_vnd: 100000, duration_days: 30, analysis_quota: 20, active_limit: 1 };
 
 export function BillingReadiness({ revision = 0 }: { revision?: number }) {
-    const catalog = useResource<{ payments_enabled: boolean; items: Plan[] }>("plans", "admin", revision);
+    const catalog = useResource<{ payments_enabled: boolean; items: Plan[] }>("plans", "public", revision);
     useEffect(() => {
         const refresh = () => catalog.reload();
         window.addEventListener("quantik-billing-updated", refresh);

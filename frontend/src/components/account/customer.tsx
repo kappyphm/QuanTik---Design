@@ -47,7 +47,7 @@ export function PlansPage() {
     const result = useResource<{
         payments_enabled: boolean;
         items: Plan[];
-    }>("plans");
+    }>("plans", "public");
     useEffect(() => {
         const refresh = () => { if (document.visibilityState === "visible") result.reload(); };
         window.addEventListener("focus", refresh);
