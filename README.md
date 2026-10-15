@@ -18,7 +18,7 @@ Mở `http://localhost:3000`. Bấm **Mở Terminal** để vào Dashboard.
 ## Bố cục
 
 - **Dashboard**: VN-INDEX, VN30, UPCOM, HNX-INDEX → bảng điện có TC/trần/sàn, ba mức dư mua/bán, khớp lệnh, tổng KL, GTGD, thống kê và nước ngoài → bảng nhóm ngành. Theo dõi nằm trong cùng bảng. Bấm mã mở cửa sổ chart với Quant bên cạnh; có thể thu/mở Quant hoặc mở trang phân tích toàn màn hình.
-- **Quét toàn sàn**: mở đầu bằng trang giới thiệu; bấm **Quét toàn sàn** mới hiện hai danh sách, mỗi nhóm 5 mã. **Tiêu chí & trọng số** mở phần xem tiêu chí; lý do và các chỉ tiêu mở/thu trong từng mã. Terminal dùng IBM Plex Mono, Home giữ thiết kế cũ.
+- **Quét toàn sàn**: mở đầu bằng trang giới thiệu; bấm **Quét toàn sàn** mới hiện hai danh sách, mỗi nhóm 5 mã. Lý do và các chỉ tiêu mở/thu trong từng mã. Terminal dùng IBM Plex Mono, Home giữ thiết kế cũ.
 - **Phân tích Quant**: nhập/chọn mã → xem tiêu chí trước khi chạy → vùng kết quả. Các nút chạy cuối cùng chưa nối backend.
 - **Biểu đồ**: giữ đường dẫn `/charts?symbol=FPT` cho chế độ toàn màn hình. Biểu đồ nằm trong luồng chọn mã, không thêm mục riêng vào menu.
 
@@ -33,6 +33,8 @@ Mở `http://localhost:3000`. Bấm **Mở Terminal** để vào Dashboard.
 - Chart **TradingView** nhúng script Advanced Chart thật, giữ cách cấu hình của repo gốc. Không dùng SVG giả làm TradingView. Dữ liệu, độ trễ và quyền khung intraday phụ thuộc TradingView. Nguồn “Dữ liệu Quantik” giữ vùng hiển thị trống để nối hệ thống cũ.
 
 ## Kiểm tra và xem thử
+
+Tooltip thuật ngữ dùng nguyên văn 57 định nghĩa đã được ghép từ `metrics.json`, `glossary.js` và `term-education.js` của repo `QuanTik-website`, commit `521a093b56fefd21493026adb4ead77882cdf082`. Công thức được render bằng KaTeX; giữ đủ lý thuyết, công thức, biến, tham số, ví dụ, điều kiện và cách sử dụng. `frontend/src/content/legacy/glossary.json` giữ nguyên mọi trường của nguồn. Trường chưa có định nghĩa ở repo cũ giữ nhãn thường, không tự thêm công thức.
 
 ```bash
 npm run typecheck

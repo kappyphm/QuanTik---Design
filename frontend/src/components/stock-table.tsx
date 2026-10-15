@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { ArrowDownUp, ChartCandlestick, ChevronLeft, ChevronRight, Star } from "lucide-react";
 import { format, signed, tone, type Stock } from "@/lib/mock-data";
 import { usePreferences } from "./preferences";
+import TermHint from "./term-hint";
 
 export function StockTable({ items, depth = false, statistics = false, foreign = false, onSelect }: {
   items: Stock[];
@@ -30,12 +31,12 @@ export function StockTable({ items, depth = false, statistics = false, foreign =
             <tr className="board-groups">
               <th rowSpan={2}><span className="sr-only">Theo dõi</span></th>
               <th rowSpan={2} aria-sort={direction === 1 ? "ascending" : "descending"}><button onClick={() => setDirection(-direction)}>Mã <ArrowDownUp size={13} /></button></th>
-              <th rowSpan={2}>TC</th><th rowSpan={2}>Trần</th><th rowSpan={2}>Sàn</th>
-              <th colSpan={levels.length} scope="colgroup">Dư mua</th><th colSpan={3} scope="colgroup">Khớp lệnh</th><th colSpan={levels.length} scope="colgroup">Dư bán</th>
-              <th rowSpan={2}>Tổng KL</th><th rowSpan={2}>GTGD (triệu ₫)</th>
+              <th rowSpan={2}><TermHint id="ref">TC</TermHint></th><th rowSpan={2}><TermHint id="ceil">Trần</TermHint></th><th rowSpan={2}><TermHint id="floor">Sàn</TermHint></th>
+              <th colSpan={levels.length} scope="colgroup"><TermHint id="bid">Dư mua</TermHint></th><th colSpan={3} scope="colgroup"><TermHint id="matched">Khớp lệnh</TermHint></th><th colSpan={levels.length} scope="colgroup"><TermHint id="ask">Dư bán</TermHint></th>
+              <th rowSpan={2}>Tổng KL</th><th rowSpan={2}><TermHint id="liquidity">GTGD (triệu ₫)</TermHint></th>
               {statistics && <th colSpan={3} scope="colgroup">Thống kê</th>}
               {foreign && <th colSpan={3} scope="colgroup">Nước ngoài</th>}
-              <th rowSpan={2}>Quant</th><th rowSpan={2}><span className="sr-only">Biểu đồ</span></th>
+              <th rowSpan={2}><TermHint id="quant_score">Quant</TermHint></th><th rowSpan={2}><span className="sr-only">Biểu đồ</span></th>
             </tr>
             <tr>
               {levels.map((level) => <SlotHeading key={`bid${level}`} level={level} />)}

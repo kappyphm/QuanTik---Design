@@ -3,16 +3,15 @@ import Link from "next/link";
 import { useState } from "react";
 import { ArrowUpRight, Search, ShieldCheck, ChartNoAxesCombined } from "lucide-react";
 import { scanSnapshot, demoEnabled, type ScanResult } from "@/lib/mock-data";
-import { PageHeading, Panel, Modal } from "./ui";
+import { PageHeading, Panel } from "./ui";
 import { Criteria } from "./quant-panel";
 import { QuantReport } from "./quant-report";
+import {AnnotatedText} from "./term-hint";
 
 export function Screener() {
-  const [review, setReview] = useState(false);
   const [loaded, setLoaded] = useState(false);
   return <>
     <PageHeading title="Quét toàn sàn">{loaded && <>
-      <button className="button secondary" onClick={() => setReview(true)}>Tiêu chí & trọng số</button>
       <button className="button primary" onClick={() => setLoaded(false)}>Quét lại</button>
     </>}</PageHeading>
     {!loaded ? <section className="scan-intro" aria-labelledby="scan-intro-title">
@@ -23,7 +22,6 @@ export function Screener() {
           <p>Tìm 5 mã nổi bật, nhận diện 5 mã nên tránh và khám phá lý do phía sau từng lựa chọn.</p>
           <div className="scan-intro-actions">
             <button className="button primary" disabled={!demoEnabled} onClick={() => setLoaded(true)}>Quét toàn sàn <ArrowUpRight size={22} aria-hidden="true" /></button>
-            <button className="button secondary" onClick={() => setReview(true)}>Tiêu chí & trọng số</button>
           </div>
         </div>
         <ScanIllustration />
@@ -40,10 +38,6 @@ export function Screener() {
       <Panel title="5 mã nên tránh"><ScanList items={scanSnapshot.avoid} caution /></Panel>
     </div>
     </>}
-    {review && <Modal title="Tiêu chí & trọng số" onClose={() => setReview(false)} className="criteria-dialog scan-criteria-dialog">
-      <Criteria weightSuffix="" />
-      <div className="review-actions"><button className="button secondary" onClick={() => setReview(false)}>Đóng</button><button className="button primary" disabled={!demoEnabled} onClick={() => { setLoaded(true); setReview(false); }}>Quét toàn sàn</button></div>
-    </Modal>}
   </>;
 }
 function ScanList({ items, caution = false }: { items: ScanResult[]; caution?: boolean }) {
@@ -51,10 +45,10 @@ function ScanList({ items, caution = false }: { items: ScanResult[]; caution?: b
     <div className="scan-item-heading"><div><Link className="symbol-link" href={`/analysis?symbol=${item.symbol}`}>{item.symbol}</Link><span className={caution ? "negative" : "neutral"}>{item.recommendation}</span></div><strong className="number">{item.score}<span>/100</span></strong></div>
     <div className="scan-item-summary"><span>{item.sector}</span><Link className="text-link" href={`/analysis?symbol=${item.symbol}`}>Phân tích Quant ↗</Link></div>
     <details className="scan-explanation"><summary>Vì sao {caution ? "nên tránh" : "nổi bật"}?</summary>
-      <ul className="condition-list">{item.conditions.map((condition) => <li key={condition}>{condition}</li>)}</ul>
+      <ul className="condition-list">{item.conditions.map((condition) => <li key={condition}><AnnotatedText text={condition}/></li>)}</ul>
       <QuantReport result={item} compact showAction={false} />
       <details className="quant-raw-metrics"><summary>Tất cả chỉ tiêu</summary><Criteria result={item} weightSuffix="" /></details>
-      <details className="result-explanation"><summary>Nhận xét đầy đủ</summary><p>{item.explanation}</p></details>
+      <details className="result-explanation"><summary>Nhận xét đầy đủ</summary><p><AnnotatedText text={item.explanation}/></p></details>
     </details>
   </article>)}</div>;
 }

@@ -1,5 +1,58 @@
 @import "tailwindcss";
 
+/* The five tooltip sections retain the original QuanTik-website content. */
+.term-trigger,
+.stock-table .term-trigger {
+  display: inline;
+  border: 0;
+  padding: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  line-height: inherit;
+  text-align: inherit;
+  text-decoration: underline dotted;
+  text-underline-offset: 4px;
+  cursor: help;
+}
+.term-trigger:hover,
+.term-trigger:focus-visible { color: var(--accent, #ff914d); text-decoration-style: solid; }
+.term-popover,
+.legacy-term-content {
+  --term-panel: #0d1913;
+  --term-text: #edf4ef;
+  --term-dim: #a6b9ad;
+  --term-accent: #ff914d;
+  color: var(--term-text);
+  font: 12px/1.6 "IBM Plex Mono", ui-monospace, Consolas, monospace;
+  text-align: left;
+  white-space: normal;
+}
+.term-popover[data-theme="light"],
+.legacy-term-content[data-theme="light"] { --term-panel: #fff; --term-text: #18292f; --term-dim: #526b74; --term-accent: #b94b0a; }
+.term-popover {
+  position: fixed;
+  z-index: 300;
+  box-sizing: border-box;
+  background: var(--term-panel);
+  border: 1px solid var(--term-accent);
+  border-radius: 10px;
+  box-shadow: 0 15px 50px #0007;
+  padding: 18px;
+  overflow: auto;
+  overscroll-behavior: contain;
+}
+.term-title strong { font-size: 15px; color: var(--term-accent); }
+.term-popover small, .legacy-term-content small { color: var(--term-dim); font-size: 10px; }
+.term-popover p, .legacy-term-content p { margin: 10px 0; font-size: 12px; }
+.info-dialog .term-popover p, .info-dialog .legacy-term-content p { margin: 10px 0; font-size: 12px; line-height: 1.6; color: var(--term-text); }
+.term-popover h4, .legacy-term-content h4 { font-size: 12px; color: var(--term-accent); margin: 15px 0 5px; }
+.term-note { color: var(--term-dim); font-size: 11px !important; }
+.preserve-lines { white-space: pre-wrap; }
+.term-formula { overflow-x: auto; padding: 9px 2px; font-size: 14px; max-width: 100%; }
+.term-formula .katex-display { margin: .35em 0; }
+.legacy-term-content + .legacy-term-content { border-top: 1px solid var(--border, #294337); padding-top: 20px; margin-top: 24px; }
+
 @theme {
   --color-background: #080d0b;
   --color-surface: #0d1913;
@@ -1920,7 +1973,6 @@ button:disabled {
   .quant-action-reading > div { padding-right: 0; }
   .quant-action-reading .quant-result-mode { position: static; display: block; margin-top: 16px; }
 }
-.info-dialog.scan-criteria-dialog { max-width: 980px; }
 @media (max-width: 1000px) {
   .scan-intro-main { grid-template-columns: 1fr; gap: 12px; }
   .scan-intro-visual { max-width: 520px; width: 100%; justify-self: center; }

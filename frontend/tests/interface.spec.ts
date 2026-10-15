@@ -68,7 +68,7 @@ test("Bấm mã mở TradingView cùng Quant, mở/thu sidebar và toàn màn h�
   await expect(page).toHaveURL(/analysis\?symbol=FPT/);
 });
 
-test("Quét toàn sàn chỉ hiện 5 + 5 sau khi kích hoạt, xem tiêu chí và giải thích", async ({ page }) => {
+test("Quét toàn sàn chỉ hiện 5 + 5 sau khi kích hoạt và xem giải thích", async ({ page }) => {
   await page.goto("/screener");
   await page.screenshot({ path: `test-results/ui/${test.info().project.name}/scan.png`, fullPage: true });
   await expect(page.getByRole("heading", { name: "Khai mở góc nhìn toàn sàn." })).toBeVisible();
@@ -76,13 +76,6 @@ test("Quét toàn sàn chỉ hiện 5 + 5 sau khi kích hoạt, xem tiêu chí v
   await expect(page.getByRole("button", { name: "Quét toàn sàn", exact: true })).toHaveCSS("font-family", /IBM Plex Mono/);
   await expect(page.locator(".scan-item")).toHaveCount(0);
   await expect(page.getByText(/Bản mẫu Excel|JSON|pipeline/)).toHaveCount(0);
-  await page.getByRole("button", { name: "Tiêu chí & trọng số", exact: true }).click();
-  const criteria = page.getByRole("dialog", { name: "Tiêu chí & trọng số", exact: true });
-  await expect(criteria.getByText("Max DD (%)", { exact: true })).toBeVisible();
-  await expect(criteria.getByText("20%", { exact: true })).toBeVisible();
-  await page.keyboard.press("Escape");
-  await expect(page.locator(".scan-item")).toHaveCount(0);
-  await expect(page.getByRole("button", { name: "Tiêu chí & trọng số", exact: true })).toBeFocused();
   await page.getByRole("button", { name: "Quét toàn sàn", exact: true }).click();
   await expect(page.locator(".scan-grid > section").nth(0).locator(".scan-item")).toHaveCount(5);
   await expect(page.locator(".scan-grid > section").nth(1).locator(".scan-item")).toHaveCount(5);

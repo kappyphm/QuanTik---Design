@@ -52,15 +52,25 @@ const css = (
   .replace(/@font-face\s*\{[^}]*\}/g, "");
 const fontImport =
   '@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap");';
+// Keep the mathematical fonts in the standalone export, including offline use.
+const katexDirectory = resolve(root, "node_modules/katex/dist");
+const katexStyles = await readFile(resolve(katexDirectory, "katex.min.css"), "utf8");
+const mathFonts = await Promise.all([...katexStyles.matchAll(/@font-face\s*\{[^}]*\}/g)].map(async ([rule]) => {
+  const font = rule.match(/url\((?:["'])?([^)'";]+\.woff2)(?:["'])?\)/)?.[1];
+  if (!font) throw new Error("Missing KaTeX WOFF2 font in export");
+  const bytes = await readFile(resolve(katexDirectory, font));
+  return rule.replace(/src:[^;}]+;?/, `src:url(data:font/woff2;base64,${bytes.toString("base64")}) format("woff2");`);
+}));
 const fragment =
   '<div id="quantik-design-preview"></div>\n<style>' +
   fontImport +
+  mathFonts.join("\n") +
   css +
   "\n#quantik-design-preview{position:relative;min-height:800px;background:#0b1013}#quantik-design-preview .terminal-sidebar{position:absolute}#quantik-design-preview .terminal{min-height:800px}#quantik-design-preview .sidebar-scrim{position:absolute}@media(max-width:700px){#quantik-design-preview .terminal-sidebar{height:100%;max-height:none}}</style>\n<script>" +
   javascript +
   "</script>\n";
-if (Buffer.byteLength(fragment) > 1000000)
-  throw new Error("Preview exceeds 1 MB.");
+if (Buffer.byteLength(fragment) > 3 * 1024 * 1024)
+  throw new Error("Preview exceeds 3 MB including mathematical fonts.");
 await mkdir(resolve(root, "preview"), { recursive: true });
 await writeFile(
   resolve(root, "preview/index.html"),

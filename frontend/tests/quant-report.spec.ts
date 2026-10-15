@@ -11,7 +11,7 @@ test("Phân tích có diễn giải, biểu đồ và 3D xoay được, dừng t
   await expect(page.getByRole("img", { name: /Giá và trạng thái HMM FPT/ })).toBeVisible();
   const hmm = page.locator(".quant-report-section").filter({ has: page.locator("summary strong", { hasText: "HMM & Hurst" }) });
   await hmm.getByRole("button", { name: "Hiểu mô hình", exact: true }).click();
-  await expect(page.getByRole("dialog", { name: "HMM & Hurst", exact: true })).toContainText("Xác suất trạng thái khác xác suất giao dịch thắng");
+  await expect(page.getByRole("dialog", { name: "HMM & Hurst", exact: true })).toContainText("Đây là xác suất trạng thái ẩn của mô hình, không phải xác suất giao dịch thắng.");
   await page.keyboard.press("Escape");
   const garch = page.getByRole("group", { name: "Góc nhìn GARCH", exact: true });
   await garch.getByRole("button", { name: "Mô hình 3D", exact: true }).click();
