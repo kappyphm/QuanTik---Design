@@ -2,7 +2,7 @@ export type ScreeningSlot = "ALL" | "AM" | "PM";
 export type ScreeningGroup = "OVERALL" | "STRONG" | "ACCUMULATION" | "DISTRIBUTION" | "ALL";
 export type ScreeningRun = { id: string; target_session: string; slot: "AM" | "PM"; status: string; reason: string | null; published_at: number | null };
 export type ScreeningLatest = ScreeningRun & {
-  summary: { input_mode: string; source_mode: string; expected_symbols: number; ready_symbols: number; history_coverage_ratio: number; ranking_counts: Partial<Record<ScreeningGroup, number>>; validation_scope?: string };
+  summary: { input_mode: string; source_mode: string; execution_mode?: "SCHEDULED" | "BACKFILL"; expected_symbols: number; ready_symbols: number; history_coverage_ratio: number; ranking_counts: Partial<Record<ScreeningGroup, number>>; validation_scope?: string };
   stale: boolean; stale_reasons: string[]; calendar_status: string; latest_attempt: ScreeningRun | null;
 };
 export type ScreeningItem = {

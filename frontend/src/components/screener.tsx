@@ -59,6 +59,7 @@ function Publication({ slot }: { slot: ScreeningSlot }) {
     {attempt && attempt.status !== "READY" && <p role="status" className="my-4 rounded-[4px] border border-[var(--border)] p-4 leading-7">Lần xử lý gần nhất: {slotLabel(attempt)}. {screeningReason(attempt.reason)}.{latest && " Bạn đang xem bản công bố trước đó."}</p>}
     {latest && <>
       <section className="mb-6 rounded-[4px] border border-[var(--border)] bg-[var(--surface)] p-5 leading-7"><h2 className="text-xl">Kết quả {slotLabel(latest)}</h2><p className="mt-2 text-sm text-[var(--muted)]">Công bố {stamp(latest.published_at)} · Dữ liệu {latest.summary.ready_symbols}/{latest.summary.expected_symbols} mã · Độ phủ {percent(latest.summary.history_coverage_ratio)}</p>
+        {latest.summary.execution_mode === "BACKFILL" && <p className="mt-2 text-sm">Bản chạy bù từ dữ liệu kết phiên {latest.target_session}. Thời điểm công bố có thể muộn hơn ngày dữ liệu.</p>}
         {latest.summary.validation_scope === "SCREENING_ONLY" && <p className="mt-2 text-sm">Đã kiểm tra hợp đồng dữ liệu phục vụ sàng lọc. Điều chỉnh giá do sự kiện doanh nghiệp chưa được xác minh.</p>}
         {latest.stale && <p role="status" className="mt-3 text-[var(--accent)]">{latest.stale_reasons.map(screeningReason).join(". ")}. Kết quả có thể chưa phản ánh ca hiện tại.</p>}
         {error && <p className="mt-2">Chưa cập nhật được trạng thái mới. Dữ liệu dưới đây thuộc bản công bố đã ghi ngày ở trên.</p>}

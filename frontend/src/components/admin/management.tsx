@@ -2,7 +2,8 @@
 import { accountStyles } from "@/components/account/styles";
 import { ScreeningHealth } from "./screening-health";
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { ScreeningBackfill } from "./screening-backfill";
 import { api, mutation } from "@/lib/api/client";
 import { money, stamp, paymentStatus, paymentReason } from "@/lib/api/contracts";
 import { PageHeading, Panel } from "../ui";
@@ -88,13 +89,15 @@ export function AuditPage() {
     return <><PageHeading title="Nhật ký quản trị"/><form className={accountStyles.actions} onSubmit={e => { e.preventDefault(); setFilter(action); }}><Field label="Loại hành động"><input value={action} onChange={e => setAction(e.target.value)} placeholder="Ví dụ: integration.updated"/></Field><button className={accountStyles.buttonSecondary}>Lọc</button></form><Panel title="Lịch sử thao tác"><div className={accountStyles.card}><PagedTable path={`admin/audit${filter ? `?action=${encodeURIComponent(filter)}` : ""}`} columns={[{ key: "actor_id", label: "Người thực hiện" }, { key: "action", label: "Hành động" }, date("occurred_at", "Thời điểm"), { key: "details", label: "Chi tiết", render: v => <details><summary>Xem</summary><pre>{JSON.stringify(v, null, 2)}</pre></details> }]}/></div></Panel></>;
 }
 export function TasksPage() {
+    const [revision, setRevision] = useState(0);
+    useEffect(() => { const timer = setInterval(() => { if (document.visibilityState === "visible") setRevision(value => value + 1); }, 30000); return () => clearInterval(timer); }, []);
     const [status, setStatus] = useState(""), [kind, setKind] = useState("");
     const query = new URLSearchParams();
     if (status)
         query.set("status", status);
     if (kind)
         query.set("kind", kind);
-    return <><ScreeningHealth/><PageHeading title="Tác vụ theo lịch" description="Theo dõi trạng thái thực thi và nguyên nhân. Thời gian hiển thị theo giờ Việt Nam."/><div className="account-form-grid grid [grid-template-columns:repeat(auto-fit,minmax(min(100%,230px),1fr))] [gap:18px] [margin:15px_0]"><Field label="Loại tác vụ"><select value={kind} onChange={e => setKind(e.target.value)}><option value="">Tất cả</option>{["INGEST", "SCREEN", "SNAPSHOT", "TRAIN"].map(v => <option key={v}>{v}</option>)}</select></Field><Field label="Trạng thái"><select value={status} onChange={e => setStatus(e.target.value)}><option value="">Tất cả</option>{["PENDING", "RUNNING", "WAITING", "SUCCEEDED", "FAILED", "SKIPPED"].map(v => <option key={v}>{v}</option>)}</select></Field></div><Panel title="Danh sách tác vụ"><div className={accountStyles.card}><PagedTable path={`admin/scheduled-tasks?${query}`} columns={[{ key: "id", label: "Mã tác vụ" }, { key: "kind", label: "Loại" }, { key: "target_session", label: "Phiên" }, { key: "slot", label: "Ca" }, { key: "status", label: "Trạng thái" }, { key: "attempt", label: "Lần chạy" }, date("scheduled_at", "Lịch chạy"), date("next_attempt_at", "Thử lại lúc"), { key: "reason", label: "Lý do" }, { key: "result", label: "Kết quả" }]}/></div></Panel>{/* BE-GAP CFG-02: scheduled tasks API is read-only; no run-now/retry endpoint. */}</>;
+    return <><PageHeading title="Tác vụ theo lịch" description="Theo dõi trạng thái thực thi và nguyên nhân. Thời gian hiển thị theo giờ Việt Nam."/><ScreeningHealth/><ScreeningBackfill onAccepted={() => setRevision(value => value + 1)}/><div className="account-form-grid grid [grid-template-columns:repeat(auto-fit,minmax(min(100%,230px),1fr))] [gap:18px] [margin:15px_0]"><Field label="Loại tác vụ"><select value={kind} onChange={e => setKind(e.target.value)}><option value="">Tất cả</option>{["INGEST", "SCREEN", "BACKFILL", "SNAPSHOT", "TRAIN"].map(v => <option key={v} value={v}>{v === "BACKFILL" ? "Chạy bù screening" : v}</option>)}</select></Field><Field label="Trạng thái"><select value={status} onChange={e => setStatus(e.target.value)}><option value="">Tất cả</option>{["PENDING", "RUNNING", "WAITING", "SUCCEEDED", "FAILED", "SKIPPED"].map(v => <option key={v}>{v}</option>)}</select></Field></div><Panel title="Danh sách tác vụ"><div className={accountStyles.card}><PagedTable path={`admin/scheduled-tasks?${query}`} revision={revision} columns={[{ key: "id", label: "Mã tác vụ" }, { key: "kind", label: "Loại" }, { key: "target_session", label: "Phiên" }, { key: "slot", label: "Ca" }, { key: "status", label: "Trạng thái" }, { key: "attempt", label: "Lần chạy" }, date("scheduled_at", "Lịch chạy"), date("next_attempt_at", "Thử lại lúc"), { key: "reason", label: "Lý do" }, { key: "result", label: "Kết quả" }]}/></div></Panel></>;
 }
 export function JobsPage() {
     const [status, setStatus] = useState("");

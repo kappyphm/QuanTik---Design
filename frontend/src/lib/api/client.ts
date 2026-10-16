@@ -1,6 +1,12 @@
 "use client";
 import type { Role } from "./contracts";
 const messages: Record<string, string> = {
+  BACKFILL_SESSION_NOT_COMPLETED: "Phiên này chưa kết thúc hoặc không thuộc lịch giao dịch.",
+  BACKFILL_OPERATIONS_DISABLED: "Cần bật vận hành, nạp dữ liệu, screening và kết nối nguồn dữ liệu trước khi chạy bù.",
+  BACKFILL_ALREADY_PENDING: "Một phiên khác đang được chạy bù. Chờ tác vụ đó kết thúc trước.",
+  BACKFILL_REASON_REQUIRED: "Nhập lý do chạy bù ít nhất 10 ký tự.",
+  CALENDAR_NOT_READY: "Chưa cấu hình lịch giao dịch.",
+  CALENDAR_OUT_OF_RANGE: "Lịch giao dịch chưa bao phủ ngày hiện tại. Cần cập nhật lịch trước.",
   UNAUTHENTICATED: "Phiên đăng nhập không hợp lệ hoặc đã hết hạn.", LOGIN_RATE_LIMITED: "Đăng nhập sai nhiều lần. Vui lòng thử lại sau.",
   BACKEND_UNAVAILABLE: "Chưa kết nối được máy chủ. Vui lòng thử lại.", GOOGLE_NOT_CONFIGURED: "Đăng nhập Google chưa được cấu hình.",
   INVALID_ORIGIN: "Địa chỉ ứng dụng chưa khớp cấu hình kết nối.", PAYMENTS_DISABLED: "Thanh toán hiện đang tạm đóng.",

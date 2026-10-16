@@ -52,6 +52,7 @@ async function fixture(page: Page, options: { user?: boolean; admin?: boolean } 
       return json({ active_version: previous, items: [{ id, kind: "OPERATIONS", payload, created_at: 1792000000 }], next_cursor: null, runtime_gates: { scheduled_provider_enabled: false } });
     }
     if (["admin/orders", "admin/jobs", "admin/subscriptions", "admin/payments", "admin/reconciliation", "admin/audit", "admin/scheduled-tasks"].includes(path)) return json({ items: [], next_cursor: null });
+    if (path === "admin/screening/backfill-options") return json({ sessions: ["2026-10-15"], enabled: false, latest_task: null });
     if (path === "admin/operations/health") return json({ calendar_status: "READY", processes: [], screening: { published: null, latest_attempt: null, scheduled_provider_enabled: false, operations: { enabled: true, ingestion_enabled: false, screening_enabled: true } } });
     unknown.push(`${method} ${path}`); return json({ code: "UNHANDLED_FIXTURE" }, 500);
   });
@@ -510,4 +511,37 @@ test("GET đơn lỗi đầu tiên: tự phục hồi, hạn thanh toán theo đ
   await expect(page.getByText("000123456", { exact: false })).toBeVisible();
   expect(reads).toBe(2);
   await expect(page.getByText(/Đơn đã hết thời gian/)).toHaveCount(0);
+});
+
+test("Chạy bù screening: retry giữ key, tự theo dõi và mở lại trang xem tác vụ", async ({ page }) => {
+  const { unknown } = await fixture(page, { admin: true });
+  const keys: string[] = [];
+  let reads = 0;
+  const task = { id: "backfill-task", target_session: "2026-10-15", kind: "BACKFILL", slot: "PM", status: "RUNNING", attempt: 1, reason: null, deadline: Math.floor(Date.now()/1000)+3600, result: null };
+  await page.route("**/api/v1/admin/screening/**", async route => {
+    const path = new URL(route.request().url()).pathname;
+    const json = (body: unknown, status = 200) => route.fulfill({ status, contentType: "application/json", body: JSON.stringify(body) });
+    if (path.endsWith("/backfill-options")) return json({ sessions: ["2026-10-15", "2026-10-14"], enabled: true, latest_task: keys.length ? task : null });
+    keys.push(route.request().headers()["idempotency-key"]);
+    expect(route.request().postDataJSON()).toEqual({ target_session: "2026-10-15", reason: "Kiểm tra dữ liệu kết phiên" });
+    return json(keys.length === 1 ? { code: "BACKEND_UNAVAILABLE" } : task, keys.length === 1 ? 502 : 202);
+  });
+  await page.route("**/api/v1/admin/scheduled-tasks/backfill-task", route => {
+    reads++;
+    return route.fulfill({ contentType: "application/json", body: JSON.stringify({ ...task, status: reads > 1 ? "SUCCEEDED" : "RUNNING" }) });
+  });
+  await page.goto("/admin/scheduled-tasks");
+  await expect(page.getByLabel("Phiên cần chạy bù")).toHaveValue("2026-10-15");
+  await page.getByLabel("Lý do (10–500 ký tự)").fill("Kiểm tra dữ liệu kết phiên");
+  await page.getByRole("button", { name: "Chạy bù phiên đã chọn" }).click();
+  await expect(page.locator(".account-notice[role=alert]")).toContainText("Chưa kết nối được máy chủ");
+  await page.getByRole("button", { name: "Chạy bù phiên đã chọn" }).click();
+  await expect(page.getByText(/Đang nạp dữ liệu và quét/)).toBeVisible();
+  await expect(page.getByText(/Đã có kết quả/)).toBeVisible({ timeout: 10000 });
+  expect(keys).toHaveLength(2); expect(keys[0]).toBeTruthy(); expect(keys[0]).toBe(keys[1]);
+  await page.reload();
+  await expect(page.getByText(/Đã có kết quả/)).toBeVisible();
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth+1)).toBeTruthy();
+  await page.screenshot({ path: `test-results/account-admin/${test.info().project.name}/screening-backfill.png`, fullPage: true });
+  expect(unknown).toEqual([]);
 });
