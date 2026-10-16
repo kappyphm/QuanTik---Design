@@ -33,6 +33,6 @@ API hủy phân tích và admin hoàn lượt đã gỡ. Hủy **đơn chưa tr�
 
 ## Phần cần cấu hình/nghiệm thu thật
 
-- `QUANTIK_SUPPORT_URL` trong FE server nhận HTTPS hoặc mailto để hiển thị kênh hỗ trợ đối soát. Chưa có địa chỉ thật từ chủ sản phẩm; để trống sẽ chỉ hiện mã tham chiếu, không dựng liên hệ giả.
+- `QUANTIK_SUPPORT_URL` trong FE server nhận HTTPS hoặc mailto để hiển thị kênh hỗ trợ đối soát. Theo yêu cầu mock của chủ sản phẩm, khi chưa cấu hình sẽ hiện `support@quantik.example` với nhãn “email minh họa”. Đây chưa phải hộp thư hỗ trợ thực tế; thay biến môi trường khi có kênh thật.
 - Chưa nghiệm thu chuyển khoản ngân hàng thật, webhook public, độ trễ thực tế và thao tác đối soát thực với tiền thật. Bộ test dùng DB tạm và API fixtures cho các tình huống thanh toán.
 - Schema0015 phải chạy trước BE mới. Các phiên bản gói đang có giữ số hạn mức cũ và diễn giải theo ngày; gói cơ bản hiện là20/ngày. Admin cần kiểm duyệt giá/hạn mức trước mở bán thực tế.
