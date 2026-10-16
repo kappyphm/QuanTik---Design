@@ -20,7 +20,7 @@ async function fixture(page: Page, options: { user?: boolean; admin?: boolean } 
     if (path === "plans") return json({ payments_enabled: true, items: state.plans.filter(p => p.available) });
     if (path === "me") return json({ id: accountId, role: "user", display_name: "Người dùng QuanTik", email: "customer@example.test" });
     if (path === "admin/me") return json({ id: "fixture-admin", role: "admin", username: "operator" });
-    if (path === "me/entitlements") return json({ active: state.paid, remaining: state.paid ? 25 : 0, active_limit: state.paid ? 2 : 0, valid_until: null, daily_limit: 25, created_today: 0, cancel_after_compute_consumes: false });
+    if (path === "me/entitlements") return json({ active: state.paid, remaining: state.paid ? 25 : 0, active_limit: state.paid ? 2 : 0, valid_until: null, daily_limit: 25, created_today: 0, });
     if (path === "me/usage") return json({ buckets: [] });
     if (path === "subscription") return json({ items: [], next_cursor: null });
     if (path === "orders" && method === "POST") {
@@ -90,7 +90,9 @@ test("Admin login: sai mật khẩu, đăng nhập thành công và logout thu h
   await page.getByLabel("Mật khẩu", { exact: true }).fill("fixture-password");
   await page.getByRole("button", { name: "Đăng nhập", exact: true }).click();
   await expect(page.getByRole("heading", { name: "Quản trị QuanTik", exact: true })).toBeVisible();
-  await page.getByRole("button", { name: "Đăng xuất quản trị" }).click();
+  await page.locator("header details summary").click();
+  await expect(page.getByRole("button", { name: "Đăng xuất", exact: true })).toHaveCount(1);
+  await page.getByRole("button", { name: "Đăng xuất", exact: true }).click();
   await expect(page.getByRole("heading", { name: "Đăng nhập quản trị" })).toBeVisible();
   await expect(page.getByRole("navigation")).toHaveCount(0);
   expect(unknown).toEqual([]);

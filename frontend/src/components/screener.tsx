@@ -98,6 +98,5 @@ function ScreeningCard({ item, group }: { item: ScreeningItem; group: ScreeningG
       {[...new Set([...item.warnings, ...item.rejection_reasons])].map(reason => <p className="my-2 text-xs leading-5 text-[var(--muted)]" key={reason}>{screeningReason(reason)}</p>)}
       {item.volume_context.observed_at && <p className="text-xs text-[var(--muted)]">Quan sát lúc {stamp(item.volume_context.observed_at)}</p>}
     </details>
-    <Link className="text-sm text-[var(--accent)] underline" href={`/analysis?symbol=${encodeURIComponent(item.symbol)}&from=screening`}>Mở phân tích Quant ↗</Link>
   </article>;
 }

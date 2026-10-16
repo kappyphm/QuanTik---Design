@@ -46,6 +46,7 @@ test("Screening: vào thẳng kết quả, dữ liệu đúng đơn vị và ph�
   await expect(page.getByText("Khối lượng đột biến", { exact: true }).first()).toBeVisible();
   await expect(page.getByText("Chưa đủ dữ liệu", { exact: true }).first()).toBeVisible();
   await expect(page.getByText(/HMM|Monte Carlo|GARCH/)).toHaveCount(0);
+  await expect(page.locator('a[href^="/analysis?"]')).toHaveCount(0);
   expect(state.results.every(id => id === "am-run")).toBeTruthy();
   expect(state.mutations).toEqual([]);
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth+1)).toBeTruthy();

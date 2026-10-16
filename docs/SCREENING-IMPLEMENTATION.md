@@ -8,7 +8,7 @@
 - Each group is pinned to one publication ID. Changing slot or publication discards old pagination; late responses cannot overwrite a different view. ALL uses symbol order; ranked groups use BE rank order.
 - Publication shows date/slot, AM provisional versus PM completed, timestamp, coverage and stale reasons. Before first publication it shows waiting/last-attempt information; transient errors retain the explicitly dated previous publication. Refresh reads existing results only, every60seconds when visible, and on tab return.
 - Cards use real scores/prices/percentage ratios,21 TRUE/FALSE/UNAVAILABLE criteria and warnings. Missing data is not rendered as false. High distribution score is explicitly described as risk. No fabricated HMM/GARCH/Monte Carlo content is attached to screening results.
-- The separate Quant page remains a simulation in its existing scope. Links from screening carry a visible explanation that opening it does not create an actual Quant request or report. Completing Quant requests is a separate flow; this task does not claim that integration.
+- The separate Quant page remains a simulation in its existing scope. Screening does not link to simulated Quant reports. The analysis action can return once the actual request/report flow is integrated.
 - Admin scheduled tasks includes screening publication/attempt status, calendar, ingestion/environment switches and scheduler/worker health, with links to the relevant configuration pages.
 
 ## Backend and operational status
