@@ -15,8 +15,13 @@ const messages: Record<string, string> = {
   PLAN_REPLACEMENT_CONFIRMATION_REQUIRED: "Cần xác nhận thay thế phiên bản gói đang bán.", PLAN_REPLACEMENT_CONFLICT: "Đã có phiên bản khác thay thế gói cũ. Tải lại danh mục để kiểm tra.",
   INVALID_CURSOR: "Trang dữ liệu đã không còn hợp lệ. Vui lòng quay lại đầu danh sách.", REQUEST_FAILED: "Không thể hoàn tất yêu cầu. Vui lòng thử lại hoặc cung cấp mã hỗ trợ.",
   NOT_FOUND: "Không tìm thấy dữ liệu hoặc bạn không có quyền truy cập.", PAYMENT_DOES_NOT_MATCH: "Giao dịch không khớp với đơn đã chọn.",
+  SCREENING_SUBSCRIPTION_REQUIRED: "Bạn cần gói phân tích còn hiệu lực để xem kết quả quét.",
+  SCREENING_NOT_READY: "Chưa có kết quả quét được công bố cho ca này.",
+  SCREENING_LIVE_DATA_REQUIRED: "Kết quả chưa đủ điều kiện dữ liệu để công bố.",
+  SCREENING_RUN_NOT_READY: "Kỳ quét này chưa hoàn tất. Vui lòng cập nhật kết quả.",
 };
 export class ApiError extends Error {
+  payload?: Record<string, unknown>;
   constructor(public status: number, public code: string, public requestId?: string, details?: { location: (string | number)[]; type: string }[]) {
     const fields: Record<string, string> = { name: "Tên gói", daily_request_limit: "Giới hạn yêu cầu/ngày", analysis_quota: "Giới hạn yêu cầu/ngày", duration_days: "Thời hạn", price_vnd: "Giá", active_limit: "Số yêu cầu đồng thời", account_number: "Số tài khoản", account_name: "Tên chủ tài khoản", bank_code: "Ngân hàng", reason: "Lý do", api_key: "Khóa dịch vụ", webhook_api_key: "Khóa webhook" };
     const labels = [...new Set((details || []).map(d => fields[String(d.location?.at(-1))]).filter(Boolean))];
@@ -31,7 +36,11 @@ export async function raw<T>(path: string, init: RequestInit = {}): Promise<T> {
   catch { throw new ApiError(0, "BACKEND_UNAVAILABLE"); }
   if (response.status === 204) return undefined as T;
   const data = await response.json().catch(() => ({}));
-  if (!response.ok) throw new ApiError(response.status, data.code || "REQUEST_FAILED", data.request_id || response.headers.get("x-request-id"), data.details);
+  if (!response.ok) {
+    const error = new ApiError(response.status, data.code || "REQUEST_FAILED", data.request_id || response.headers.get("x-request-id"), data.details);
+    error.payload = data;
+    throw error;
+  }
   return data as T;
 }
 type Token = { access_token: string; expires_in: number };

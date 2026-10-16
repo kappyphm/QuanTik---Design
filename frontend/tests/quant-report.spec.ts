@@ -52,12 +52,6 @@ test("Sidebar chỉ nạp biểu đồ khi mở diễn giải, mã quét cũng c
   await expect(chart.getByRole("img", { name: /Giá và trạng thái HMM FPT/ })).toBeVisible();
   await chart.getByRole("link", { name: "Đọc toàn bộ phân tích", exact: false }).click();
   await expect(page).toHaveURL(/analysis\?symbol=FPT/);
-  await page.goto("/screener");
-  await page.getByRole("button", { name: "Quét toàn sàn", exact: true }).click();
-  const first = page.locator(".scan-item").first();
-  await first.getByText("Vì sao nổi bật?", { exact: true }).click();
-  await first.locator(".quant-report-section > summary").filter({ hasText: "Monte Carlo" }).click();
-  await expect(first.getByRole("img", { name: /Dải giá Monte Carlo DRI/ })).toBeVisible();
 });
 
 test("Hồ sơ nhân tố có số liệu gốc, diễn giải và cột 3D điều khiển được",async({page})=>{

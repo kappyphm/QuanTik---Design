@@ -72,29 +72,11 @@ test("Bấm mã mở TradingView cùng Quant, mở/thu sidebar và toàn màn h�
   await expect(page).toHaveURL(/analysis\?symbol=FPT/);
 });
 
-test("Quét toàn sàn chỉ hiện 5 + 5 sau khi kích hoạt và xem giải thích", async ({ page }) => {
+test("Quét toàn sàn yêu cầu đăng nhập và không có nút phát động quét", async ({ page }) => {
   await page.goto("/screener");
-  await page.screenshot({ path: `test-results/ui/${test.info().project.name}/scan.png`, fullPage: true });
-  await expect(page.getByRole("heading", { name: "Khai mở góc nhìn toàn sàn." })).toBeVisible();
-  await expect(page.locator(".scan-intro-copy h2")).toHaveCSS("font-family", /IBM Plex Mono/);
-  await expect(page.getByRole("button", { name: "Quét toàn sàn", exact: true })).toHaveCSS("font-family", /IBM Plex Mono/);
-  await expect(page.locator(".scan-item")).toHaveCount(0);
-  await expect(page.getByText(/Bản mẫu Excel|JSON|pipeline/)).toHaveCount(0);
-  await page.getByRole("button", { name: "Quét toàn sàn", exact: true }).click();
-  await expect(page.locator(".scan-grid > section").nth(0).locator(".scan-item")).toHaveCount(5);
-  await expect(page.locator(".scan-grid > section").nth(1).locator(".scan-item")).toHaveCount(5);
-  await page.screenshot({ path: `test-results/ui/${test.info().project.name}/scan-results.png`, fullPage: true });
-  const first = page.locator(".scan-item").first();
-  await expect(first.locator(".condition-list")).not.toBeVisible();
-  await first.getByText("Vì sao nổi bật?", { exact: true }).click();
-  await expect(first.locator(".condition-list")).toBeVisible();
-  await first.getByRole("link", { name: "Phân tích Quant" }).click();
-  await expect(page).toHaveURL(/analysis\?symbol=DRI/);
-  await page.getByRole("button", { name: "Xem kết quả mẫu", exact: true }).click();
-  await expect(page.locator(".quant-action")).toContainText("THEO DÕI");
-  await page.getByLabel("Chọn mã phân tích", { exact: true }).fill("HPG");
-  await page.getByRole("button", { name: "Chọn mã", exact: true }).click();
-  await expect(page).toHaveURL(/analysis\?symbol=HPG/);
+  await expect(page.getByRole("heading", { name: "Cần đăng nhập", exact: true })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Quét toàn sàn", exact: true })).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "Quét lại", exact: true })).toHaveCount(0);
 });
 
 test("Theme và các trang giữ bố cục trong màn hình desktop/mobile", async ({ page, isMobile }) => {

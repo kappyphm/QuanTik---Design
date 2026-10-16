@@ -52,6 +52,7 @@ async function fixture(page: Page, options: { user?: boolean; admin?: boolean } 
       return json({ active_version: previous, items: [{ id, kind: "OPERATIONS", payload, created_at: 1792000000 }], next_cursor: null, runtime_gates: { scheduled_provider_enabled: false } });
     }
     if (["admin/orders", "admin/jobs", "admin/subscriptions", "admin/payments", "admin/reconciliation", "admin/audit", "admin/scheduled-tasks"].includes(path)) return json({ items: [], next_cursor: null });
+    if (path === "admin/operations/health") return json({ calendar_status: "READY", processes: [], screening: { published: null, latest_attempt: null, scheduled_provider_enabled: false, operations: { enabled: true, ingestion_enabled: false, screening_enabled: true } } });
     unknown.push(`${method} ${path}`); return json({ code: "UNHANDLED_FIXTURE" }, 500);
   });
   function order() { return { plan, id: orderId, plan_id: planId, amount_vnd: 150000, reference: "QTKFIXTURE", status: state.paid ? "PAID" : "PENDING", created_at: Math.floor(Date.now() / 1000), expires_at: Math.floor(Date.now() / 1000) + 1800, paid_at: state.paid ? Math.floor(Date.now() / 1000) : null, bank: "TPBANK", account_number: "000123456", account_name: "QUANTIK", transfer_content: "QTKFIXTURE", qr_url: null }; }

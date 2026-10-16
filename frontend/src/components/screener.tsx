@@ -1,74 +1,103 @@
 "use client";
-import { tw } from "@/lib/tailwind";
 import Link from "next/link";
-import { useState } from "react";
-import { ArrowUpRight, Search, ShieldCheck, ChartNoAxesCombined } from "lucide-react";
-import { scanSnapshot, demoEnabled, type ScanResult } from "@/lib/mock-data";
+import { useCallback, useEffect, useState } from "react";
+import { api, ApiError } from "@/lib/api/client";
+import { money, stamp } from "@/lib/api/contracts";
+import { groupLabels, screeningReason, type ScreeningGroup, type ScreeningItem, type ScreeningLatest, type ScreeningResults, type ScreeningRun, type ScreeningSlot } from "@/lib/api/screening";
+import { Guard } from "./account/session";
+import { ErrorNotice } from "./account/common";
 import { PageHeading, Panel } from "./ui";
-import { Criteria } from "./quant-panel";
-import { QuantReport } from "./quant-report";
-import { AnnotatedText } from "./term-hint";
+
+const control = "min-h-11 rounded-[4px] border border-[var(--border)] bg-[var(--surface)] px-4 py-2 text-sm disabled:opacity-50";
+const criterionLabels: Record<string, string> = {
+  S1_RS_market: "Mạnh hơn thị trường", S2_vol_spike: "Khối lượng đột biến", S3_near_high20: "Gần đỉnh 20 phiên", S4_vol_dry_pullback: "Khối lượng thu hẹp", S5_breakout_high20: "Vượt đỉnh 20 phiên", S6_hh_hl_structure: "Đỉnh và đáy tăng", S7_RS_10d: "Sức mạnh tương đối 10 phiên",
+  A1_tight_range: "Biên độ tích lũy hẹp", A2_vol_declining: "Khối lượng giảm", A3_absorption: "Hấp thụ cung", A4_above_ma20: "Trên MA20", A5_near_resistance: "Gần kháng cự", A6_long_accumulation: "Tích lũy kéo dài", A7_spring: "Rũ bỏ dưới hỗ trợ",
+  D1_vol_no_price_up: "Khối lượng lớn, giá không tăng", D2_long_upper_shadow: "Bóng nến trên dài", D3_failed_breakout: "Vượt đỉnh thất bại", D4_vol_on_down: "Khối lượng lớn ở phiên giảm", D5_below_ma20: "Dưới MA20", D6_drop_from_peak: "Giảm từ đỉnh", D7_multi_dist_sessions: "Nhiều phiên phân phối",
+};
+const percent = (v: number) => new Intl.NumberFormat("vi-VN", { style: "percent", maximumFractionDigits: 1 }).format(v);
+const score = (v: number) => new Intl.NumberFormat("vi-VN", { maximumFractionDigits: 1 }).format(v);
+const slotLabel = (r: ScreeningRun) => `${r.target_session.split("-").reverse().join("/")} · ${r.slot === "AM" ? "Ca sáng (tạm tính)" : "Ca chiều (hoàn tất)"}`;
+
 export function Screener() {
-    const [loaded, setLoaded] = useState(false);
-    return <>
-    <PageHeading title="Quét toàn sàn">{loaded && <>
-      <button className="button primary [.auth-stage_.account-login_&]:w-full [.auth-stage_.account-login_&]:justify-center [.auth-stage_.account-login_&]:[min-height:46px] [.account-actions_&]:[white-space:normal] [.account-table_&]:[font-size:11px] inline-flex items-center justify-center [gap:9px] [font-size:14px] [font-weight:500] [border-width:1px] [border-style:solid] [border-color:transparent] [padding:10px_15px] [border-radius:4px] [min-height:42px] whitespace-nowrap [transition:background_0.18s,_transform_0.18s] [.button&]:[color:#172016]! [.button&]:[background:var(--accent)] [.button&]:[border-color:var(--accent)] [.terminal[data-theme='light']_.button&]:[color:white]! [.button&:hover]:[background:color-mix(in_srgb,_var(--accent)_85%,_white)] [.button&:hover]:[transform:translateY(-1px)] [.chart-controls_&]:[font-size:14px] [.chart-controls_&]:[padding:8px_12px] [.quant-panel.compact_.quant-panel-heading_&]:w-full max-[1100px]:[.quant-panel.compact_.quant-panel-heading_&]:[width:auto] max-[700px]:[.selected-actions_&]:[flex:1] max-[700px]:[min-height:42px] [.scan-intro-actions_&]:[min-height:52px] [.scan-intro-actions_&]:[padding:13px_20px] [.scan-intro-actions_&]:[font-size:16px] [.quant-chart-views_&]:[padding:8px_12px] [.quant-chart-views_&]:[font-size:14px] [.quant-chart-views_&[aria-pressed='true']]:[color:var(--accent)] [.quant-chart-views_&[aria-pressed='true']]:[border-color:var(--accent)] [.quant-chart-views_&[aria-pressed='true']]:[background:var(--accent-soft)] [.quant-model-toolbar_&]:[padding:8px_10px] [.quant-model-toolbar_&]:[font-size:14px] max-[700px]:[.scan-intro-actions_&]:justify-center max-[700px]:[.scan-intro-actions_&]:w-full" onClick={() => setLoaded(false)}>Quét lại</button>
-    </>}</PageHeading>
-    {!loaded ? <section className="scan-intro overflow-hidden [border-width:1px] [border-style:solid] [border-color:var(--border)] [border-radius:4px] [background:linear-gradient(145deg,_transparent_43%,_color-mix(in_srgb,_var(--positive)_7%,_transparent)_43%,_color-mix(in_srgb,_var(--positive)_7%,_transparent)_65%,_var(--accent-soft)_65%,_transparent_90%),_var(--surface)]" aria-labelledby="scan-intro-title">
-      <div className="scan-intro-main grid [grid-template-columns:1.05fr_1fr] items-center [gap:24px] [padding:clamp(28px,_4vw,_56px)] [min-height:420px] max-[1000px]:[grid-template-columns:1fr] max-[1000px]:[gap:12px] max-[700px]:[padding:28px_22px_8px] max-[700px]:[min-height:0]">
-        <div className="scan-intro-copy min-w-0 [&_h2]:[font-size:clamp(34px,_3.2vw,_54px)] [&_h2]:[font-weight:600] [&_h2]:[line-height:1.16] [&_h2]:[letter-spacing:-.04em] [&_h2]:[margin:26px_0_20px] [&_h2_em]:[color:var(--accent)] [&_h2_em]:[font-style:normal] [&_>_p]:[font-size:18px] [&_>_p]:[line-height:1.7] [&_>_p]:[max-width:490px] [&_>_p]:[color:var(--muted)] [&_>_p]:[margin:0] max-[700px]:[&_>_p]:[font-size:17px] max-[700px]:[&_h2]:[margin-top:22px]">
-          <span className="scan-intro-eyebrow inline-flex items-center [gap:10px] [color:var(--positive)] [font-size:15px] [font-weight:500] [&::before]:[content:''] [&::before]:[width:7px] [&::before]:[height:7px] [&::before]:[border-radius:50%] [&::before]:[background:currentColor]">Góc nhìn toàn thị trường</span>
-          <h2 id="scan-intro-title">Khai mở góc nhìn<br /><em>toàn sàn.</em></h2>
-          <p>Tìm 5 mã nổi bật, nhận diện 5 mã nên tránh và khám phá lý do phía sau từng lựa chọn.</p>
-          <div className="scan-intro-actions flex items-center flex-wrap [gap:12px] [margin-top:30px] max-[700px]:[align-items:stretch]">
-            <button className="button primary [.auth-stage_.account-login_&]:w-full [.auth-stage_.account-login_&]:justify-center [.auth-stage_.account-login_&]:[min-height:46px] [.account-actions_&]:[white-space:normal] [.account-table_&]:[font-size:11px] inline-flex items-center justify-center [gap:9px] [font-size:14px] [font-weight:500] [border-width:1px] [border-style:solid] [border-color:transparent] [padding:10px_15px] [border-radius:4px] [min-height:42px] whitespace-nowrap [transition:background_0.18s,_transform_0.18s] [.button&]:[color:#172016]! [.button&]:[background:var(--accent)] [.button&]:[border-color:var(--accent)] [.terminal[data-theme='light']_.button&]:[color:white]! [.button&:hover]:[background:color-mix(in_srgb,_var(--accent)_85%,_white)] [.button&:hover]:[transform:translateY(-1px)] [.chart-controls_&]:[font-size:14px] [.chart-controls_&]:[padding:8px_12px] [.quant-panel.compact_.quant-panel-heading_&]:w-full max-[1100px]:[.quant-panel.compact_.quant-panel-heading_&]:[width:auto] max-[700px]:[.selected-actions_&]:[flex:1] max-[700px]:[min-height:42px] [.scan-intro-actions_&]:[min-height:52px] [.scan-intro-actions_&]:[padding:13px_20px] [.scan-intro-actions_&]:[font-size:16px] [.quant-chart-views_&]:[padding:8px_12px] [.quant-chart-views_&]:[font-size:14px] [.quant-chart-views_&[aria-pressed='true']]:[color:var(--accent)] [.quant-chart-views_&[aria-pressed='true']]:[border-color:var(--accent)] [.quant-chart-views_&[aria-pressed='true']]:[background:var(--accent-soft)] [.quant-model-toolbar_&]:[padding:8px_10px] [.quant-model-toolbar_&]:[font-size:14px] max-[700px]:[.scan-intro-actions_&]:justify-center max-[700px]:[.scan-intro-actions_&]:w-full" disabled={!demoEnabled} onClick={() => setLoaded(true)}>Quét toàn sàn <ArrowUpRight size={22} aria-hidden="true"/></button>
-          </div>
-        </div>
-        <ScanIllustration />
-      </div>
-      <div className="scan-intro-features grid [grid-template-columns:repeat(3,_minmax(0,_1fr))] [gap:24px] [border-top-width:1px] [border-top-style:solid] [border-top-color:var(--border)] [padding:28px_0] [margin:0_clamp(28px,_4vw,_56px)] [&_>_div]:flex [&_>_div]:items-start [&_>_div]:[gap:12px] [&_>_div]:min-w-0 [&_svg]:[color:var(--positive)] [&_svg]:[flex-shrink:0] [&_svg]:[margin-top:3px] [&_h3]:[font-size:17px] [&_h3]:[font-weight:500] [&_h3]:[margin:0_0_6px] [&_p]:[font-size:15px] [&_p]:[color:var(--muted)] [&_p]:[margin:0] max-[700px]:[grid-template-columns:1fr] max-[700px]:[gap:22px] max-[700px]:[margin:0_22px] max-[700px]:[padding:24px_0]">
-        <div><Search size={22} aria-hidden="true"/><div><h3>Tìm cơ hội</h3><p>5 mã nổi bật để theo dõi</p></div></div>
-        <div><ShieldCheck size={22} aria-hidden="true"/><div><h3>Nhận diện rủi ro</h3><p>5 mã cần thận trọng</p></div></div>
-        <div><ChartNoAxesCombined size={22} aria-hidden="true"/><div><h3>Hiểu từng mã</h3><p>Xem lý do và phân tích Quant</p></div></div>
-      </div>
-    </section> : <>
-    <div className="scan-results-heading flex [align-items:baseline] justify-between flex-wrap [gap:12px] [margin-bottom:20px] [&_h2]:[font-size:22px] [&_h2]:[font-weight:500] [&_h2]:[margin:0] [&_span]:[color:var(--muted)] [&_span]:[font-size:16px]"><h2>Kết quả quét</h2><span role="status">10 mã · 2 nhóm</span></div>
-    <div className="scan-grid scan-results grid [grid-template-columns:repeat(2,_minmax(0,_1fr))] [gap:24px] max-[900px]:[grid-template-columns:1fr]">
-      <Panel title="5 mã nổi bật"><ScanList items={scanSnapshot.best}/></Panel>
-      <Panel title="5 mã nên tránh"><ScanList items={scanSnapshot.avoid} caution/></Panel>
-    </div>
+  return <><PageHeading title="Quét toàn sàn"/><Guard><ScreeningBoard/></Guard></>;
+}
+function ScreeningBoard() {
+  const [slot, setSlot] = useState<ScreeningSlot>("ALL");
+  return <><p className="mb-5 leading-7 text-[var(--muted)]">Kết quả cập nhật theo ca giao dịch. Xem kết quả không sử dụng hạn mức yêu cầu phân tích trong ngày.</p>
+    <label className="mb-5 flex flex-wrap items-center gap-3 text-sm">Ca công bố<select aria-label="Ca công bố" className={control} value={slot} onChange={e => setSlot(e.target.value as ScreeningSlot)}><option value="ALL">Mới nhất</option><option value="AM">Ca sáng</option><option value="PM">Ca chiều</option></select></label>
+    <Publication key={slot} slot={slot}/></>;
+}
+function Publication({ slot }: { slot: ScreeningSlot }) {
+  const [latest, setLatest] = useState<ScreeningLatest>(), [error, setError] = useState<Error>();
+  const [loading, setLoading] = useState(true), [version, setVersion] = useState(0);
+  const [group, setGroup] = useState<ScreeningGroup | "OVERVIEW">("OVERVIEW");
+  const reload = useCallback(() => setVersion(v => v + 1), []);
+  useEffect(() => {
+    let active = true; setLoading(true);
+    void api<ScreeningLatest>("user", `screenings/latest?slot=${slot}`).then(data => {
+      if (active) { setLatest(data); setError(undefined); }
+    }).catch(err => { if (active) { setError(err); if (err instanceof ApiError && [401, 403].includes(err.status)) setLatest(undefined); } })
+      .finally(() => { if (active) setLoading(false); });
+    return () => { active = false; };
+  }, [slot, version]);
+  const forbidden = error instanceof ApiError && error.code === "SCREENING_SUBSCRIPTION_REQUIRED";
+  useEffect(() => {
+    if (loading || forbidden) return;
+    const timer = setTimeout(() => { if (document.visibilityState === "visible") reload(); }, 60000);
+    const visible = () => { if (document.visibilityState === "visible") reload(); };
+    document.addEventListener("visibilitychange", visible);
+    return () => { clearTimeout(timer); document.removeEventListener("visibilitychange", visible); };
+  }, [loading, forbidden, version, reload]);
+  if (forbidden) return <section className="rounded-[4px] border border-[var(--border)] p-6"><h2 className="text-xl">Cần gói phân tích còn hiệu lực</h2><p className="my-3">Mua hoặc gia hạn gói để xem các kết quả quét định kỳ.</p><Link className="text-[var(--accent)] underline" href="/plans">Xem các gói phân tích</Link></section>;
+  const notReady = error instanceof ApiError && error.code === "SCREENING_NOT_READY";
+  const attempt = latest?.latest_attempt || (notReady ? error.payload?.latest_attempt as ScreeningRun | null : null);
+  return <>
+    <div className="mb-5 flex flex-wrap items-center justify-between gap-3"><p className="text-sm text-[var(--muted)]">Giờ Việt Nam · Sáng 11:30–12:55 · Chiều sau 16:00 đến 17:30 · Theo lịch giao dịch</p><button className={control} disabled={loading} onClick={reload}>{loading ? "Đang cập nhật…" : "Cập nhật kết quả"}</button></div>
+    {loading && !latest && <p role="status" className="py-6">Đang tải kết quả quét…</p>}
+    {error && !notReady && <ErrorNotice error={error}/>}
+    {notReady && !latest && <section role="status" className="rounded-[4px] border border-[var(--border)] p-6"><h2 className="text-xl">Chưa có kết quả được công bố</h2><p className="mt-3">Hệ thống sẽ tự cập nhật khi có kết quả cho ca này.</p></section>}
+    {attempt && attempt.status !== "READY" && <p role="status" className="my-4 rounded-[4px] border border-[var(--border)] p-4 leading-7">Lần xử lý gần nhất: {slotLabel(attempt)}. {screeningReason(attempt.reason)}.{latest && " Bạn đang xem bản công bố trước đó."}</p>}
+    {latest && <>
+      <section className="mb-6 rounded-[4px] border border-[var(--border)] bg-[var(--surface)] p-5 leading-7"><h2 className="text-xl">Kết quả {slotLabel(latest)}</h2><p className="mt-2 text-sm text-[var(--muted)]">Công bố {stamp(latest.published_at)} · Dữ liệu {latest.summary.ready_symbols}/{latest.summary.expected_symbols} mã · Độ phủ {percent(latest.summary.history_coverage_ratio)}</p>
+        {latest.summary.validation_scope === "SCREENING_ONLY" && <p className="mt-2 text-sm">Đã kiểm tra hợp đồng dữ liệu phục vụ sàng lọc. Điều chỉnh giá do sự kiện doanh nghiệp chưa được xác minh.</p>}
+        {latest.stale && <p role="status" className="mt-3 text-[var(--accent)]">{latest.stale_reasons.map(screeningReason).join(". ")}. Kết quả có thể chưa phản ánh ca hiện tại.</p>}
+        {error && <p className="mt-2">Chưa cập nhật được trạng thái mới. Dữ liệu dưới đây thuộc bản công bố đã ghi ngày ở trên.</p>}
+      </section>
+      <div className="mb-5 flex flex-wrap gap-2" role="group" aria-label="Nhóm kết quả">{(["OVERVIEW", "OVERALL", "STRONG", "ACCUMULATION", "DISTRIBUTION", "ALL"] as const).map(value => <button className={`${control} ${group === value ? "text-[var(--accent)] border-[var(--accent)]" : ""}`} key={value} aria-pressed={group === value} onClick={() => setGroup(value)}>{value === "OVERVIEW" ? "Tổng quan" : groupLabels[value]}</button>)}</div>
+      {group === "OVERVIEW" ? <div className="grid gap-6 min-[900px]:grid-cols-2"><ScreeningList key={`${latest.id}-OVERALL`} runId={latest.id} group="OVERALL" title="Mã nổi bật"/><ScreeningList key={`${latest.id}-DISTRIBUTION`} runId={latest.id} group="DISTRIBUTION" title="Cảnh báo phân phối"/></div> : <ScreeningList key={`${latest.id}-${group}`} runId={latest.id} group={group} title={groupLabels[group]}/>}
     </>}
   </>;
 }
-function ScanList({ items, caution = false }: {
-    items: ScanResult[];
-    caution?: boolean;
-}) {
-    return <div className="scan-list [padding:0_22px] max-[700px]:[padding:0_18px]">{items.map((item) => <article className="scan-item [padding:20px_0] [.scan-item_+_&]:[border-top-width:1px] [.scan-item_+_&]:[border-top-style:solid] [.scan-item_+_&]:[border-top-color:var(--border)]" key={item.symbol}>
-    <div className="scan-item-heading flex justify-between [gap:12px] items-center [&_>_div]:flex [&_>_div]:items-center [&_>_div]:[gap:12px] [&_>_div_>_span]:[font-size:13px] [&_>_strong]:[font-size:24px] [&_>_strong]:[font-weight:500] [&_>_strong_>_span]:[font-size:13px] [&_>_strong_>_span]:[color:var(--muted)]"><div><Link className="symbol-link [background:none] [border-width:0] [font:600_16px_var(--font-mono),_monospace] [color:var(--text)] [padding:0] text-left [&:hover]:[color:var(--accent)]" href={`/analysis?symbol=${item.symbol}`}>{item.symbol}</Link><span className={tw(caution ? "negative" : "neutral")}>{item.recommendation}</span></div><strong className="number [font-family:var(--font-mono),_ui-monospace,_monospace] [font-variant-numeric:tabular-nums] [letter-spacing:-0.025em]">{item.score}<span>/100</span></strong></div>
-    <div className="scan-item-summary flex justify-between [gap:12px] items-center [margin-top:7px] [color:var(--muted)] [font-size:14px] [&_>_span]:min-w-0 [&_>_span]:overflow-hidden [&_>_span]:[text-overflow:ellipsis] [&_>_span]:whitespace-nowrap [&_a]:[flex-shrink:0]"><span>{item.sector}</span><Link className="text-link [.auth-stage_.account-login_&]:[font-size:12px] [.auth-stage_.account-login_&]:[color:var(--muted)]" href={`/analysis?symbol=${item.symbol}`}>Phân tích Quant ↗</Link></div>
-    <details className="scan-explanation [margin-top:13px] [&_>_summary]:[color:var(--accent)] [&_>_summary]:[font-size:14px] [&_>_summary]:cursor-pointer"><summary>Vì sao {caution ? "nên tránh" : "nổi bật"}?</summary>
-      <ul className="condition-list [padding-left:20px] [margin:16px_0] [color:var(--muted)] [font-size:15px] [line-height:1.65] [&_li_+_li]:[margin-top:7px]">{item.conditions.map((condition) => <li key={condition}><AnnotatedText text={condition}/></li>)}</ul>
-      <QuantReport result={item} compact showAction={false}/>
-      <details className="quant-raw-metrics [margin-top:24px] [&_>_summary]:[font-size:15px] [&_>_summary]:[color:var(--muted)] [&_>_summary]:cursor-pointer"><summary>Tất cả chỉ tiêu</summary><Criteria result={item} weightSuffix=""/></details>
-      <details className="result-explanation [&_>_summary]:[color:var(--accent)] [&_>_summary]:[font-size:14px] [&_>_summary]:cursor-pointer [margin-top:18px] [&_p]:[white-space:pre-line] [&_p]:[color:var(--muted)] [&_p]:[font-size:15px] [&_p]:[line-height:1.7]"><summary>Nhận xét đầy đủ</summary><p><AnnotatedText text={item.explanation}/></p></details>
-    </details>
-  </article>)}</div>;
+function ScreeningList({ runId, group, title }: { runId: string; group: ScreeningGroup; title: string }) {
+  const [items, setItems] = useState<ScreeningItem[]>([]), [cursor, setCursor] = useState<string>();
+  const [next, setNext] = useState<string | null>(null), [error, setError] = useState<Error>(), [loading, setLoading] = useState(true), [version, setVersion] = useState(0);
+  useEffect(() => {
+    let active = true; setLoading(true); setError(undefined);
+    void api<ScreeningResults>("user", `screenings/${encodeURIComponent(runId)}/results?group=${group}&limit=5${cursor ? `&cursor=${encodeURIComponent(cursor)}` : ""}`).then(data => {
+      if (data.run_id !== runId || data.group !== group) throw new Error("Kết quả chưa khớp kỳ đang xem. Vui lòng cập nhật lại.");
+      if (active) { setItems(old => cursor ? [...old, ...data.items.filter(item => !old.some(row => row.symbol === item.symbol))] : data.items); setNext(data.next_cursor); }
+    }).catch(err => { if (active) { setError(err); if (err instanceof ApiError && [401, 403].includes(err.status)) setItems([]); } })
+      .finally(() => { if (active) setLoading(false); });
+    return () => { active = false; };
+  }, [runId, group, cursor, version]);
+  return <Panel title={title}><div className="min-w-0 px-5 pb-5"><ErrorNotice error={error}/>{loading && <p role="status" className="py-4">Đang tải danh sách…</p>}{!loading && !error && !items.length && <p className="py-5 text-[var(--muted)]">Không có mã đủ điều kiện trong nhóm này.</p>}
+    {group === "DISTRIBUTION" && <p className="py-3 text-sm text-[var(--muted)]">Điểm cao thể hiện nhiều dấu hiệu phân phối, cần thận trọng.</p>}
+    {items.map(item => <ScreeningCard key={item.symbol} item={item} group={group}/>)}
+    {error ? <button className={control} disabled={loading} onClick={() => setVersion(v => v + 1)}>Thử lại danh sách</button> : next && <button className={control} disabled={loading} onClick={() => setCursor(next)}>Xem thêm</button>}
+  </div></Panel>;
 }
-function ScanIllustration() {
-    return <div className="scan-intro-visual min-w-0 [&_svg]:block [&_svg]:w-full [&_svg]:[height:auto] max-[1000px]:[max-width:520px] max-[1000px]:w-full max-[1000px]:[justify-self:center]" aria-hidden="true">
-    <svg viewBox="0 0 620 420" focusable="false">
-      <g className="scan-visual-grid [opacity:.22]" fill="none" stroke="var(--positive)" strokeWidth="1">
-        <path d="M30 230 310 70 590 230 310 390Z M100 270 380 110 M170 310 450 150 M240 350 520 190 M100 190 380 350 M170 150 450 310 M240 110 520 270"/>
-      </g>
-      <path d="M45 285 150 225 250 170 335 115 445 180 595 270" fill="none" stroke="var(--accent)" strokeWidth="3" strokeLinejoin="round"/>
-      {[{ x: 100, y: 228, h: 32 }, { x: 170, y: 205, h: 42 }, { x: 240, y: 178, h: 36 }, { x: 310, y: 165, h: 44 }, { x: 380, y: 133, h: 40 }, { x: 450, y: 110, h: 35 }].map((c, i) => <g key={c.x} fill={i === 3 ? "var(--accent)" : "var(--positive)"} stroke={i === 3 ? "var(--accent)" : "var(--positive)"}>
-        <line x1={c.x} x2={c.x} y1={c.y - 20} y2={c.y + c.h + 24}/>
-        <rect x={c.x - 8} y={c.y} width="16" height={c.h} stroke="none"/>
-      </g>)}
-      <circle cx="380" cy="154" r="68" fill="var(--surface)" fillOpacity=".15" stroke="var(--positive)" strokeWidth="1.5"/>
-      <path d="M428 204 479 255" stroke="var(--accent)" strokeWidth="10"/>
-      <path d="M380 67V86 M380 222V241 M293 154H312 M448 154H467" stroke="var(--positive)" strokeWidth="1.5"/>
-    </svg>
-  </div>;
+function ScreeningCard({ item, group }: { item: ScreeningItem; group: ScreeningGroup }) {
+  const value = item.groups[group]?.score ?? item.overall_score;
+  const complete = group === "ALL" || group === "OVERALL" ? item.ranking_eligible : item.groups[group]?.ranking_eligible;
+  const price = item.price_summary.close, change = item.price_summary.pct_change_1d;
+  return <article className="min-w-0 border-t border-[var(--border)] py-5 first:border-t-0">
+    <div className="flex flex-wrap items-center justify-between gap-3"><h3 className="font-mono text-lg font-semibold">{item.symbol} <span className="text-xs font-normal text-[var(--muted)]">{item.exchange}</span></h3><strong className="font-mono text-xl">{score(value)}<span className="text-xs text-[var(--muted)]">/100</span></strong></div>
+    <p className="my-2 flex flex-wrap gap-3 text-sm text-[var(--muted)]">{typeof price === "number" && <span>{money(price)}</span>}{typeof change === "number" && <span>{percent(change)}</span>}<span>{complete ? "Đủ điều kiện xếp hạng" : "Chưa đủ điều kiện xếp hạng"}</span></p>
+    <details className="my-3"><summary className="cursor-pointer text-sm text-[var(--accent)]">Xem tiêu chí và lý do</summary>
+      {Object.entries(item.groups).map(([name, details]) => <section key={name} className="my-4 min-w-0"><h4 className="text-sm font-semibold">{groupLabels[name as ScreeningGroup] || name} · {score(details.score)}/100</h4><p className="mt-1 text-xs text-[var(--muted)]">{details.true_count} đạt · {details.false_count} không đạt · {details.unavailable_count} thiếu dữ liệu</p><ul className="mt-2 divide-y divide-[var(--border)] text-sm">{Object.entries(details.criteria).map(([key, criterion]) => <li className="py-2" key={key}><div className="flex justify-between gap-3"><span>{criterionLabels[key] || key}</span><span className={criterion.state === "TRUE" ? "text-[var(--positive)]" : "text-[var(--muted)]"}>{criterion.state === "TRUE" ? "Đạt" : criterion.state === "FALSE" ? "Không đạt" : "Chưa đủ dữ liệu"}</span></div><p className="mt-1 break-words text-xs leading-5 text-[var(--muted)]">{criterion.detail}{criterion.state === "UNAVAILABLE" && ` · Cần ít nhất ${criterion.minimum_bars} phiên`}</p></li>)}</ul></section>)}
+      {[...new Set([...item.warnings, ...item.rejection_reasons])].map(reason => <p className="my-2 text-xs leading-5 text-[var(--muted)]" key={reason}>{screeningReason(reason)}</p>)}
+      {item.volume_context.observed_at && <p className="text-xs text-[var(--muted)]">Quan sát lúc {stamp(item.volume_context.observed_at)}</p>}
+    </details>
+    <Link className="text-sm text-[var(--accent)] underline" href={`/analysis?symbol=${encodeURIComponent(item.symbol)}&from=screening`}>Mở phân tích Quant ↗</Link>
+  </article>;
 }

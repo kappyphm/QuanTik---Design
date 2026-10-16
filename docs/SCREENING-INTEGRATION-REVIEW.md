@@ -1,5 +1,7 @@
 # Rà soát quét toàn sàn định kỳ — 16/10/2026
 
+Đây là hiện trạng trước thi công. Kết quả đã triển khai và giới hạn nghiệm thu cập nhật tại [SCREENING-IMPLEMENTATION.md](SCREENING-IMPLEMENTATION.md).
+
 ## Kết luận
 
 Có thể bắt đầu tích hợp FE với API đã có, nhưng chưa thể nghiệm thu luồng quét định kỳ bằng dữ liệu thật. FE đang là bản mô phỏng; BE có bộ quét/lập lịch nhưng thiếu đường dữ liệu được kiểm định và các tiến trình pipeline đang chạy ở local.
