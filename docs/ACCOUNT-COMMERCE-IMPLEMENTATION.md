@@ -1,5 +1,9 @@
 # Triển khai tài khoản và thương mại — 16/10/2026
 
+## Tạm nghiệm thu
+
+Ngày16/10/2026, chủ sản phẩm xác nhận tạm nghiệm thu phần thanh toán và quản lý tài khoản đã triển khai. Mốc source: FE `b21ace7` và `87a71d2`; BE `f502727`. Xác nhận này không thay đổi các giới hạn kiểm chứng/nghiệm thu ngân hàng thật ghi bên dưới; email hỗ trợ vẫn là dữ liệu minh họa.
+
 ## Chính sách đã chốt
 
 - Gói có thời hạn; giới hạn số yêu cầu tạo thành công mỗi ngày, reset00:00 Asia/Ho_Chi_Minh. Trường BE `analysis_quota` giữ tương thích nhưng mang cùng ý nghĩa với `daily_request_limit`.
