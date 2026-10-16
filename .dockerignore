@@ -1,0 +1,10 @@
+**/node_modules
+**/.next
+**/.env*
+**/.git
+**/*.pem
+**/*.key
+**/test-results
+**/playwright-report
+preview
+**/*.tsbuildinfo

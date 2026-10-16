@@ -7,3 +7,10 @@ out/
 test-results/
 playwright-report/
 /preview/
+
+# Private runtime credentials must never be versioned.
+*.pem
+*.key
+*.p12
+*.pfx
+credentials*.json
