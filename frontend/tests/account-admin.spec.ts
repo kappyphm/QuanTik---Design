@@ -15,7 +15,7 @@ test("Admin: chờ Retry-After, giữ mật khẩu và đăng nhập lại sau k
   await page.getByRole("button", { name: "Đăng nhập", exact: true }).click();
   await expect(page.getByRole("button", { name: /Thử lại sau/ })).toBeDisabled();
   await expect(page.getByLabel("Mật khẩu")).toHaveValue("fixture-password");
-  await expect(page.getByRole("alert")).toContainText("login-rate-fixture");
+  await expect(page.locator(".account-notice[role=alert]")).toContainText("login-rate-fixture");
   await page.clock.fastForward(4000);
   await page.getByRole("button", { name: "Đăng nhập", exact: true }).click();
   await expect(page).toHaveURL(/\/admin$/);
