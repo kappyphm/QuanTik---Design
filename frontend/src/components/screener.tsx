@@ -1,7 +1,6 @@
 "use client";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { Search, ShieldCheck } from "lucide-react";
 import { api, ApiError } from "@/lib/api/client";
 import { money } from "@/lib/api/contracts";
 import type { ScreeningItem, ScreeningLatest, ScreeningResults } from "@/lib/api/screening";
@@ -41,20 +40,6 @@ function ScreeningBoard() {
     return () => { clearTimeout(timer); document.removeEventListener("visibilitychange",refresh); };
   }, [loading, forbidden, version]);
   return <>
-    <section className="scan-intro mb-6 overflow-hidden rounded-[4px] border border-[var(--border)] bg-[var(--surface)] [background-image:linear-gradient(145deg,transparent_43%,var(--accent-soft)_65%,transparent_90%)]" aria-labelledby="scan-intro-title">
-      <div className="grid min-h-[380px] items-center gap-6 p-7 min-[900px]:grid-cols-2 min-[900px]:p-12">
-        <div className="min-w-0">
-          <span className="text-sm text-[var(--positive)]">Góc nhìn toàn thị trường</span>
-          <h2 id="scan-intro-title" className="my-6 text-4xl font-semibold leading-tight tracking-tight min-[900px]:text-5xl">Khai mở góc nhìn<br/><em className="not-italic text-[var(--accent)]">toàn sàn.</em></h2>
-          <p className="max-w-lg leading-7 text-[var(--muted)]">Tìm 5 mã nổi bật và nhận diện 5 mã nên tránh để chủ động theo dõi thị trường.</p>
-        </div>
-        <ScanIllustration/>
-      </div>
-      <div className="grid gap-5 border-t border-[var(--border)] px-7 py-5 text-sm min-[700px]:grid-cols-2 min-[900px]:px-12">
-        <div className="flex items-center gap-3"><Search size={21} aria-hidden="true"/><span>Tìm 5 mã nổi bật để theo dõi</span></div>
-        <div className="flex items-center gap-3"><ShieldCheck size={21} aria-hidden="true"/><span>Nhận diện 5 mã cần thận trọng</span></div>
-      </div>
-    </section>
     <div className="grid gap-5" aria-live="polite">
       {loading && !publication && <p role="status">Đang tải kết quả công bố mới nhất…</p>}
       {forbidden ? <section className="rounded-[4px] border border-[var(--border)] p-6"><h2 className="text-xl">Cần gói phân tích còn hiệu lực</h2><p className="my-3">Kích hoạt gói để xem kết quả quét.</p><Link className="text-[var(--accent)] underline" href="/plans">Xem các gói phân tích</Link></section>
@@ -75,21 +60,4 @@ function ScreeningList({ items, title }: { items: ScreeningItem[]; title: string
     {item.recommendation && <p className="mb-3 text-sm text-[var(--muted)]">{item.recommendation}</p>}
     <Link className="text-sm text-[var(--accent)]" href={`/analysis?symbol=${encodeURIComponent(item.symbol)}`}>Phân tích Quant ↗</Link>
   </article>)}</div></Panel>;
-}
-function ScanIllustration() {
-    return <div className="scan-intro-visual min-w-0 [&_svg]:block [&_svg]:w-full [&_svg]:[height:auto] max-[1000px]:[max-width:520px] max-[1000px]:w-full max-[1000px]:[justify-self:center]" aria-hidden="true">
-    <svg viewBox="0 0 620 420" focusable="false">
-      <g className="scan-visual-grid [opacity:.22]" fill="none" stroke="var(--positive)" strokeWidth="1">
-        <path d="M30 230 310 70 590 230 310 390Z M100 270 380 110 M170 310 450 150 M240 350 520 190 M100 190 380 350 M170 150 450 310 M240 110 520 270"/>
-      </g>
-      <path d="M45 285 150 225 250 170 335 115 445 180 595 270" fill="none" stroke="var(--accent)" strokeWidth="3" strokeLinejoin="round"/>
-      {[{ x: 100, y: 228, h: 32 }, { x: 170, y: 205, h: 42 }, { x: 240, y: 178, h: 36 }, { x: 310, y: 165, h: 44 }, { x: 380, y: 133, h: 40 }, { x: 450, y: 110, h: 35 }].map((c, i) => <g key={c.x} fill={i === 3 ? "var(--accent)" : "var(--positive)"} stroke={i === 3 ? "var(--accent)" : "var(--positive)"}>
-        <line x1={c.x} x2={c.x} y1={c.y - 20} y2={c.y + c.h + 24}/>
-        <rect x={c.x - 8} y={c.y} width="16" height={c.h} stroke="none"/>
-      </g>)}
-      <circle cx="380" cy="154" r="68" fill="var(--surface)" fillOpacity=".15" stroke="var(--positive)" strokeWidth="1.5"/>
-      <path d="M428 204 479 255" stroke="var(--accent)" strokeWidth="10"/>
-      <path d="M380 67V86 M380 222V241 M293 154H312 M448 154H467" stroke="var(--positive)" strokeWidth="1.5"/>
-    </svg>
-  </div>;
 }

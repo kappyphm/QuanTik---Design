@@ -32,7 +32,7 @@ async function fixture(page: Page, mode = "ready") {
 
 test("Screening: tự tải kết quả, chỉ 5 mã mỗi nhóm và không lộ nội bộ", async ({ page }) => {
   const state = await fixture(page); await page.goto("/screener");
-  await expect(page.getByRole("heading",{ name: /Khai mở góc nhìn/ })).toBeVisible();
+  await expect(page.locator(".scan-intro")).toHaveCount(0);
   await expect(page.getByRole("button",{ name: /Kích hoạt quét|Quét lại/ })).toHaveCount(0);
   const best = page.locator("section.panel").filter({ has: page.getByRole("heading",{ name:"5 mã nổi bật",exact:true }) });
   const avoid = page.locator("section.panel").filter({ has: page.getByRole("heading",{ name:"5 mã nên tránh",exact:true }) });
