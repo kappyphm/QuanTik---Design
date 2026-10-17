@@ -1,5 +1,27 @@
 import { test, expect, type Page, type Route } from "@playwright/test";
 
+test("Admin: chờ Retry-After, giữ mật khẩu và đăng nhập lại sau khóa", async ({ page }) => {
+  await page.clock.install();
+  await fixture(page);
+  let posts = 0;
+  await page.route("**/api/v1/admin/auth/login", async route => {
+    posts++;
+    if (posts === 1) return route.fulfill({ status: 429, contentType: "application/json", headers: { "Retry-After": "3", "X-Request-ID": "login-rate-fixture" }, body: JSON.stringify({ code: "LOGIN_RATE_LIMITED" }) });
+    await route.fallback();
+  });
+  await page.goto("/admin/login");
+  await page.getByLabel("Tên đăng nhập").fill("operator");
+  await page.getByLabel("Mật khẩu").fill("fixture-password");
+  await page.getByRole("button", { name: "Đăng nhập", exact: true }).click();
+  await expect(page.getByRole("button", { name: /Thử lại sau/ })).toBeDisabled();
+  await expect(page.getByLabel("Mật khẩu")).toHaveValue("fixture-password");
+  await expect(page.getByRole("alert")).toContainText("login-rate-fixture");
+  await page.clock.fastForward(4000);
+  await page.getByRole("button", { name: "Đăng nhập", exact: true }).click();
+  await expect(page).toHaveURL(/\/admin$/);
+  expect(posts).toBe(2);
+});
+
 const accountId = "11111111-1111-4111-8111-111111111111";
 const planId = "22222222-2222-4222-8222-222222222222";
 const orderId = "33333333-3333-4333-8333-333333333333";

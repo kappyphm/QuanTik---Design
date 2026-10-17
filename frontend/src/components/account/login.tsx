@@ -13,6 +13,13 @@ export function Login({ admin = false }: {
     const session = useSession(admin ? "admin" : "user");
     const [busy, setBusy] = useState(false), [error, setError] = useState<Error | null>(null);
     const [username, setUsername] = useState(""), [password, setPassword] = useState("");
+    const [retryUntil, setRetryUntil] = useState(0), [clock, setClock] = useState(0);
+    const remaining = Math.max(0, Math.ceil((retryUntil-clock)/1000));
+    useEffect(() => {
+        if (!retryUntil) return;
+        const timer = setInterval(() => { const now = Date.now(); setClock(now); if (now >= retryUntil) clearInterval(timer); }, 1000);
+        return () => clearInterval(timer);
+    }, [retryUntil]);
     useEffect(() => {
         if (session.state === "ready") {
             router.replace(admin ? "/admin" : "/dashboard");
@@ -21,6 +28,7 @@ export function Login({ admin = false }: {
         }
     }, [session.state, admin, router]);
     async function submit() {
+        if (busy || remaining > 0) return;
         setBusy(true);
         setError(null);
         try {
@@ -39,8 +47,11 @@ export function Login({ admin = false }: {
             }
         }
         catch (err) {
-            setPassword("");
-            setError(admin && err instanceof ApiError && err.status === 401 ? new Error("Tên đăng nhập hoặc mật khẩu không đúng.") : err as Error);
+            if (err instanceof ApiError && err.status === 401) setPassword("");
+            if (err instanceof ApiError && err.status === 429 && err.retryAfter) {
+                const now = Date.now(); setClock(now); setRetryUntil(now + err.retryAfter*1000);
+            }
+            setError(admin && err instanceof ApiError && err.status === 401 ? new ApiError(401, "INVALID_ADMIN_CREDENTIALS", err.requestId) : err as Error);
         }
         finally {
             setBusy(false);
@@ -54,7 +65,7 @@ export function Login({ admin = false }: {
     {session.state === "error" && <ErrorNotice error={session.error}/>}
     <form className="account-form grid [gap:18px] [margin:22px_0] [&_fieldset]:[border-width:0] [&_fieldset]:[padding:0] [&_fieldset]:[margin:0] [&_fieldset]:grid [&_fieldset]:[gap:18px] [&_fieldset]:min-w-0" onSubmit={e => { e.preventDefault(); void submit(); }}>
       {admin && <><Field label="Tên đăng nhập"><input autoComplete="username" maxLength={255} required value={username} onChange={e => setUsername(e.target.value)}/></Field><Field label="Mật khẩu"><input type="password" autoComplete="current-password" required maxLength={1024} value={password} onChange={e => setPassword(e.target.value)}/></Field></>}
-      <button className={accountStyles.buttonPrimary} disabled={busy}>{busy ? "Đang kết nối…" : admin ? "Đăng nhập" : "Tiếp tục với Google"}</button>
+      <button className={accountStyles.buttonPrimary} disabled={busy || remaining > 0}>{busy ? "Đang kết nối…" : remaining > 0 ? `Thử lại sau ${remaining} giây` : admin ? "Đăng nhập" : "Tiếp tục với Google"}</button>
     </form>
     {!admin && <Link className="text-link [.auth-stage_.account-login_&]:[font-size:12px] [.auth-stage_.account-login_&]:[color:var(--muted)]" href="/">← Về trang chủ</Link>}
   </section>;

@@ -56,10 +56,11 @@ test('Refresh proxy isolates role cookies and preserves multiple Set-Cookie, CSR
     return new Response(JSON.stringify({ access_token: 'fixture', expires_in: 900 }), { headers });
   };
   try {
-    const result = await proxy(new Request('http://localhost:3000/api/v1/admin/auth/refresh', { method: 'POST', headers: { Origin: 'http://localhost:3000', Cookie: 'quantik_admin_refresh=old; quantik_user_refresh=private; unrelated=value' } }), 'admin/auth/refresh');
+    const result = await proxy(new Request('http://localhost:3000/api/v1/admin/auth/refresh', { method: 'POST', headers: { Origin: 'http://localhost:3000', 'X-Real-IP': '203.0.113.10', Cookie: 'quantik_admin_refresh=old; quantik_user_refresh=private; unrelated=value' } }), 'admin/auth/refresh');
     assert.equal(result.status, 200);
     assert.equal(seen.init.headers.get('cookie'), 'quantik_admin_refresh=old');
     assert.equal(seen.init.headers.get('origin'), 'http://localhost:8000');
+    assert.equal(seen.init.headers.get('x-real-ip'), '203.0.113.10');
     assert.equal(seen.init.redirect, 'manual');
     assert.equal(result.headers.getSetCookie().length, 3);
     assert.match(result.headers.getSetCookie()[2], /quantik_admin_gate=fixture; Path=\/admin; HttpOnly; SameSite=Strict; Max-Age=900/);

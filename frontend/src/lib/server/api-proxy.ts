@@ -59,6 +59,9 @@ export async function proxy(request: Request, path: string) {
     if (value) headers.set(name, value);
   }
   if (cookie) headers.set("Cookie", cookie);
+  // The deployed edge overwrites this header; BE also verifies our private peer.
+  const clientIp = request.headers.get("x-real-ip");
+  if (clientIp) headers.set("X-Real-IP", clientIp);
   try {
     const body = request.method === "GET" ? undefined : await request.text();
     if (body && new TextEncoder().encode(body).length > 131072) return failure(413, "REQUEST_TOO_LARGE");

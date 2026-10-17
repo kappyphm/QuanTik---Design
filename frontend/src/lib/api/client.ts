@@ -9,7 +9,8 @@ const messages: Record<string, string> = {
   BACKFILL_REASON_REQUIRED: "Nhập lý do chạy bù ít nhất 10 ký tự.",
   CALENDAR_NOT_READY: "Chưa cấu hình lịch giao dịch.",
   CALENDAR_OUT_OF_RANGE: "Lịch giao dịch chưa bao phủ ngày hiện tại. Cần cập nhật lịch trước.",
-  UNAUTHENTICATED: "Phiên đăng nhập không hợp lệ hoặc đã hết hạn.", LOGIN_RATE_LIMITED: "Đăng nhập sai nhiều lần. Vui lòng thử lại sau.",
+  UNAUTHENTICATED: "Phiên đăng nhập không hợp lệ hoặc đã hết hạn.", LOGIN_RATE_LIMITED: "Đăng nhập đang tạm khóa do vượt số lần thử. Vui lòng chờ hết thời gian khóa.",
+  INVALID_ADMIN_CREDENTIALS: "Tên đăng nhập hoặc mật khẩu không đúng.", RATE_LIMITED: "Bạn đang thao tác quá nhanh. Vui lòng chờ rồi thử lại.",
   BACKEND_UNAVAILABLE: "Chưa kết nối được máy chủ. Vui lòng thử lại.", GOOGLE_NOT_CONFIGURED: "Đăng nhập Google chưa được cấu hình.",
   INVALID_ORIGIN: "Địa chỉ ứng dụng chưa khớp cấu hình kết nối.", PAYMENTS_DISABLED: "Thanh toán hiện đang tạm đóng.",
   PAYMENT_CONFIGURATION_MISSING: "Thông tin nhận thanh toán chưa đầy đủ.", PLAN_UNAVAILABLE: "Gói này hiện chưa được mở bán.",
@@ -30,7 +31,7 @@ const messages: Record<string, string> = {
 };
 export class ApiError extends Error {
   payload?: Record<string, unknown>;
-  constructor(public status: number, public code: string, public requestId?: string, details?: { location: (string | number)[]; type: string }[]) {
+  constructor(public status: number, public code: string, public requestId?: string, details?: { location: (string | number)[]; type: string }[], public retryAfter?: number) {
     const fields: Record<string, string> = { name: "Tên gói", daily_request_limit: "Giới hạn yêu cầu/ngày", analysis_quota: "Giới hạn yêu cầu/ngày", duration_days: "Thời hạn", price_vnd: "Giá", active_limit: "Số yêu cầu đồng thời", account_number: "Số tài khoản", account_name: "Tên chủ tài khoản", bank_code: "Ngân hàng", reason: "Lý do", api_key: "Khóa dịch vụ", webhook_api_key: "Khóa webhook" };
     const labels = [...new Set((details || []).map(d => fields[String(d.location?.at(-1))]).filter(Boolean))];
     super(labels.length ? "Thông tin chưa hợp lệ: " + labels.join(", ") + "." : messages[code] || "Không thể hoàn tất thao tác. Vui lòng kiểm tra thông tin và thử lại.");
@@ -45,7 +46,9 @@ export async function raw<T>(path: string, init: RequestInit = {}): Promise<T> {
   if (response.status === 204) return undefined as T;
   const data = await response.json().catch(() => ({}));
   if (!response.ok) {
-    const error = new ApiError(response.status, data.code || "REQUEST_FAILED", data.request_id || response.headers.get("x-request-id"), data.details);
+    const delay = Number(response.headers.get("retry-after"));
+    const retryAfter = Number.isFinite(delay) && delay > 0 && delay <= 86400 ? Math.ceil(delay) : undefined;
+    const error = new ApiError(response.status, data.code || (response.status === 429 ? "RATE_LIMITED" : "REQUEST_FAILED"), data.request_id || response.headers.get("x-request-id"), data.details, retryAfter);
     error.payload = data;
     throw error;
   }
