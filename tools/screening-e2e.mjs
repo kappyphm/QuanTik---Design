@@ -47,14 +47,21 @@ try {
     page.on("pageerror", error => errors.push(error.message));
     page.on("response", response => { if (/\/screenings\/[^/]+\/results/.test(response.url())) results.push(response); });
     await page.goto("http://127.0.0.1:3207/screener");
-    await page.getByRole("heading", { name: "Mã nổi bật", exact: true }).waitFor();
+    await page.getByRole("button", { name: "Kích hoạt quét", exact: true }).click();
+    await page.getByRole("heading", { name: "5 mã nổi bật", exact: true }).waitFor();
     await page.getByRole("heading", { name: /FPT/ }).first().waitFor();
     assert.equal(await page.getByRole("button", { name: "Quét toàn sàn", exact: true }).count(), 0);
-    await page.getByText("Xem tiêu chí và lý do", { exact: true }).first().click();
-    await page.getByText("Khối lượng đột biến", { exact: true }).first().waitFor();
+    assert.equal(await page.getByText("Xem tiêu chí và lý do", { exact: true }).count(), 0);
+    assert.equal(await page.getByLabel("Ca công bố", { exact: true }).count(), 0);
     assert(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1));
     assert(results.length >= 2);
-    for (const response of results) { assert.equal(response.status(), 200); assert.equal((await response.json()).run_id, state.run_id); }
+    for (const response of results) {
+      assert.equal(response.status(), 200);
+      const payload = await response.json();
+      assert.equal(payload.run_id, state.run_id);
+      assert(payload.items.length <= 5);
+      assert(payload.items.every(item => !item.groups && !item.policy_version));
+    }
     fs.mkdirSync(path.join(root, "frontend/test-results/screening"), { recursive: true });
     await page.screenshot({ path: path.join(root, `frontend/test-results/screening/backend-${viewport.width}.png`), fullPage: true });
     const entitlement = await page.evaluate(async () => {

@@ -1,103 +1,97 @@
 "use client";
 import Link from "next/link";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
+import { ArrowUpRight, Search, ShieldCheck } from "lucide-react";
 import { api, ApiError } from "@/lib/api/client";
-import { money, stamp } from "@/lib/api/contracts";
-import { groupLabels, screeningReason, type ScreeningGroup, type ScreeningItem, type ScreeningLatest, type ScreeningResults, type ScreeningRun, type ScreeningSlot } from "@/lib/api/screening";
+import { money } from "@/lib/api/contracts";
+import type { ScreeningItem, ScreeningLatest, ScreeningResults } from "@/lib/api/screening";
 import { Guard } from "./account/session";
 import { ErrorNotice } from "./account/common";
 import { PageHeading, Panel } from "./ui";
 
 const control = "min-h-11 rounded-[4px] border border-[var(--border)] bg-[var(--surface)] px-4 py-2 text-sm disabled:opacity-50";
-const criterionLabels: Record<string, string> = {
-  S1_RS_market: "Mạnh hơn thị trường", S2_vol_spike: "Khối lượng đột biến", S3_near_high20: "Gần đỉnh 20 phiên", S4_vol_dry_pullback: "Khối lượng thu hẹp", S5_breakout_high20: "Vượt đỉnh 20 phiên", S6_hh_hl_structure: "Đỉnh và đáy tăng", S7_RS_10d: "Sức mạnh tương đối 10 phiên",
-  A1_tight_range: "Biên độ tích lũy hẹp", A2_vol_declining: "Khối lượng giảm", A3_absorption: "Hấp thụ cung", A4_above_ma20: "Trên MA20", A5_near_resistance: "Gần kháng cự", A6_long_accumulation: "Tích lũy kéo dài", A7_spring: "Rũ bỏ dưới hỗ trợ",
-  D1_vol_no_price_up: "Khối lượng lớn, giá không tăng", D2_long_upper_shadow: "Bóng nến trên dài", D3_failed_breakout: "Vượt đỉnh thất bại", D4_vol_on_down: "Khối lượng lớn ở phiên giảm", D5_below_ma20: "Dưới MA20", D6_drop_from_peak: "Giảm từ đỉnh", D7_multi_dist_sessions: "Nhiều phiên phân phối",
-};
 const percent = (v: number) => new Intl.NumberFormat("vi-VN", { style: "percent", maximumFractionDigits: 1 }).format(v);
-const score = (v: number) => new Intl.NumberFormat("vi-VN", { maximumFractionDigits: 1 }).format(v);
-const slotLabel = (r: ScreeningRun) => `${r.target_session.split("-").reverse().join("/")} · ${r.slot === "AM" ? "Ca sáng (tạm tính)" : "Ca chiều (hoàn tất)"}`;
+type Publication = { latest: ScreeningLatest; best: ScreeningItem[]; avoid: ScreeningItem[] };
 
 export function Screener() {
   return <><PageHeading title="Quét toàn sàn"/><Guard><ScreeningBoard/></Guard></>;
 }
 function ScreeningBoard() {
-  const [slot, setSlot] = useState<ScreeningSlot>("ALL");
-  return <><p className="mb-5 leading-7 text-[var(--muted)]">Kết quả cập nhật theo ca giao dịch. Xem kết quả không sử dụng hạn mức yêu cầu phân tích trong ngày.</p>
-    <label className="mb-5 flex flex-wrap items-center gap-3 text-sm">Ca công bố<select aria-label="Ca công bố" className={control} value={slot} onChange={e => setSlot(e.target.value as ScreeningSlot)}><option value="ALL">Mới nhất</option><option value="AM">Ca sáng</option><option value="PM">Ca chiều</option></select></label>
-    <Publication key={slot} slot={slot}/></>;
-}
-function Publication({ slot }: { slot: ScreeningSlot }) {
-  const [latest, setLatest] = useState<ScreeningLatest>(), [error, setError] = useState<Error>();
-  const [loading, setLoading] = useState(true), [version, setVersion] = useState(0);
-  const [group, setGroup] = useState<ScreeningGroup | "OVERVIEW">("OVERVIEW");
-  const reload = useCallback(() => setVersion(v => v + 1), []);
+  const [started, setStarted] = useState(false), [version, setVersion] = useState(0);
+  const [publication, setPublication] = useState<Publication>(), [error, setError] = useState<Error>();
+  const [loading, setLoading] = useState(false);
   useEffect(() => {
+    if (!started) return;
     let active = true; setLoading(true);
-    void api<ScreeningLatest>("user", `screenings/latest?slot=${slot}`).then(data => {
-      if (active) { setLatest(data); setError(undefined); }
-    }).catch(err => { if (active) { setError(err); if (err instanceof ApiError && [401, 403].includes(err.status)) setLatest(undefined); } })
+    void (async () => {
+      const latest = await api<ScreeningLatest>("user", "screenings/latest");
+      const groups = ["OVERALL", "DISTRIBUTION"] as const;
+      const pages = await Promise.all(groups.map(group => api<ScreeningResults>("user", `screenings/${encodeURIComponent(latest.id)}/results?group=${group}&limit=5`)));
+      if (pages.some((page, i) => page.run_id !== latest.id || page.group !== groups[i])) throw new Error("Chưa tải được kết quả phù hợp. Vui lòng thử lại.");
+      if (active) { setPublication({ latest, best: pages[0].items.slice(0,5), avoid: pages[1].items.slice(0,5) }); setError(undefined); }
+    })().catch(err => { if (active) { setError(err); if (err instanceof ApiError && [401,403].includes(err.status)) setPublication(undefined); } })
       .finally(() => { if (active) setLoading(false); });
     return () => { active = false; };
-  }, [slot, version]);
+  }, [started, version]);
   const forbidden = error instanceof ApiError && error.code === "SCREENING_SUBSCRIPTION_REQUIRED";
-  useEffect(() => {
-    if (loading || forbidden) return;
-    const timer = setTimeout(() => { if (document.visibilityState === "visible") reload(); }, 60000);
-    const visible = () => { if (document.visibilityState === "visible") reload(); };
-    document.addEventListener("visibilitychange", visible);
-    return () => { clearTimeout(timer); document.removeEventListener("visibilitychange", visible); };
-  }, [loading, forbidden, version, reload]);
-  if (forbidden) return <section className="rounded-[4px] border border-[var(--border)] p-6"><h2 className="text-xl">Cần gói phân tích còn hiệu lực</h2><p className="my-3">Mua hoặc gia hạn gói để xem các kết quả quét định kỳ.</p><Link className="text-[var(--accent)] underline" href="/plans">Xem các gói phân tích</Link></section>;
   const notReady = error instanceof ApiError && error.code === "SCREENING_NOT_READY";
-  const attempt = latest?.latest_attempt || (notReady ? error.payload?.latest_attempt as ScreeningRun | null : null);
+  useEffect(() => {
+    if (!started || loading || forbidden) return;
+    const refresh = () => { if (document.visibilityState === "visible") setVersion(v => v+1); };
+    const timer = setTimeout(refresh,60000);
+    document.addEventListener("visibilitychange",refresh);
+    return () => { clearTimeout(timer); document.removeEventListener("visibilitychange",refresh); };
+  }, [started, loading, forbidden, version]);
   return <>
-    <div className="mb-5 flex flex-wrap items-center justify-between gap-3"><p className="text-sm text-[var(--muted)]">Giờ Việt Nam · Sáng 11:30–12:55 · Chiều sau 16:00 đến 17:30 · Theo lịch giao dịch</p><button className={control} disabled={loading} onClick={reload}>{loading ? "Đang cập nhật…" : "Cập nhật kết quả"}</button></div>
-    {loading && !latest && <p role="status" className="py-6">Đang tải kết quả quét…</p>}
-    {error && !notReady && <ErrorNotice error={error}/>}
-    {notReady && !latest && <section role="status" className="rounded-[4px] border border-[var(--border)] p-6"><h2 className="text-xl">Chưa có kết quả được công bố</h2><p className="mt-3">Hệ thống sẽ tự cập nhật khi có kết quả cho ca này.</p></section>}
-    {attempt && attempt.status !== "READY" && <p role="status" className="my-4 rounded-[4px] border border-[var(--border)] p-4 leading-7">Lần xử lý gần nhất: {slotLabel(attempt)}. {screeningReason(attempt.reason)}.{latest && " Bạn đang xem bản công bố trước đó."}</p>}
-    {latest && <>
-      <section className="mb-6 rounded-[4px] border border-[var(--border)] bg-[var(--surface)] p-5 leading-7"><h2 className="text-xl">Kết quả {slotLabel(latest)}</h2><p className="mt-2 text-sm text-[var(--muted)]">Công bố {stamp(latest.published_at)} · Dữ liệu {latest.summary.ready_symbols}/{latest.summary.expected_symbols} mã · Độ phủ {percent(latest.summary.history_coverage_ratio)}</p>
-        {latest.summary.execution_mode === "BACKFILL" && <p className="mt-2 text-sm">Bản chạy bù từ dữ liệu kết phiên {latest.target_session}. Thời điểm công bố có thể muộn hơn ngày dữ liệu.</p>}
-        {latest.summary.validation_scope === "SCREENING_ONLY" && <p className="mt-2 text-sm">Đã kiểm tra hợp đồng dữ liệu phục vụ sàng lọc. Điều chỉnh giá do sự kiện doanh nghiệp chưa được xác minh.</p>}
-        {latest.stale && <p role="status" className="mt-3 text-[var(--accent)]">{latest.stale_reasons.map(screeningReason).join(". ")}. Kết quả có thể chưa phản ánh ca hiện tại.</p>}
-        {error && <p className="mt-2">Chưa cập nhật được trạng thái mới. Dữ liệu dưới đây thuộc bản công bố đã ghi ngày ở trên.</p>}
-      </section>
-      <div className="mb-5 flex flex-wrap gap-2" role="group" aria-label="Nhóm kết quả">{(["OVERVIEW", "OVERALL", "STRONG", "ACCUMULATION", "DISTRIBUTION", "ALL"] as const).map(value => <button className={`${control} ${group === value ? "text-[var(--accent)] border-[var(--accent)]" : ""}`} key={value} aria-pressed={group === value} onClick={() => setGroup(value)}>{value === "OVERVIEW" ? "Tổng quan" : groupLabels[value]}</button>)}</div>
-      {group === "OVERVIEW" ? <div className="grid gap-6 min-[900px]:grid-cols-2"><ScreeningList key={`${latest.id}-OVERALL`} runId={latest.id} group="OVERALL" title="Mã nổi bật"/><ScreeningList key={`${latest.id}-DISTRIBUTION`} runId={latest.id} group="DISTRIBUTION" title="Cảnh báo phân phối"/></div> : <ScreeningList key={`${latest.id}-${group}`} runId={latest.id} group={group} title={groupLabels[group]}/>}
-    </>}
+    <section className="scan-intro mb-6 overflow-hidden rounded-[4px] border border-[var(--border)] bg-[var(--surface)] [background-image:linear-gradient(145deg,transparent_43%,var(--accent-soft)_65%,transparent_90%)]" aria-labelledby="scan-intro-title">
+      <div className="grid min-h-[380px] items-center gap-6 p-7 min-[900px]:grid-cols-2 min-[900px]:p-12">
+        <div className="min-w-0">
+          <span className="text-sm text-[var(--positive)]">Góc nhìn toàn thị trường</span>
+          <h2 id="scan-intro-title" className="my-6 text-4xl font-semibold leading-tight tracking-tight min-[900px]:text-5xl">Khai mở góc nhìn<br/><em className="not-italic text-[var(--accent)]">toàn sàn.</em></h2>
+          <p className="max-w-lg leading-7 text-[var(--muted)]">Tìm 5 mã nổi bật và nhận diện 5 mã nên tránh để chủ động theo dõi thị trường.</p>
+          <button className="mt-7 inline-flex min-h-12 items-center justify-center gap-3 rounded-[4px] bg-[var(--accent)] px-5 py-3 font-medium text-[#172016] disabled:opacity-50" disabled={loading} onClick={() => { setStarted(true); setVersion(v => v+1); }}>{loading ? "Đang tải kết quả…" : started ? "Quét lại" : "Kích hoạt quét"}<ArrowUpRight size={20} aria-hidden="true"/></button>
+        </div>
+        <ScanIllustration/>
+      </div>
+      <div className="grid gap-5 border-t border-[var(--border)] px-7 py-5 text-sm min-[700px]:grid-cols-2 min-[900px]:px-12">
+        <div className="flex items-center gap-3"><Search size={21} aria-hidden="true"/><span>Tìm 5 mã nổi bật để theo dõi</span></div>
+        <div className="flex items-center gap-3"><ShieldCheck size={21} aria-hidden="true"/><span>Nhận diện 5 mã cần thận trọng</span></div>
+      </div>
+    </section>
+    {started && <div className="grid gap-5" aria-live="polite">
+      {forbidden ? <section className="rounded-[4px] border border-[var(--border)] p-6"><h2 className="text-xl">Cần gói phân tích còn hiệu lực</h2><p className="my-3">Kích hoạt gói để xem kết quả quét.</p><Link className="text-[var(--accent)] underline" href="/plans">Xem các gói phân tích</Link></section>
+        : notReady && !publication ? <section role="status" className="rounded-[4px] border border-[var(--border)] p-6"><h2 className="text-xl">Chưa có kết quả được công bố</h2><p className="mt-3 text-[var(--muted)]">Kết quả sẽ xuất hiện tại đây khi dữ liệu sẵn sàng.</p></section>
+        : error && !publication ? <ErrorNotice error={error}/> : null}
+      {publication && <>
+        <div className="flex flex-wrap items-baseline justify-between gap-3"><h2 className="text-xl font-semibold">Kết quả quét</h2><p className="text-sm text-[var(--muted)]">Dữ liệu ngày {publication.latest.target_session.split("-").reverse().join("/")}</p></div>
+        {(publication.latest.stale || error) && <p role="status" className="text-sm text-[var(--muted)]">Đang hiển thị kết quả gần nhất. Kết quả mới sẽ tự cập nhật khi sẵn sàng.</p>}
+        <div className="grid min-w-0 gap-6 min-[900px]:grid-cols-2"><ScreeningList items={publication.best} title="5 mã nổi bật"/><ScreeningList items={publication.avoid} title="5 mã nên tránh"/></div>
+      </>}
+    </div>}
   </>;
 }
-function ScreeningList({ runId, group, title }: { runId: string; group: ScreeningGroup; title: string }) {
-  const [items, setItems] = useState<ScreeningItem[]>([]), [cursor, setCursor] = useState<string>();
-  const [next, setNext] = useState<string | null>(null), [error, setError] = useState<Error>(), [loading, setLoading] = useState(true), [version, setVersion] = useState(0);
-  useEffect(() => {
-    let active = true; setLoading(true); setError(undefined);
-    void api<ScreeningResults>("user", `screenings/${encodeURIComponent(runId)}/results?group=${group}&limit=5${cursor ? `&cursor=${encodeURIComponent(cursor)}` : ""}`).then(data => {
-      if (data.run_id !== runId || data.group !== group) throw new Error("Kết quả chưa khớp kỳ đang xem. Vui lòng cập nhật lại.");
-      if (active) { setItems(old => cursor ? [...old, ...data.items.filter(item => !old.some(row => row.symbol === item.symbol))] : data.items); setNext(data.next_cursor); }
-    }).catch(err => { if (active) { setError(err); if (err instanceof ApiError && [401, 403].includes(err.status)) setItems([]); } })
-      .finally(() => { if (active) setLoading(false); });
-    return () => { active = false; };
-  }, [runId, group, cursor, version]);
-  return <Panel title={title}><div className="min-w-0 px-5 pb-5"><ErrorNotice error={error}/>{loading && <p role="status" className="py-4">Đang tải danh sách…</p>}{!loading && !error && !items.length && <p className="py-5 text-[var(--muted)]">Không có mã đủ điều kiện trong nhóm này.</p>}
-    {group === "DISTRIBUTION" && <p className="py-3 text-sm text-[var(--muted)]">Điểm cao thể hiện nhiều dấu hiệu phân phối, cần thận trọng.</p>}
-    {items.map(item => <ScreeningCard key={item.symbol} item={item} group={group}/>)}
-    {error ? <button className={control} disabled={loading} onClick={() => setVersion(v => v + 1)}>Thử lại danh sách</button> : next && <button className={control} disabled={loading} onClick={() => setCursor(next)}>Xem thêm</button>}
-  </div></Panel>;
+function ScreeningList({ items, title }: { items: ScreeningItem[]; title: string }) {
+  return <Panel title={title}><div className="min-w-0 px-5 pb-5">{!items.length && <p className="py-5 text-[var(--muted)]">Chưa có mã phù hợp.</p>}{items.map(item => <article key={item.symbol} className="border-t border-[var(--border)] py-5 first:border-t-0">
+    <div className="flex items-center justify-between gap-3"><h3 className="text-lg font-semibold"><Link href={`/charts?symbol=${encodeURIComponent(item.symbol)}&exchange=${encodeURIComponent(item.exchange || "")}`}>{item.symbol}</Link><span className="ml-2 text-xs font-normal text-[var(--muted)]">{item.exchange}</span></h3><span className="text-sm">{new Intl.NumberFormat("vi-VN",{ maximumFractionDigits:1 }).format(item.score)}/100</span></div>
+    <p className="my-2 flex flex-wrap gap-3 text-sm"><span>{typeof item.price_vnd === "number" ? money(item.price_vnd) : "—"}</span>{typeof item.change_ratio === "number" && <span className={item.change_ratio < 0 ? "text-[var(--negative)]" : "text-[var(--positive)]"}>{percent(item.change_ratio)}</span>}</p>
+    {item.recommendation && <p className="mb-3 text-sm text-[var(--muted)]">{item.recommendation}</p>}
+    <Link className="text-sm text-[var(--accent)]" href={`/analysis?symbol=${encodeURIComponent(item.symbol)}`}>Phân tích Quant ↗</Link>
+  </article>)}</div></Panel>;
 }
-function ScreeningCard({ item, group }: { item: ScreeningItem; group: ScreeningGroup }) {
-  const value = item.groups[group]?.score ?? item.overall_score;
-  const complete = group === "ALL" || group === "OVERALL" ? item.ranking_eligible : item.groups[group]?.ranking_eligible;
-  const price = item.price_summary.close, change = item.price_summary.pct_change_1d;
-  return <article className="min-w-0 border-t border-[var(--border)] py-5 first:border-t-0">
-    <div className="flex flex-wrap items-center justify-between gap-3"><h3 className="font-mono text-lg font-semibold">{item.symbol} <span className="text-xs font-normal text-[var(--muted)]">{item.exchange}</span></h3><strong className="font-mono text-xl">{score(value)}<span className="text-xs text-[var(--muted)]">/100</span></strong></div>
-    <p className="my-2 flex flex-wrap gap-3 text-sm text-[var(--muted)]">{typeof price === "number" && <span>{money(price)}</span>}{typeof change === "number" && <span>{percent(change)}</span>}<span>{complete ? "Đủ điều kiện xếp hạng" : "Chưa đủ điều kiện xếp hạng"}</span></p>
-    <details className="my-3"><summary className="cursor-pointer text-sm text-[var(--accent)]">Xem tiêu chí và lý do</summary>
-      {Object.entries(item.groups).map(([name, details]) => <section key={name} className="my-4 min-w-0"><h4 className="text-sm font-semibold">{groupLabels[name as ScreeningGroup] || name} · {score(details.score)}/100</h4><p className="mt-1 text-xs text-[var(--muted)]">{details.true_count} đạt · {details.false_count} không đạt · {details.unavailable_count} thiếu dữ liệu</p><ul className="mt-2 divide-y divide-[var(--border)] text-sm">{Object.entries(details.criteria).map(([key, criterion]) => <li className="py-2" key={key}><div className="flex justify-between gap-3"><span>{criterionLabels[key] || key}</span><span className={criterion.state === "TRUE" ? "text-[var(--positive)]" : "text-[var(--muted)]"}>{criterion.state === "TRUE" ? "Đạt" : criterion.state === "FALSE" ? "Không đạt" : "Chưa đủ dữ liệu"}</span></div><p className="mt-1 break-words text-xs leading-5 text-[var(--muted)]">{criterion.detail}{criterion.state === "UNAVAILABLE" && ` · Cần ít nhất ${criterion.minimum_bars} phiên`}</p></li>)}</ul></section>)}
-      {[...new Set([...item.warnings, ...item.rejection_reasons])].map(reason => <p className="my-2 text-xs leading-5 text-[var(--muted)]" key={reason}>{screeningReason(reason)}</p>)}
-      {item.volume_context.observed_at && <p className="text-xs text-[var(--muted)]">Quan sát lúc {stamp(item.volume_context.observed_at)}</p>}
-    </details>
-  </article>;
+function ScanIllustration() {
+    return <div className="scan-intro-visual min-w-0 [&_svg]:block [&_svg]:w-full [&_svg]:[height:auto] max-[1000px]:[max-width:520px] max-[1000px]:w-full max-[1000px]:[justify-self:center]" aria-hidden="true">
+    <svg viewBox="0 0 620 420" focusable="false">
+      <g className="scan-visual-grid [opacity:.22]" fill="none" stroke="var(--positive)" strokeWidth="1">
+        <path d="M30 230 310 70 590 230 310 390Z M100 270 380 110 M170 310 450 150 M240 350 520 190 M100 190 380 350 M170 150 450 310 M240 110 520 270"/>
+      </g>
+      <path d="M45 285 150 225 250 170 335 115 445 180 595 270" fill="none" stroke="var(--accent)" strokeWidth="3" strokeLinejoin="round"/>
+      {[{ x: 100, y: 228, h: 32 }, { x: 170, y: 205, h: 42 }, { x: 240, y: 178, h: 36 }, { x: 310, y: 165, h: 44 }, { x: 380, y: 133, h: 40 }, { x: 450, y: 110, h: 35 }].map((c, i) => <g key={c.x} fill={i === 3 ? "var(--accent)" : "var(--positive)"} stroke={i === 3 ? "var(--accent)" : "var(--positive)"}>
+        <line x1={c.x} x2={c.x} y1={c.y - 20} y2={c.y + c.h + 24}/>
+        <rect x={c.x - 8} y={c.y} width="16" height={c.h} stroke="none"/>
+      </g>)}
+      <circle cx="380" cy="154" r="68" fill="var(--surface)" fillOpacity=".15" stroke="var(--positive)" strokeWidth="1.5"/>
+      <path d="M428 204 479 255" stroke="var(--accent)" strokeWidth="10"/>
+      <path d="M380 67V86 M380 222V241 M293 154H312 M448 154H467" stroke="var(--positive)" strokeWidth="1.5"/>
+    </svg>
+  </div>;
 }

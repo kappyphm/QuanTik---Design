@@ -19,6 +19,7 @@ test("Quant: gửi yêu cầu, tự nhận báo cáo API và mở lại URL", as
   const state = await analysisFixture(page), errors: string[] = [];
   page.on("pageerror", error => errors.push(error.message));
   await page.goto("/analysis?symbol=FPT");
+  await expect(page.getByLabel("Phiên phân tích", { exact: true })).toHaveCount(0);
   await page.getByText("Quy mô vị thế theo vốn (tùy chọn)").click();
   await page.getByLabel("Sử dụng vốn của tôi").check();
   await page.getByLabel("Vốn tài khoản (VND)").fill("100000000");

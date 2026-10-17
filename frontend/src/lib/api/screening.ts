@@ -1,20 +1,8 @@
 export type ScreeningSlot = "ALL" | "AM" | "PM";
-export type ScreeningGroup = "OVERALL" | "STRONG" | "ACCUMULATION" | "DISTRIBUTION" | "ALL";
-export type ScreeningRun = { id: string; target_session: string; slot: "AM" | "PM"; status: string; reason: string | null; published_at: number | null };
-export type ScreeningLatest = ScreeningRun & {
-  summary: { input_mode: string; source_mode: string; execution_mode?: "SCHEDULED" | "BACKFILL"; expected_symbols: number; ready_symbols: number; history_coverage_ratio: number; ranking_counts: Partial<Record<ScreeningGroup, number>>; validation_scope?: string };
-  stale: boolean; stale_reasons: string[]; calendar_status: string; latest_attempt: ScreeningRun | null;
-};
-export type ScreeningItem = {
-  symbol: string; exchange: string | null; overall_score: number; ranking_eligible: boolean;
-  groups: Record<string, { score: number; coverage_ratio: number; true_count: number; false_count: number; unavailable_count: number; ranking_eligible: boolean;
-    criteria: Record<string, { state: "TRUE" | "FALSE" | "UNAVAILABLE"; detail: string; reason_codes: string[]; minimum_bars: number }> }>;
-  assessment: { status: string; signal_code?: string; recommendation?: string; adjusted_signal?: string };
-  price_summary: Record<string, number | null>; volume_context: { observed_at?: string | null; input_mode: string };
-  warnings: string[]; rejection_reasons: string[]; ranks: Record<string, number | null>;
-};
-export type ScreeningResults = { run_id: string; group: ScreeningGroup; items: ScreeningItem[]; next_cursor: string | null };
-export const groupLabels: Record<ScreeningGroup, string> = { OVERALL: "Tổng hợp", STRONG: "Sức mạnh", ACCUMULATION: "Tích lũy", DISTRIBUTION: "Cảnh báo phân phối", ALL: "Toàn bộ mã" };
+export type ScreeningGroup = "OVERALL" | "DISTRIBUTION";
+export type ScreeningLatest = { id: string; target_session: string; published_at: number; stale: boolean; refresh_after_seconds: number };
+export type ScreeningItem = { symbol: string; exchange: string | null; score: number; price_vnd: number | null; change_ratio: number | null; recommendation: string | null };
+export type ScreeningResults = { run_id: string; group: ScreeningGroup; items: ScreeningItem[]; next_cursor: null };
 export const screeningReason = (code: string | null | undefined) => ({
   TASK_DEADLINE: "Ca quét đã quá hạn xử lý", SCREENING_DEADLINE: "Ca quét đã quá hạn công bố", MANIFEST_NOT_READY: "Đang chờ dữ liệu thị trường",
   HISTORY_NOT_READY: "Đang chờ lịch sử giá", UNIVERSE_NOT_VALIDATED: "Danh sách mã chưa được kiểm định", LIVE_DATA_NOT_VALIDATED: "Dữ liệu chưa đạt kiểm định",

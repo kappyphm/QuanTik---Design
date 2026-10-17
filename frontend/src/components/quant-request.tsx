@@ -51,14 +51,10 @@ function RequestPanel({ symbol, compact = false }: { symbol: string; compact?: b
         {rights.data.active && (rights.data.active_jobs || 0) >= rights.data.active_limit && <p role="status">Chờ một yêu cầu đang xử lý kết thúc trước khi gửi thêm.</p>}
       </>}
       {options.data && !options.data.ready && <p role="status" className="mt-3 border-l-2 border-[var(--accent)] pl-3">{analysisReason(options.data.reason)} Chưa tiếp nhận yêu cầu và chưa tính hạn mức.</p>}
-      {options.data?.ready && !options.data.symbols.includes(symbol) && <p role="status">Mã {symbol} chưa có dữ liệu phân tích cho phiên đã chọn.</p>}
+      {options.data?.ready && !options.data.symbols.includes(symbol) && <p role="status">Mã {symbol} chưa có dữ liệu phân tích mới nhất.</p>}
       {samePending && error && <p role="status">Chưa xác định được kết quả gửi. Gửi lại cùng nội dung sẽ truy hồi yêu cầu cũ, không tạo thêm yêu cầu.</p>}
       <form className="mt-4 grid gap-3" onSubmit={event => { event.preventDefault(); if (canSend) setReview(true); }}>
         <fieldset disabled={busy || review} className="grid min-w-0 gap-3">
-          <Field label="Phiên phân tích"><select required value={selected} onChange={event => { setSession(event.target.value); setError(null); }}>
-            {!options.data?.sessions.length && <option value="">Chưa có phiên khả dụng</option>}
-            {options.data?.sessions.map(day => <option key={day} value={day}>{day} · Kết phiên</option>)}
-          </select></Field>
           <details><summary className="cursor-pointer text-[var(--accent)]">Quy mô vị thế theo vốn (tùy chọn)</summary>
             <label className="mt-3 flex items-center gap-2"><input type="checkbox" checked={personalized} onChange={event => setPersonalized(event.target.checked)}/>Sử dụng vốn của tôi</label>
             {personalized && <div className="grid gap-3 sm:grid-cols-2"><Field label="Vốn tài khoản (VND)"><input required type="number" min="1" step="1" value={capital} onChange={event => setCapital(event.target.value)}/></Field>
@@ -74,8 +70,8 @@ function RequestPanel({ symbol, compact = false }: { symbol: string; compact?: b
         if (pending.current?.payload !== payload) pending.current = { payload, key: crypto.randomUUID() };
         try {
           const job = await api<AnalysisJob>("user", "analyses", mutation("POST", body, pending.current.key));
-          pending.current = null; setReview(false); openJob(job.id, job.symbol); settled();
-        } catch (err) { if (err instanceof ApiError && err.status >= 400 && err.status < 500) pending.current = null; setError(err as Error); setReview(false); rights.reload(); options.reload(); }
+          pending.current = null; setSession(""); setReview(false); openJob(job.id, job.symbol); settled();
+        } catch (err) { if (err instanceof ApiError && err.status >= 400 && err.status < 500) { pending.current = null; setSession(""); } setError(err as Error); setReview(false); rights.reload(); options.reload(); }
         finally { setBusy(false); }
       }}><p>{symbol} · Phiên {selected}. {personalized ? `Vốn ${Number(capital).toLocaleString("vi-VN")} VND · rủi ro ${risk}%.` : "Quy mô vị thế tham chiếu."}</p>
         <p>Yêu cầu được tiếp nhận sẽ tính vào giới hạn ngày. Có thể đóng trang rồi quay lại xem kết quả; yêu cầu không hỗ trợ hủy.</p></Confirm>}

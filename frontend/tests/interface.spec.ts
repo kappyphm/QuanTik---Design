@@ -1,12 +1,7 @@
 import { test, expect, type Page } from "@playwright/test";
 import { analysisFixture } from "./fixtures/analysis";
 
-async function stubTradingView(page: Page) {
-  await page.route("https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js", route => route.fulfill({
-    contentType: "application/javascript",
-    body: `(() => { const script = document.currentScript; const config = JSON.parse(script.textContent); const frame = document.createElement("iframe"); frame.title = "TradingView"; frame.dataset.symbol = config.symbol; frame.dataset.interval = config.interval; frame.src = "about:blank"; script.parentElement.querySelector(".tradingview-widget-container__widget").append(frame); })();`,
-  }));
-}
+import { stubTradingView } from "./fixtures/tradingview";
 
 test("Home giữ nội dung và dẫn đến đăng nhập hệ thống", async ({ page }) => {
   const errors: string[] = [];
@@ -56,7 +51,7 @@ test("Bấm mã mở TradingView cùng Quant, mở/thu sidebar và toàn màn h�
   await page.getByRole("button", { name: "FPT", exact: true }).click();
   const chart = page.getByRole("dialog", { name: "Biểu đồ FPT", exact: true });
   await expect(chart).toBeVisible();
-  await chart.getByLabel("Nguồn biểu đồ", { exact: true }).selectOption("TradingView");
+  await expect(chart.getByLabel("Nguồn biểu đồ", { exact: true })).toHaveCount(0);
   const frame = chart.locator("iframe");
   await expect(frame).toHaveAttribute("data-symbol", "HOSE:FPT");
   await chart.getByLabel("Khung thời gian", { exact: true }).selectOption("1W");
@@ -98,4 +93,12 @@ test("Theme và các trang giữ bố cục trong màn hình desktop/mobile", as
     await expect(page).toHaveURL(/screener/);
     await expect(page.getByRole("button", { name: "Mở menu", exact: true })).toHaveAttribute("aria-expanded", "false");
   }
+});
+
+test("TradingView: mở mã từ screening ngoài danh sách mẫu", async ({ page }) => {
+  await analysisFixture(page); await stubTradingView(page);
+  await page.goto("/charts?symbol=ACG&exchange=HOSE");
+  await expect(page.locator("iframe")).toHaveAttribute("data-symbol","HOSE:ACG");
+  await expect(page.getByLabel("Chọn mã biểu đồ",{ exact:true })).toHaveValue("ACG");
+  await expect(page.getByLabel("Nguồn biểu đồ",{ exact:true })).toHaveCount(0);
 });

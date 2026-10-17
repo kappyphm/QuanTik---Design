@@ -47,10 +47,6 @@ export const getAnalysisVisuals = (symbol: string) => {
   return report ? { ...report, garch: { ...report.garch, surface: analysisVisuals.garchSurface } } : undefined;
 };
 export type AnalysisVisuals = NonNullable<ReturnType<typeof getAnalysisVisuals>>;
-export const getDemoCandles = (symbol: string, interval: string) => {
-  const key = interval === "1W" ? "1W" : interval === "1M" ? "1M" : "1D";
-  return demo.series.find((series) => series.symbol === symbol)?.frames[key] ?? [];
-};
 export const getScanResult = (symbol: string) =>
   [...scan.best, ...scan.avoid].find((result) => result.symbol === symbol);
 export const getStock = (symbol: string) =>
