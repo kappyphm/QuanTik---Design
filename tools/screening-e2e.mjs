@@ -72,7 +72,7 @@ try {
     });
     assert.deepEqual(entitlement, { status: 200, created: 0, remaining: 20 });
     assert.deepEqual(errors, []);
-    console.log(`Real API browser ${viewport.width}px: results, 21 criteria, cookie/proxy authorization, no quota charge, no overflow/errors PASS`);
+    console.log(`Fixture API browser ${viewport.width}px: top-five outputs, hidden criteria, cookie/proxy authorization, no quota charge, no overflow/errors PASS`);
     // Rotation changed the cookie; preserve it for the next independent viewport.
     state.refresh_cookie = (await context.cookies()).find(cookie => cookie.name === "quantik_user_refresh").value;
     await context.close();
