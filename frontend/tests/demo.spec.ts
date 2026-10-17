@@ -1,10 +1,8 @@
 import { test, expect } from "@playwright/test";
 import { analysisFixture } from "./fixtures/analysis";
-import { stubTradingView } from "./fixtures/tradingview";
 
-test("TradingView và yêu cầu Quant API trong sidebar không trộn kết quả", async ({ page }) => {
+test("Biểu đồ mẫu và yêu cầu Quant API trong sidebar không trộn kết quả", async ({ page }) => {
   const quant = await analysisFixture(page);
-  await stubTradingView(page);
   const errors: string[] = [], apiCalls: string[] = [];
   page.on("pageerror", error => errors.push(error.message));
   page.on("request", request => { if (/\/api\/|\/quant\/jobs/.test(request.url())) apiCalls.push(request.url()); });
@@ -13,14 +11,14 @@ test("TradingView và yêu cầu Quant API trong sidebar không trộn kết qu�
   await page.getByPlaceholder("Tìm mã hoặc tên").fill("FPT");
   await page.getByRole("button", { name: "FPT", exact: true }).click();
   const chart = page.getByRole("dialog", { name: "Biểu đồ FPT", exact: true });
-  await expect(chart.locator("iframe")).toHaveAttribute("data-symbol", "HOSE:FPT");
-  const plot = await chart.locator(".tradingview-frame").boundingBox();
+  await expect(chart.getByRole("img", { name: /48 phiên mẫu/ })).toBeVisible();
+  const plot = await chart.locator(".sample-chart").boundingBox();
   const panel = await chart.locator(".chart-quant").boundingBox();
   if (plot && panel && panel.y < plot.y + plot.height) {
     expect(plot.x + plot.width).toBeLessThanOrEqual(panel.x);
   }
   await chart.getByLabel("Khung thời gian", { exact: true }).selectOption("1M");
-  await expect(chart.locator("iframe")).toHaveAttribute("data-interval", "M");
+  await expect(chart.getByRole("img", { name: /12 phiên mẫu/ })).toBeVisible();
   await chart.getByRole("button", { name: "Gửi yêu cầu Quant FPT", exact: true }).click();
   await chart.getByRole("button", { name: "Xác nhận", exact: true }).click();
   quant.status = "SUCCEEDED";

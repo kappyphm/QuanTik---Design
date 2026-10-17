@@ -1,7 +1,6 @@
 import { test, expect, type Page } from "@playwright/test";
 import { analysisFixture } from "./fixtures/analysis";
 
-import { stubTradingView } from "./fixtures/tradingview";
 
 test("Home giữ nội dung và dẫn đến đăng nhập hệ thống", async ({ page }) => {
   const errors: string[] = [];
@@ -43,20 +42,18 @@ test("Dashboard hợp nhất bảng điện, nhóm ngành và Theo dõi", async 
   await expect(page.locator(".selected-stock")).toHaveCount(0);
 });
 
-test("Bấm mã mở TradingView cùng Quant, mở/thu sidebar và toàn màn hình", async ({ page }) => {
+test("Bấm mã mở biểu đồ mô phỏng cùng Quant, mở/thu sidebar và toàn màn hình", async ({ page }) => {
   const quant = await analysisFixture(page);
-  await stubTradingView(page);
   await page.goto("/dashboard");
   await page.getByPlaceholder("Tìm mã hoặc tên").fill("FPT");
   await page.getByRole("button", { name: "FPT", exact: true }).click();
   const chart = page.getByRole("dialog", { name: "Biểu đồ FPT", exact: true });
   await expect(chart).toBeVisible();
   await expect(chart.getByLabel("Nguồn biểu đồ", { exact: true })).toHaveCount(0);
-  const frame = chart.locator("iframe");
-  await expect(frame).toHaveAttribute("data-symbol", "HOSE:FPT");
+  await expect(chart.getByRole("img", { name: /Biểu đồ nến mô phỏng FPT/ })).toBeVisible();
   await chart.getByLabel("Khung thời gian", { exact: true }).selectOption("1W");
-  await expect(chart.locator("iframe")).toHaveAttribute("data-interval", "W");
-  await expect(chart.getByRole("link", { name: "Mở trên TradingView ↗", exact: true })).toHaveAttribute("href", "https://www.tradingview.com/chart/?symbol=HOSE%3AFPT&interval=W");
+  await expect(chart.getByText("Nến mẫu · FPT · 1W", { exact: true })).toBeVisible();
+  await expect(chart.getByRole("link", { name: "Mở dữ liệu thật trên TradingView ↗", exact: true })).toHaveAttribute("href", "https://www.tradingview.com/chart/?symbol=HOSE%3AFPT&interval=W");
   await chart.getByRole("button", { name: "Thu phân tích", exact: true }).click();
   await expect(chart.getByRole("complementary")).toHaveCount(0);
   await chart.getByRole("button", { name: "Mở phân tích bên chart", exact: true }).click();
@@ -77,7 +74,6 @@ test("Quét toàn sàn yêu cầu đăng nhập và không có nút phát độn
 });
 
 test("Theme và các trang giữ bố cục trong màn hình desktop/mobile", async ({ page, isMobile }) => {
-  await stubTradingView(page);
   await page.goto("/dashboard");
   await page.getByRole("button", { name: "Chuyển chế độ sáng" }).click();
   await page.reload();
@@ -96,10 +92,10 @@ test("Theme và các trang giữ bố cục trong màn hình desktop/mobile", as
   }
 });
 
-test("TradingView: mở mã từ screening ngoài danh sách mẫu", async ({ page }) => {
-  await analysisFixture(page); await stubTradingView(page);
+test("Biểu đồ: mã chưa có mẫu hiển thị trạng thái rõ ràng", async ({ page }) => {
+  await analysisFixture(page);
   await page.goto("/charts?symbol=ACG&exchange=HOSE");
-  await expect(page.locator("iframe")).toHaveAttribute("data-symbol","HOSE:ACG");
+  await expect(page.getByText("Chưa có nến mẫu cho ACG",{ exact:true })).toBeVisible();
   await expect(page.getByLabel("Chọn mã biểu đồ",{ exact:true })).toHaveValue("ACG");
   await expect(page.getByLabel("Nguồn biểu đồ",{ exact:true })).toHaveCount(0);
 });
