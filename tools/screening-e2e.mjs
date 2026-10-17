@@ -47,7 +47,7 @@ try {
     page.on("pageerror", error => errors.push(error.message));
     page.on("response", response => { if (/\/screenings\/[^/]+\/results/.test(response.url())) results.push(response); });
     await page.goto("http://127.0.0.1:3207/screener");
-    await page.getByRole("button", { name: "Kích hoạt quét", exact: true }).click();
+    assert.equal(await page.getByRole("button", { name: /Kích hoạt quét|Quét lại/ }).count(), 0);
     await page.getByRole("heading", { name: "5 mã nổi bật", exact: true }).waitFor();
     await page.getByRole("heading", { name: /FPT/ }).first().waitFor();
     assert.equal(await page.getByRole("button", { name: "Quét toàn sàn", exact: true }).count(), 0);

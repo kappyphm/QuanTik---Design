@@ -30,11 +30,10 @@ async function fixture(page: Page, mode = "ready") {
   return state;
 }
 
-test("Screening: banner kích hoạt, chỉ 5 mã mỗi nhóm và không lộ nội bộ", async ({ page }) => {
+test("Screening: tự tải kết quả, chỉ 5 mã mỗi nhóm và không lộ nội bộ", async ({ page }) => {
   const state = await fixture(page); await page.goto("/screener");
   await expect(page.getByRole("heading",{ name: /Khai mở góc nhìn/ })).toBeVisible();
-  expect(state.results).toEqual([]);
-  await page.getByRole("button",{ name: "Kích hoạt quét",exact:true }).click();
+  await expect(page.getByRole("button",{ name: /Kích hoạt quét|Quét lại/ })).toHaveCount(0);
   const best = page.locator("section.panel").filter({ has: page.getByRole("heading",{ name:"5 mã nổi bật",exact:true }) });
   const avoid = page.locator("section.panel").filter({ has: page.getByRole("heading",{ name:"5 mã nên tránh",exact:true }) });
   await expect(best.locator("article")).toHaveCount(5); await expect(avoid.locator("article")).toHaveCount(5);
@@ -49,18 +48,17 @@ test("Screening: banner kích hoạt, chỉ 5 mã mỗi nhóm và không lộ n�
 });
 
 test("Screening: cập nhật không trộn bản công bố", async ({ page }) => {
+  await page.clock.install();
   const state=await fixture(page); await page.goto("/screener");
-  await page.getByRole("button",{ name:"Kích hoạt quét",exact:true }).click();
   await expect(page.getByRole("heading",{ name:/FPT/ }).first()).toBeVisible();
   state.mode="new";
-  await page.getByRole("button",{ name:"Quét lại",exact:true }).click();
+  await page.clock.fastForward(61000);
   await expect(page.getByRole("heading",{ name:/VCB/ }).first()).toBeVisible();
   await expect(page.getByRole("heading",{ name:/FPT/ })).toHaveCount(0);
 });
 
 test("Screening: gói hết hiệu lực dẫn mua và không tải danh sách", async ({ page }) => {
   const state=await fixture(page,"unpaid"); await page.goto("/screener");
-  await page.getByRole("button",{ name:"Kích hoạt quét",exact:true }).click();
   await expect(page.getByRole("heading",{ name:"Cần gói phân tích còn hiệu lực",exact:true })).toBeVisible();
   await expect(page.getByRole("link",{ name:"Xem các gói phân tích",exact:true })).toHaveAttribute("href","/plans");
   expect(state.results).toEqual([]);
@@ -68,16 +66,15 @@ test("Screening: gói hết hiệu lực dẫn mua và không tải danh sách",
 
 test("Screening: chờ dữ liệu không lộ nguyên nhân vận hành", async ({ page }) => {
   await fixture(page,"waiting"); await page.goto("/screener");
-  await page.getByRole("button",{ name:"Kích hoạt quét",exact:true }).click();
   await expect(page.getByRole("heading",{ name:"Chưa có kết quả được công bố",exact:true })).toBeVisible();
   await expect(page.getByText(/TASK_DEADLINE|quá hạn xử lý|Lần xử lý gần nhất/)).toHaveCount(0);
 });
 
 test("Screening: giữ ngày dữ liệu và bản cũ khi cập nhật lỗi", async ({ page }) => {
+  await page.clock.install();
   const state=await fixture(page,"stale"); await page.goto("/screener");
-  await page.getByRole("button",{ name:"Kích hoạt quét",exact:true }).click();
   await expect(page.getByText("Dữ liệu ngày 16/10/2026",{ exact:true })).toBeVisible();
   await expect(page.getByText(/Đang hiển thị kết quả gần nhất/)).toBeVisible();
-  state.mode="network"; await page.getByRole("button",{ name:"Quét lại",exact:true }).click();
+  state.mode="network"; await page.clock.fastForward(61000);
   await expect(page.getByRole("heading",{ name:/FPT/ }).first()).toBeVisible();
 });
