@@ -56,6 +56,7 @@ test("Bấm mã mở TradingView cùng Quant, mở/thu sidebar và toàn màn h�
   await expect(frame).toHaveAttribute("data-symbol", "HOSE:FPT");
   await chart.getByLabel("Khung thời gian", { exact: true }).selectOption("1W");
   await expect(chart.locator("iframe")).toHaveAttribute("data-interval", "W");
+  await expect(chart.getByRole("link", { name: "Mở trên TradingView ↗", exact: true })).toHaveAttribute("href", "https://www.tradingview.com/chart/?symbol=HOSE%3AFPT&interval=W");
   await chart.getByRole("button", { name: "Thu phân tích", exact: true }).click();
   await expect(chart.getByRole("complementary")).toHaveCount(0);
   await chart.getByRole("button", { name: "Mở phân tích bên chart", exact: true }).click();
