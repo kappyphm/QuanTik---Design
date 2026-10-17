@@ -66,9 +66,9 @@ Khi thi công, đặt comment `BE-GAP GAP-xx` sát adapter hoặc nhánh render 
 
 - Giữ trang chọn mã, modal trước khi chạy và QuantPanel bên chart; bổ sung target_session, sizing tùy chọn, entitlement/quota trước xác nhận.
 - Mỗi yêu cầu có Idempotency-Key riêng; retry cùng payload giữ key, thay payload tạo yêu cầu mới. Không tự retry POST bằng key mới sau timeout.
-- Theo dõi QUEUED/WAITING_DATA/RUNNING/RETRY_WAIT/SUCCEEDED/FAILED/CANCELLED; xử lý reason, quota_effect, report_id, hủy và cập nhật quota từ BE.
+- Theo dõi QUEUED/WAITING_DATA/RUNNING/RETRY_WAIT/SUCCEEDED/FAILED; xử lý reason, quota_effect, report_id và cập nhật hạn mức từ BE. CANCELLED chỉ đọc lịch sử cũ; không có hủy/hoàn lượt.
 - Lưu job_id trong đường dẫn và bổ sung lịch sử để reload/rời trang vẫn quay lại được; không lưu token hoặc report riêng tư vào localStorage.
-- Hoàn tất khi timeout/double-click không nhân job, hủy phản ánh quota thực, mở lại job và mở report đúng owner.
+- Hoàn tất khi timeout/double-click không nhân job, yêu cầu tiếp nhận tính vào hạn mức ngày, mở lại job và mở report đúng owner. Trạng thái triển khai hiện tại xem ANALYSIS-IMPLEMENTATION.md; nghiệm thu dữ liệu/model live vẫn riêng.
 
 ### 4. Báo cáo thật, giữ tối đa thiết kế
 

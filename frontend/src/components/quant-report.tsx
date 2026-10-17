@@ -11,6 +11,8 @@ import { Modal } from "./ui";
 import TermHint, { TermContent } from "./term-hint";
 import { getTerm } from "@/content/legacy/glossary";
 import { usePreferences } from "./preferences";
+import type { AnalysisReport } from "@/lib/api/analysis";
+import { LiveQuantReport } from "./quant-live-report";
 const guides = {
     stats: { name: "Hiệu suất & dòng tiền", terms: ["sharpe", "cmf", "max_drawdown"] },
     hmm: { name: "HMM & Hurst", terms: ["hmm", "hurst"] },
@@ -55,6 +57,13 @@ function ChartViews({ report, type }: {
   </div>;
 }
 export function QuantReport({ result, compact = false, showAction = true }: {
+    result: ScanResult | AnalysisReport;
+    compact?: boolean;
+    showAction?: boolean;
+}) {
+    return "schema_version" in result ? <LiveQuantReport report={result} compact={compact} showAction={showAction}/> : <SampleQuantReport result={result} compact={compact} showAction={showAction}/>;
+}
+function SampleQuantReport({ result, compact = false, showAction = true }: {
     result: ScanResult;
     compact?: boolean;
     showAction?: boolean;

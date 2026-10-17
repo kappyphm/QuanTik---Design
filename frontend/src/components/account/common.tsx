@@ -91,15 +91,16 @@ export function DataTable({ items, columns, action }: {
         return <p className="muted [.terminal_&]:[color:var(--muted)] [.panel-heading_>_&]:[font-size:14px] [.panel-heading_>_&]:[color:var(--muted)] [.panel-heading_>_&]:whitespace-nowrap [.analysis-price_>_&]:[font-size:14px]">Chưa có dữ liệu.</p>;
     return <div className={accountStyles.table} tabIndex={0} role="region" aria-label="Bảng dữ liệu; cuộn ngang để xem"><table><thead><tr>{columns.map(col => <th key={col.key}>{col.label}</th>)}{action && <th>Thao tác</th>}</tr></thead><tbody>{items.map((row, i) => <tr key={String(row.id ?? i)}>{columns.map(col => <td key={col.key}>{col.render ? col.render(row[col.key], row) : show(row[col.key])}</td>)}{action && <td>{action(row)}</td>}</tr>)}</tbody></table></div>;
 }
-export function PagedTable({ path, role = "admin", columns, action, revision = 0 }: {
+export function PagedTable({ path, role = "admin", columns, action, revision = 0, resetOnRevision = true }: {
     path: string;
     role?: Role;
     columns: Column[];
     action?: (row: Row) => ReactNode;
     revision?: number;
+    resetOnRevision?: boolean;
 }) {
     const [cursors, setCursors] = useState<string[]>([""]);
-    const identity = `${path}|${revision}`;
+    const identity = `${path}|${resetOnRevision ? revision : ""}`;
     const [previous, setPrevious] = useState(identity);
     if (previous !== identity) {
         setPrevious(identity);

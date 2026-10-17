@@ -1,6 +1,8 @@
 import { test, expect } from "@playwright/test";
+import { analysisFixture } from "./fixtures/analysis";
 
-test("Dữ liệu mẫu: mở nến và nạp kết quả Quant FPT trong sidebar", async ({ page }) => {
+test("Biểu đồ mẫu và yêu cầu Quant API trong sidebar không trộn kết quả", async ({ page }) => {
+  const quant = await analysisFixture(page);
   const errors: string[] = [], apiCalls: string[] = [];
   page.on("pageerror", error => errors.push(error.message));
   page.on("request", request => { if (/\/api\/|\/quant\/jobs/.test(request.url())) apiCalls.push(request.url()); });
@@ -18,23 +20,25 @@ test("Dữ liệu mẫu: mở nến và nạp kết quả Quant FPT trong sideba
   await chart.getByRole("img").hover({ position: { x: 250, y: 130 } });
   await chart.getByLabel("Khung thời gian", { exact: true }).selectOption("1M");
   await expect(chart.getByRole("img", { name: /12 phiên mẫu/ })).toBeVisible();
-  await chart.getByRole("button", { name: "Chạy Quant FPT", exact: true }).click();
-  const review = page.getByRole("dialog", { name: "Trước khi chạy Quant FPT", exact: true });
-  await expect(review.getByText("20% mẫu", { exact: true })).toBeVisible();
-  await review.getByRole("button", { name: "Chạy phân tích mẫu", exact: true }).click();
-  await expect(chart.locator(".quant-action")).toContainText("THEO DÕI");
-  await expect(chart.getByRole("status")).toHaveText("Mô phỏng");
+  await chart.getByRole("button", { name: "Gửi yêu cầu Quant FPT", exact: true }).click();
+  await chart.getByRole("button", { name: "Xác nhận", exact: true }).click();
+  quant.status = "SUCCEEDED";
+  await expect(chart.getByText("Báo cáo kiểm thử theo hợp đồng API.", { exact: true })).toBeVisible({ timeout: 10000 });
+  await expect(chart.locator(".quant-report-section[open]")).toHaveCount(0);
+  await chart.locator(".quant-report-section > summary").filter({ hasText: "Hiệu suất & dòng tiền" }).click();
+  await expect(chart.getByRole("img", { name: "Lịch sử giá đóng cửa FPT", exact: true })).toBeVisible();
+  expect(quant.created).toBe(1); expect(quant.unknown).toEqual([]);
   expect(errors).toEqual([]);
-  expect(apiCalls).toEqual([]);
+  expect(apiCalls.some(url => url.includes("/analyses"))).toBeTruthy();
 });
 
-test("Dữ liệu mẫu: đổi mã Quant độc lập", async ({ page }) => {
+test("Đổi mã Quant kiểm tra danh sách thật, không dùng kết quả mẫu", async ({ page }) => {
+  const quant = await analysisFixture(page);
   await page.goto("/analysis?symbol=HPG");
-  await page.getByRole("button", { name: "Chạy Quant HPG", exact: true }).click();
-  await page.getByRole("dialog").getByRole("button", { name: "Chạy phân tích mẫu", exact: true }).click();
-  await expect(page.locator(".quant-action")).toContainText("THẬN TRỌNG");
+  await expect(page.getByRole("button", { name: "Gửi yêu cầu Quant HPG", exact: true })).toBeEnabled();
   await page.getByLabel("Chọn mã phân tích", { exact: true }).fill("ZZZ");
   await page.getByRole("button", { name: "Chọn mã", exact: true }).click();
-  await page.getByRole("button", { name: "Chạy Quant ZZZ", exact: true }).click();
-  await expect(page.getByRole("dialog").getByRole("button", { name: "Chạy phân tích mẫu", exact: true })).toBeDisabled();
+  await expect(page.getByRole("button", { name: "Gửi yêu cầu Quant ZZZ", exact: true })).toBeDisabled();
+  await expect(page.getByText(/Mã ZZZ chưa có dữ liệu phân tích/)).toBeVisible();
+  expect(quant.created).toBe(0);
 });

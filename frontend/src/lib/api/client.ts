@@ -1,6 +1,8 @@
 "use client";
 import type { Role } from "./contracts";
+import { analysisMessages } from "./analysis";
 const messages: Record<string, string> = {
+  ...analysisMessages,
   BACKFILL_SESSION_NOT_COMPLETED: "Phiên này chưa kết thúc hoặc không thuộc lịch giao dịch.",
   BACKFILL_OPERATIONS_DISABLED: "Cần bật vận hành, nạp dữ liệu, screening và kết nối nguồn dữ liệu trước khi chạy bù.",
   BACKFILL_ALREADY_PENDING: "Một phiên khác đang được chạy bù. Chờ tác vụ đó kết thúc trước.",

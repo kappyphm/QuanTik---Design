@@ -1,4 +1,5 @@
 import { test, expect, type Page } from "@playwright/test";
+import { analysisFixture } from "./fixtures/analysis";
 
 async function stubTradingView(page: Page) {
   await page.route("https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js", route => route.fulfill({
@@ -48,6 +49,7 @@ test("Dashboard hợp nhất bảng điện, nhóm ngành và Theo dõi", async 
 });
 
 test("Bấm mã mở TradingView cùng Quant, mở/thu sidebar và toàn màn hình", async ({ page }) => {
+  const quant = await analysisFixture(page);
   await stubTradingView(page);
   await page.goto("/dashboard");
   await page.getByPlaceholder("Tìm mã hoặc tên").fill("FPT");
@@ -62,12 +64,11 @@ test("Bấm mã mở TradingView cùng Quant, mở/thu sidebar và toàn màn h�
   await chart.getByRole("button", { name: "Thu phân tích", exact: true }).click();
   await expect(chart.getByRole("complementary")).toHaveCount(0);
   await chart.getByRole("button", { name: "Mở phân tích bên chart", exact: true }).click();
-  await chart.getByRole("button", { name: "Chạy Quant FPT", exact: true }).click();
-  const review = page.getByRole("dialog", { name: "Trước khi chạy Quant FPT", exact: true });
-  await expect(review.getByText("Sharpe", { exact: true })).toBeVisible();
-  await expect(review.getByRole("button", { name: "Chạy phân tích mẫu" })).toBeEnabled();
-  await page.keyboard.press("Escape");
-  await expect(chart.getByRole("button", { name: "Chạy Quant FPT", exact: true })).toBeFocused();
+  await chart.getByRole("button", { name: "Gửi yêu cầu Quant FPT", exact: true }).click();
+  const review = chart.getByRole("region", { name: "Gửi yêu cầu phân tích?", exact: true });
+  await expect(review).toContainText("Phiên 2026-10-16");
+  await review.getByRole("button", { name: "Quay lại", exact: true }).click();
+  expect(quant.created).toBe(0);
   await chart.getByRole("link", { name: "Mở Quant toàn màn hình" }).click();
   await expect(page).toHaveURL(/analysis\?symbol=FPT/);
 });

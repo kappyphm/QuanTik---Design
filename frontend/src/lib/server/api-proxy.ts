@@ -1,6 +1,8 @@
 import { gateCookie } from "./admin-cookie";
 // Fixed upstream and explicit routes: this handler is not an arbitrary HTTP proxy.
 const routes: [string, RegExp][] = [
+  ["GET", /^(analyses|analyses\/options|analyses\/[a-zA-Z0-9-]+|reports\/[a-zA-Z0-9-]+)$/],
+  ["POST", /^analyses$/],
   ["GET", /^admin\/(screening\/backfill-options|scheduled-tasks\/[a-zA-Z0-9-]+)$/],
   ["POST", /^admin\/screening\/backfills$/],
   ["GET", /^screenings\/(latest|[a-zA-Z0-9-]+\/results)$/],
