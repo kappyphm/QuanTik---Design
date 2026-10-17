@@ -56,7 +56,6 @@ export function Login({ admin = false }: {
       {admin && <><Field label="Tên đăng nhập"><input autoComplete="username" maxLength={255} required value={username} onChange={e => setUsername(e.target.value)}/></Field><Field label="Mật khẩu"><input type="password" autoComplete="current-password" required maxLength={1024} value={password} onChange={e => setPassword(e.target.value)}/></Field></>}
       <button className={accountStyles.buttonPrimary} disabled={busy}>{busy ? "Đang kết nối…" : admin ? "Đăng nhập" : "Tiếp tục với Google"}</button>
     </form>
-    {/* BE-GAP AUTH-01: no customer password/signup/profile APIs. */}
     {!admin && <Link className="text-link [.auth-stage_.account-login_&]:[font-size:12px] [.auth-stage_.account-login_&]:[color:var(--muted)]" href="/">← Về trang chủ</Link>}
   </section>;
 }

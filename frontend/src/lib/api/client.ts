@@ -18,7 +18,7 @@ const messages: Record<string, string> = {
   CONFIG_ACTIVATION_CONFLICT: "Phiên bản đang áp dụng đã thay đổi. Tải lại và kiểm tra trước khi kích hoạt.",
   INVALID_CONFIG: "Cấu hình không đúng yêu cầu. Kiểm tra dữ liệu và nguồn tham chiếu.", INVALID_REQUEST: "Thông tin gửi lên chưa hợp lệ.",
   DAILY_REQUEST_LIMIT: "Bạn đã dùng hết hạn mức yêu cầu hôm nay. Hạn mức đặt lại lúc 00:00 giờ Việt Nam.",
-  QUOTA_OR_JOB_LIMIT: "Đã chạm hạn mức yêu cầu trong ngày hoặc giới hạn xử lý đồng thời.", ACTIVE_JOB_LIMIT: "Các yêu cầu trước đang được xử lý. Vui lòng chờ hoàn thành.", NO_ENTITLEMENT: "Bạn chưa có gói đang hiệu lực.",
+  QUOTA_OR_JOB_LIMIT: "Đã chạm hạn mức yêu cầu trong ngày hoặc giới hạn xử lý đồng thời.", ACTIVE_JOB_LIMIT: "Các yêu cầu trước đang được xử lý. Vui lòng chờ hoàn thành.", NO_ENTITLEMENT: "Bạn chưa có gói đang hiệu lực.", PROFILE_REQUIRED: "Bổ sung hồ sơ tài khoản trước khi gửi yêu cầu.", SIGNUP_PLAN_MANAGED: "Gói miễn phí được cấp tự động khi đăng ký.",
   WEBHOOK_KEY_IN_USE: "Chưa thể xóa khóa khi còn đơn chờ hoặc giao dịch cần đối soát.", PAYMENT_REVIEW_REQUIRED: "Đơn đã có giao dịch cần xử lý. Không tạo thanh toán mới cho cùng lần mua.",
   PLAN_REPLACEMENT_CONFIRMATION_REQUIRED: "Cần xác nhận thay thế phiên bản gói đang bán.", PLAN_REPLACEMENT_CONFLICT: "Đã có phiên bản khác thay thế gói cũ. Tải lại danh mục để kiểm tra.",
   INVALID_CURSOR: "Trang dữ liệu đã không còn hợp lệ. Vui lòng quay lại đầu danh sách.", REQUEST_FAILED: "Không thể hoàn tất yêu cầu. Vui lòng thử lại hoặc cung cấp mã hỗ trợ.",

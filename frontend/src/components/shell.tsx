@@ -7,6 +7,7 @@ import { ArrowUpRight, ChevronRight, LayoutDashboard, Menu, Moon, Search, Slider
 import { stocks, demoEnabled } from "@/lib/mock-data";
 import { usePreferences } from "./preferences";
 import { SessionMenu } from "./account/session-menu";
+import { ProfileGate } from "./account/profile";
 const navigation = [
     { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
     { href: "/screener", label: "Quét toàn sàn", icon: SlidersHorizontal },
@@ -171,7 +172,7 @@ export function Shell({ children }: {
           {error && (<p className="error-message" role="alert">
               {error}
             </p>)}
-          {children}
+          {isAdmin ? children : <ProfileGate>{children}</ProfileGate>}
         </main>
       </div>
     </div>);

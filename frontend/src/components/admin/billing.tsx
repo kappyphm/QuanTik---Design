@@ -88,15 +88,15 @@ export function AdminPlansPage() {
         <div className="p-5"><ResourceState {...result} retry={result.reload}/>
           {result.data?.items.length === 0 && <p>Chưa tạo gói nào. Dùng form bên dưới để tạo gói đầu tiên.</p>}
           <div className="grid gap-4 lg:grid-cols-2">{result.data?.items.map(plan => <article key={plan.id} className="min-w-0 rounded-[4px] border border-[var(--border)] p-5">
-            <div className="flex flex-wrap items-start justify-between gap-3"><h3 className="text-lg font-semibold">{plan.name}</h3><span className={plan.available ? "text-[var(--positive)]" : "text-[var(--accent)]"}>{plan.available ? "Đang mở bán" : "Đang đóng bán · khách chưa thấy"}</span></div>
+            <div className="flex flex-wrap items-start justify-between gap-3"><h3 className="text-lg font-semibold">{plan.name}</h3><span className={plan.available ? "text-[var(--positive)]" : "text-[var(--accent)]"}>{plan.price_vnd === 0 ? "Tự cấp khi đăng ký" : plan.available ? "Đang mở bán" : "Đang đóng bán · khách chưa thấy"}</span></div>
             {plan.replaces_plan_id && <p className="mt-2 text-xs text-[var(--muted)]">Phiên bản thay thế gói trước</p>}<p className="my-4 text-2xl text-[var(--accent)]">{money(plan.price_vnd)}</p>
             <p className="text-sm leading-7">{plan.duration_days} ngày · {dailyLimit(plan)} yêu cầu/ngày · {plan.active_limit} yêu cầu đồng thời</p>
             <details className="my-3 text-xs text-[var(--muted)]"><summary>Mã phiên bản</summary><code className="break-all">{plan.id}</code></details>
-            <div className="mt-4 flex flex-wrap gap-2">
-              <button className={plan.available ? button : primary} disabled={busy || review || !!toggle} onClick={() => setToggle(plan)}>{plan.available ? "Đóng bán" : "Mở bán"}</button>
+            {plan.price_vnd > 0 && <div className="mt-4 flex flex-wrap gap-2">
+              <button className={plan.available ? button : primary} disabled={plan.price_vnd === 0 || busy || review || !!toggle} onClick={() => setToggle(plan)}>{plan.available ? "Đóng bán" : "Mở bán"}</button>
               <button className={button} disabled={busy || review || !!toggle} onClick={() => edit(plan)}>Tạo phiên bản từ gói này</button>
               <Link className={button} href={`/admin/orders?plan_id=${encodeURIComponent(plan.id)}`}>Xem đơn của gói</Link>
-            </div>
+            </div>}
           </article>)}</div>
           <div className="mt-5 flex gap-3"><button className={button} disabled={!cursor || result.loading} onClick={() => setCursor("")}>Về đầu danh mục</button><button className={button} disabled={!result.data?.next_cursor || result.loading || !!result.error} onClick={() => setCursor(result.data!.next_cursor!)}>Trang sau</button></div>
         </div>
