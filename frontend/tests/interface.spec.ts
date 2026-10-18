@@ -1,5 +1,8 @@
 import { test, expect, type Page } from "@playwright/test";
 import { analysisFixture } from "./fixtures/analysis";
+import { agrFixture } from "./fixtures/agr";
+
+test.beforeEach(async ({ page }) => { await agrFixture(page); });
 
 
 test("Home giữ nội dung và dẫn đến đăng nhập hệ thống", async ({ page }) => {

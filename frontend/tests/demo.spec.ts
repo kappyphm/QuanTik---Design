@@ -1,5 +1,8 @@
 import { test, expect } from "@playwright/test";
 import { analysisFixture } from "./fixtures/analysis";
+import { agrFixture } from "./fixtures/agr";
+
+test.beforeEach(async ({ page }) => { await agrFixture(page); });
 
 test("Biểu đồ mẫu và yêu cầu Quant API trong sidebar không trộn kết quả", async ({ page }) => {
   const quant = await analysisFixture(page);
