@@ -8,6 +8,7 @@ const result = await build({
   entryPoints: ["frontend/preview/entry.tsx"],
   bundle: true,
   write: false,
+  outdir: resolve(root, "preview/assets"),
   minify: true,
   jsx: "automatic",
   target: "es2020",
@@ -23,7 +24,10 @@ const logo =
   (await readFile(resolve(root, "frontend/public/quantik-logo.jpg"))).toString(
     "base64",
   );
-const javascript = result.outputFiles[0].text
+const script = result.outputFiles.find(file => file.path.endsWith(".js"));
+if (!script) throw new Error("Preview JavaScript bundle is missing.");
+const bundledStyles = result.outputFiles.filter(file => file.path.endsWith(".css")).map(file => file.text).join("\n");
+const javascript = script.text
   .replaceAll('"/quantik-logo.jpg"', JSON.stringify(logo))
   .replaceAll("</script", "<\\/script");
 const buildRoot = resolve(root, "frontend/.next");
@@ -66,6 +70,7 @@ const fragment =
   fontImport +
   mathFonts.join("\n") +
   css +
+  bundledStyles +
   "\n#quantik-design-preview{position:relative;min-height:800px;background:#0b1013}#quantik-design-preview .terminal-sidebar{position:absolute}#quantik-design-preview .terminal{min-height:800px}#quantik-design-preview .sidebar-scrim{position:absolute}@media(max-width:700px){#quantik-design-preview .terminal-sidebar{height:100%;max-height:none}}</style>\n<script>" +
   javascript +
   "</script>\n";

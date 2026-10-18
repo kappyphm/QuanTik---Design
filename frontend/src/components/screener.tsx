@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import { useCallback, useEffect, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import { api, ApiError } from "@/lib/api/client";
 import { money } from "@/lib/api/contracts";
 import type { ScreeningDetail, ScreeningGroup, ScreeningItem, ScreeningLatest, ScreeningResults, ScreeningScore } from "@/lib/api/screening";
@@ -18,9 +18,37 @@ const groupNames = Object.keys(groupLabels) as ScreeningGroup[];
 const columnLabels: [string, string][] = [["symbol", "Mã CK"], ["price", "Giá đóng cửa"], ["change_1d", "1D"], ["change_5d", "5D"], ["change_20d", "20D"], ["volume", "KL phiên"], ["average_volume", "KL TB20"], ["volume_ratio", "Vol/TB20"], ["high20", "Giá/Đỉnh 20D"], ["strong", "MẠNH"], ["accumulation", "TÍCH LŨY"], ["distribution", "PHÂN PHỐI"]];
 
 export function Screener() {
-  return <><PageHeading title="Quét toàn sàn" description="5 mã nổi bật và 5 mã cần thận trọng, kèm giá, thanh khoản và điểm screening."/><Guard><ScreeningBoard/></Guard></>;
+  return <><PageHeading title="Quét toàn sàn" description="5 mã nổi bật và 5 mã cần thận trọng, kèm giá, thanh khoản và điểm screening."/><Guard><ScreeningExperience/></Guard></>;
 }
-function ScreeningBoard() {
+function ScreeningExperience() {
+  const [activated, setActivated] = useState(false);
+  return activated ? <ScreeningBoard onReset={() => setActivated(false)}/> : <ScanActivation onActivate={() => setActivated(true)}/>;
+}
+function ScanActivation({ onActivate }: { onActivate: () => void }) {
+  return <section className={styles.gate} aria-label="Kích hoạt kết quả quét toàn sàn">
+    <div className={styles.gateCopy}><span className={styles.tag}><i/> PHÂN TÍCH TOÀN THỊ TRƯỜNG</span>
+      <h2>Khai mở góc nhìn<br/><em>toàn sàn.</em></h2>
+      <p>Khám phá 5 mã nổi bật, 5 mã cần thận trọng và các chỉ số đánh giá.</p>
+      <button className={styles.activate} onClick={onActivate}>Kích hoạt kết quả <span aria-hidden="true">↗</span></button>
+    </div>
+    <div className={styles.gateArt}>
+      <svg className={styles.artwork} viewBox="0 0 540 320" fill="none" aria-hidden="true">
+        <defs><linearGradient id="scan-beam" x1="0" y1="320" x2="540" y2="0" gradientUnits="userSpaceOnUse"><stop stopColor="#ff792b" stopOpacity="0"/><stop offset=".5" stopColor="#ff792b"/><stop offset="1" stopColor="#ff792b" stopOpacity="0"/></linearGradient></defs>
+        <path d="M40 230 290 88 500 210 250 352Z" fill="#0f3528" fillOpacity=".42" stroke="#2d7758"/>
+        <path d="M40 190 290 48 500 170 250 312Z" stroke="#2d7758" strokeOpacity=".45"/>
+        <path d="M10 253 294 87 539 227" stroke="url(#scan-beam)" strokeWidth="3"/>
+        {[70,118,166,214,262,310,358,406].map((x,i)=><g key={x} transform={`translate(${x} ${190-i*13})`} stroke={i===3||i===6?'#ff792b':'#55dfaa'}><path d="M0-30V38"/><rect x="-6" y={i%2?-9:-17} width="12" height={i%2?30:23} fill={i===3||i===6?'#ff792b':'#55dfaa'}/></g>)}
+        <circle cx="292" cy="122" r="55" stroke="#7be8b7" strokeOpacity=".6"/><path d="m330 163 45 44" stroke="#ff792b" strokeWidth="8"/>
+        <path d="M292 43V60M292 184V201M213 122H230M354 122H371" stroke="#7be8b7"/>
+      </svg>
+      <span>KHÔNG CÓ NGÀY MAI,<br/>CHỈ CÓ <b>XÁC SUẤT.</b></span>
+    </div>
+    <div className={styles.gateFeatures}><div><b>01 / TOÀN THỊ TRƯỜNG</b><span>Tổng hợp theo sàn và doanh nghiệp</span></div><div><b>02 / CƠ HỘI & RỦI RO</b><span>So sánh các mã nổi bật và cần thận trọng</span></div><div><b>03 / TỪNG CỔ PHIẾU</b><span>Mở chi tiết đánh giá cho mã bạn chọn</span></div></div>
+  </section>;
+}
+function ScreeningBoard({ onReset }: { onReset: () => void }) {
+  const board = useRef<HTMLDivElement>(null);
+  useEffect(() => { board.current?.focus(); }, []);
   const [version, setVersion] = useState(0);
   const [publication, setPublication] = useState<{ latest: ScreeningLatest; best: ScreeningItem[]; worst: ScreeningItem[] }>();
   const [error, setError] = useState<Error>(), [loading, setLoading] = useState(true);
@@ -53,24 +81,25 @@ function ScreeningBoard() {
     document.addEventListener("visibilitychange", refresh);
     return () => { clearTimeout(timer); document.removeEventListener("visibilitychange", refresh); };
   }, [version, forbidden]);
-  return <div className={styles.board}>
+  return <div className={styles.board} ref={board} tabIndex={-1} aria-label="Kết quả quét toàn sàn">
+    <div className={styles.toolbar}><button className={styles.button} onClick={onReset}>← Xem lại banner</button><button className={styles.button} onClick={() => setVersion(v => v+1)} disabled={loading || forbidden}>{loading ? 'Đang cập nhật…' : 'Cập nhật kết quả ↻'}</button></div>
     {forbidden ? <section className={styles.empty}><h2>Cần gói phân tích còn hiệu lực</h2><p>Kích hoạt gói để xem kết quả quét.</p><Link href="/plans">Xem các gói phân tích</Link></section>
       : !publication ? notReady ? <section className={styles.empty} role="status"><h2>Chưa có kết quả được công bố</h2><p>Kết quả sẽ xuất hiện tại đây khi dữ liệu sẵn sàng.</p></section>
       : error ? <><ErrorNotice error={error}/><button className={styles.button} onClick={() => setVersion(v => v+1)}>Thử lại</button></>
       : <p role="status">Đang tải kết quả công bố mới nhất…</p> : null}
     {publication && <>
-      <div className={styles.heading}><div><h2>Kết quả screening</h2><p>Dữ liệu ngày {date(publication.latest.target_session)}</p></div><span className={styles.hint}>Bấm vào mã để xem đánh giá chi tiết</span></div>
+      <div className={styles.heading}><div><span className={styles.tag}>PHÂN TÍCH TOÀN SÀN</span><h2>5 nổi bật · <em>5 thận trọng</em></h2><p>Dữ liệu ngày {date(publication.latest.target_session)}</p></div><span className={styles.hint}>Bấm vào mã để xem đánh giá chi tiết</span></div>
       {(publication.latest.stale || error) && <p role="status" className={styles.notice}>Đang hiển thị kết quả gần nhất. Kết quả mới sẽ tự cập nhật khi sẵn sàng.</p>}
       {error && <button className={styles.button} onClick={() => setVersion(v => v+1)}>Thử lại</button>}
       <p className={styles.hint}>Giá: VND · Khối lượng: cổ phiếu. Điểm phân phối cao thể hiện rủi ro cao hơn.</p>
-      <ScreeningTable title="5 mã tốt nhất" description="Xếp theo điểm tổng hợp của bộ lọc." items={publication.best} loading={loading} onSelect={item => setSelected({ run: publication.latest, item })}/>
-      <ScreeningTable title="5 mã cần thận trọng" description="Các mã có điểm phân phối cao nhất." items={publication.worst} loading={loading} onSelect={item => setSelected({ run: publication.latest, item })}/>
+      <ScreeningTable kind="opportunity" title="5 mã tốt nhất" description="Xếp theo điểm tổng hợp của bộ lọc." items={publication.best} loading={loading} onSelect={item => setSelected({ run: publication.latest, item })}/>
+      <ScreeningTable kind="caution" title="5 mã cần thận trọng" description="Các mã có điểm phân phối cao nhất." items={publication.worst} loading={loading} onSelect={item => setSelected({ run: publication.latest, item })}/>
     </>}
     {selected && <StockDetail key={`${selected.run.id}:${selected.item.symbol}`} run={selected.run} item={selected.item} onClose={() => setSelected(undefined)} onDenied={onDenied}/>}
   </div>;
 }
-function ScreeningTable({ title, description, items, loading, onSelect }: { title: string; description: string; items: ScreeningItem[]; loading: boolean; onSelect: (item: ScreeningItem) => void }) {
-  return <section className={styles.tableSection} aria-label={title}>
+function ScreeningTable({ kind, title, description, items, loading, onSelect }: { kind: "opportunity" | "caution"; title: string; description: string; items: ScreeningItem[]; loading: boolean; onSelect: (item: ScreeningItem) => void }) {
+  return <section className={`${styles.tableSection} ${styles[kind]}`} aria-label={title}>
     <div className={styles.heading}><div><h3>{title}</h3><p>{description}</p></div><span className={styles.hint}>{items.length}/5 mã</span></div>
     <div className={styles.tableFrame} aria-busy={loading}>
       <div className={styles.scroll} tabIndex={0} role="region" aria-label={`${title} · cuộn ngang để xem đầy đủ`}>

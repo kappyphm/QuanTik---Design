@@ -61,3 +61,52 @@
 
 .tableSection { display: grid; gap: 12px; min-width: 0; }
 .tableSection > .heading h3 { font-size: 18px; margin: 0 0 4px; }
+
+/* Activation artwork and result accents ported from QuanTik-website. */
+.gate { position: relative; isolation: isolate; overflow: hidden; display: grid; grid-template-columns: 1.2fr 1fr; min-width: 0; border: 1px solid var(--border); border-radius: 16px; background: radial-gradient(ellipse at 80% 34%, color-mix(in srgb,var(--positive) 12%,transparent),transparent 56%),linear-gradient(125deg,var(--surface),var(--background)); box-shadow: 0 24px 80px #0002; }
+.gate::before { content: ''; position: absolute; z-index: -1; inset: 0; background: linear-gradient(150deg,transparent 57%,color-mix(in srgb,var(--accent) 15%,transparent) 57.1%,transparent 70%); }
+.gateCopy { padding: 48px 0 44px 40px; min-width: 0; }
+.tag { display: inline-flex; align-items: center; gap: 9px; font: 500 10px/1.8 var(--font-mono); letter-spacing: 1px; color: var(--accent); }
+.tag i { width: 6px; height: 6px; border-radius: 50%; background: var(--positive); box-shadow: 0 0 12px var(--positive); }
+.gate h2 { font: 600 clamp(30px,3.1vw,48px)/1.3 var(--font-mono); letter-spacing: -1.5px; margin: 23px 0 18px; }
+.gate h2 em, .heading h2 em { color: var(--accent); font-style: normal; }
+.gateCopy > p { max-width: 460px; line-height: 1.85; font-size: 14px; color: var(--muted); margin: 0 0 25px; }
+.activate { display: inline-flex; align-items: center; gap: 28px; min-height: 48px; padding: 13px 19px; font: 600 13px/1.5 var(--font-mono); color: #080d0b; background: var(--accent); border: 1px solid var(--accent); border-radius: 5px; cursor: pointer; }
+.activate:hover { filter: brightness(1.08); }
+.activate > span { font-size: 20px; line-height: 1; }
+.gateArt { min-width: 0; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 10px 20px 30px 0; }
+.artwork { width: 100%; max-width: 540px; height: auto; }
+.gateArt > span { color: var(--muted); font: 12px/1.8 var(--font-mono); letter-spacing: 1px; }
+.gateArt b { color: var(--accent); }
+.gateFeatures { grid-column: 1/-1; display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 25px; margin: 0 40px; padding: 24px 0; border-top: 1px solid var(--border); }
+.gateFeatures b { display: block; font: 500 10px/1.8 var(--font-mono); letter-spacing: .5px; color: var(--positive); }
+.gateFeatures span { display: block; font-size: 12px; color: var(--muted); margin-top: 7px; line-height: 1.8; }
+.toolbar { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.board:focus { outline: none; }
+.board > .heading h2 { font: 600 clamp(24px,2.6vw,36px)/1.4 var(--font-mono); letter-spacing: -1px; margin: 8px 0; }
+.tableSection { padding: 20px; border: 1px solid var(--border); border-top: 2px solid var(--positive); border-radius: 9px; background: var(--surface); }
+.caution { border-top-color: var(--negative); }
+.opportunity > .heading h3 { color: var(--positive); }
+.caution > .heading h3 { color: var(--negative); }
+.table { font-family: var(--font-mono); }
+.activate:focus-visible, .toolbar button:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
+@media (max-width: 1000px) { .gateCopy { padding-left: 28px; } .gateFeatures { margin: 0 28px; } }
+@media (max-width: 750px) {
+  .gate { grid-template-columns: minmax(0,1fr); }
+  .gateCopy { padding: 30px 24px 15px; }
+  .gate h2 { font-size: 34px; }
+  .gateArt { padding: 0 20px 24px; flex-direction: row; gap: 6px; }
+  .artwork { width: 58%; max-width: 290px; }
+  .gateArt > span { font-size: 9px; }
+  .gateFeatures { margin: 0 24px; gap: 16px; }
+  .gateFeatures b { font-size: 8px; letter-spacing: 0; }
+  .gateFeatures span { font-size: 10px; }
+  .tableSection { padding: 14px; }
+}
+@media (max-width: 420px) {
+  .gateCopy { padding: 26px 19px 15px; }
+  .gateFeatures { grid-template-columns: minmax(0,1fr); margin: 0 19px; gap: 13px; padding: 20px 0; }
+  .gateFeatures b { font-size: 10px; }
+  .gateFeatures span { margin-top: 3px; }
+  .gateArt > span { font-size: 8px; }
+}
