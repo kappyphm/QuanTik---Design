@@ -9,7 +9,7 @@ import { accountStyles } from "./styles";
 export function ProfileGate({ children }: { children: ReactNode }) {
   const session = useSession("user");
   return session.state === "ready" && session.profile?.profile_required
-    ? <section className="mx-auto max-w-xl rounded-[4px] border border-[var(--border)] bg-[var(--surface)] p-6"><h1 className="text-2xl">Hoàn thiện tài khoản</h1><p className="my-4 text-sm leading-7">Bạn được cấp gói Free 30 ngày, tối đa 3 yêu cầu phân tích mỗi ngày. Bổ sung thông tin để bắt đầu sử dụng.</p><ProfileForm profile={session.profile}/></section>
+    ? <section className="mx-auto max-w-xl rounded-[4px] border border-[var(--border)] bg-[var(--surface)] p-6"><h1 className="text-2xl">Hoàn thiện tài khoản</h1><p className="my-4 text-sm leading-7">Bạn được cấp gói Free 30 ngày, tối đa 5 yêu cầu phân tích mỗi ngày. Bổ sung thông tin để bắt đầu sử dụng.</p><ProfileForm profile={session.profile}/></section>
     : children;
 }
 
