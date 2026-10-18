@@ -1,63 +1,135 @@
 "use client";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState, type ReactNode } from "react";
 import { api, ApiError } from "@/lib/api/client";
 import { money } from "@/lib/api/contracts";
-import type { ScreeningItem, ScreeningLatest, ScreeningResults } from "@/lib/api/screening";
+import type { ScreeningDetail, ScreeningGroup, ScreeningItem, ScreeningLatest, ScreeningResults, ScreeningScore } from "@/lib/api/screening";
 import { Guard } from "./account/session";
 import { ErrorNotice } from "./account/common";
-import { PageHeading, Panel } from "./ui";
+import { Modal, PageHeading } from "./ui";
+import styles from "./screener.module.css";
 
-const percent = (v: number) => new Intl.NumberFormat("vi-VN", { style: "percent", maximumFractionDigits: 1 }).format(v);
-type Publication = { latest: ScreeningLatest; best: ScreeningItem[]; avoid: ScreeningItem[] };
+const number = (value: number | null | undefined, digits = 1) => typeof value === "number" ? new Intl.NumberFormat("vi-VN", { maximumFractionDigits: digits }).format(value) : "—";
+const percent = (value: number | null | undefined) => typeof value === "number" ? new Intl.NumberFormat("vi-VN", { style: "percent", maximumFractionDigits: 2, signDisplay: "exceptZero" }).format(value) : "—";
+const date = (value: string) => value.split("-").reverse().join("/");
+const statusLabels = { ELIGIBLE: "Đủ điều kiện", INSUFFICIENT_DATA: "Chưa đủ dữ liệu", LOW_LIQUIDITY: "Thanh khoản thấp" };
+const groupLabels: Record<ScreeningGroup, string> = { STRONG: "MẠNH", ACCUMULATION: "TÍCH LŨY", DISTRIBUTION: "PHÂN PHỐI" };
+const groupNames = Object.keys(groupLabels) as ScreeningGroup[];
+const columnLabels: [string, string][] = [["symbol", "Mã CK"], ["price", "Giá đóng cửa"], ["change_1d", "1D"], ["change_5d", "5D"], ["change_20d", "20D"], ["volume", "KL phiên"], ["average_volume", "KL TB20"], ["volume_ratio", "Vol/TB20"], ["high20", "Giá/Đỉnh 20D"], ["strong", "MẠNH"], ["accumulation", "TÍCH LŨY"], ["distribution", "PHÂN PHỐI"]];
 
 export function Screener() {
-  return <><PageHeading title="Quét toàn sàn"/><Guard><ScreeningBoard/></Guard></>;
+  return <><PageHeading title="Quét toàn sàn" description="5 mã nổi bật và 5 mã cần thận trọng, kèm giá, thanh khoản và điểm screening."/><Guard><ScreeningBoard/></Guard></>;
 }
 function ScreeningBoard() {
   const [version, setVersion] = useState(0);
-  const [publication, setPublication] = useState<Publication>(), [error, setError] = useState<Error>();
-  const [loading, setLoading] = useState(true);
+  const [publication, setPublication] = useState<{ latest: ScreeningLatest; best: ScreeningItem[]; worst: ScreeningItem[] }>();
+  const [error, setError] = useState<Error>(), [loading, setLoading] = useState(true);
+  const [selected, setSelected] = useState<{ run: ScreeningLatest; item: ScreeningItem }>();
+  const onDenied = useCallback((error: Error) => { setError(error); setPublication(undefined); setSelected(undefined); }, []);
+  const forbidden = error instanceof ApiError && error.status === 403;
+  const notReady = error instanceof ApiError && error.code === "SCREENING_NOT_READY";
   useEffect(() => {
     let active = true; setLoading(true);
     void (async () => {
       const latest = await api<ScreeningLatest>("user", "screenings/latest");
       const groups = ["OVERALL", "DISTRIBUTION"] as const;
-      const pages = await Promise.all(groups.map(group => api<ScreeningResults>("user", `screenings/${encodeURIComponent(latest.id)}/results?group=${group}&limit=5`)));
-      if (pages.some((page, i) => page.run_id !== latest.id || page.group !== groups[i])) throw new Error("Chưa tải được kết quả phù hợp. Vui lòng thử lại.");
-      if (active) { setPublication({ latest, best: pages[0].items.slice(0,5), avoid: pages[1].items.slice(0,5) }); setError(undefined); }
-    })().catch(err => { if (active) { setError(err); if (err instanceof ApiError && [401,403].includes(err.status)) setPublication(undefined); } })
-      .finally(() => { if (active) setLoading(false); });
+      const pages = await Promise.all(groups.map(group => api<ScreeningResults>("user", `screenings/${encodeURIComponent(latest.id)}/results?group=${group}`)));
+      if (pages.some((page, index) => page.run_id !== latest.id || page.group !== groups[index])) throw new Error("Kết quả không khớp phiên dữ liệu. Vui lòng tải lại.");
+      if (active) {
+        setPublication({ latest, best: pages[0].items.slice(0, 5), worst: pages[1].items.slice(0, 5) });
+        setError(undefined);
+      }
+    })().catch(error => {
+      if (!active) return;
+      setError(error);
+      if (error instanceof ApiError && [401,403].includes(error.status)) { setPublication(undefined); setSelected(undefined); }
+    }).finally(() => { if (active) setLoading(false); });
     return () => { active = false; };
   }, [version]);
-  const forbidden = error instanceof ApiError && error.code === "SCREENING_SUBSCRIPTION_REQUIRED";
-  const notReady = error instanceof ApiError && error.code === "SCREENING_NOT_READY";
   useEffect(() => {
-    if (loading || forbidden) return;
+    if (forbidden) return;
     const refresh = () => { if (document.visibilityState === "visible") setVersion(v => v+1); };
-    const timer = setTimeout(refresh,60000);
-    document.addEventListener("visibilitychange",refresh);
-    return () => { clearTimeout(timer); document.removeEventListener("visibilitychange",refresh); };
-  }, [loading, forbidden, version]);
-  return <>
-    <div className="grid gap-5" aria-live="polite">
-      {loading && !publication && <p role="status">Đang tải kết quả công bố mới nhất…</p>}
-      {forbidden ? <section className="rounded-[4px] border border-[var(--border)] p-6"><h2 className="text-xl">Cần gói phân tích còn hiệu lực</h2><p className="my-3">Kích hoạt gói để xem kết quả quét.</p><Link className="text-[var(--accent)] underline" href="/plans">Xem các gói phân tích</Link></section>
-        : notReady && !publication ? <section role="status" className="rounded-[4px] border border-[var(--border)] p-6"><h2 className="text-xl">Chưa có kết quả được công bố</h2><p className="mt-3 text-[var(--muted)]">Kết quả sẽ xuất hiện tại đây khi dữ liệu sẵn sàng.</p></section>
-        : error && !publication ? <ErrorNotice error={error}/> : null}
-      {publication && <>
-        <div className="flex flex-wrap items-baseline justify-between gap-3"><h2 className="text-xl font-semibold">Kết quả quét</h2><p className="text-sm text-[var(--muted)]">Dữ liệu ngày {publication.latest.target_session.split("-").reverse().join("/")}</p></div>
-        {(publication.latest.stale || error) && <p role="status" className="text-sm text-[var(--muted)]">Đang hiển thị kết quả gần nhất. Kết quả mới sẽ tự cập nhật khi sẵn sàng.</p>}
-        <div className="grid min-w-0 gap-6 min-[900px]:grid-cols-2"><ScreeningList items={publication.best} title="5 mã nổi bật"/><ScreeningList items={publication.avoid} title="5 mã nên tránh"/></div>
-      </>}
-    </div>
-  </>;
+    const timer = setTimeout(refresh, 60000);
+    document.addEventListener("visibilitychange", refresh);
+    return () => { clearTimeout(timer); document.removeEventListener("visibilitychange", refresh); };
+  }, [version, forbidden]);
+  return <div className={styles.board}>
+    {forbidden ? <section className={styles.empty}><h2>Cần gói phân tích còn hiệu lực</h2><p>Kích hoạt gói để xem kết quả quét.</p><Link href="/plans">Xem các gói phân tích</Link></section>
+      : !publication ? notReady ? <section className={styles.empty} role="status"><h2>Chưa có kết quả được công bố</h2><p>Kết quả sẽ xuất hiện tại đây khi dữ liệu sẵn sàng.</p></section>
+      : error ? <><ErrorNotice error={error}/><button className={styles.button} onClick={() => setVersion(v => v+1)}>Thử lại</button></>
+      : <p role="status">Đang tải kết quả công bố mới nhất…</p> : null}
+    {publication && <>
+      <div className={styles.heading}><div><h2>Kết quả screening</h2><p>Dữ liệu ngày {date(publication.latest.target_session)}</p></div><span className={styles.hint}>Bấm vào mã để xem đánh giá chi tiết</span></div>
+      {(publication.latest.stale || error) && <p role="status" className={styles.notice}>Đang hiển thị kết quả gần nhất. Kết quả mới sẽ tự cập nhật khi sẵn sàng.</p>}
+      {error && <button className={styles.button} onClick={() => setVersion(v => v+1)}>Thử lại</button>}
+      <p className={styles.hint}>Giá: VND · Khối lượng: cổ phiếu. Điểm phân phối cao thể hiện rủi ro cao hơn.</p>
+      <ScreeningTable title="5 mã tốt nhất" description="Xếp theo điểm tổng hợp của bộ lọc." items={publication.best} loading={loading} onSelect={item => setSelected({ run: publication.latest, item })}/>
+      <ScreeningTable title="5 mã cần thận trọng" description="Các mã có điểm phân phối cao nhất." items={publication.worst} loading={loading} onSelect={item => setSelected({ run: publication.latest, item })}/>
+    </>}
+    {selected && <StockDetail key={`${selected.run.id}:${selected.item.symbol}`} run={selected.run} item={selected.item} onClose={() => setSelected(undefined)} onDenied={onDenied}/>}
+  </div>;
 }
-function ScreeningList({ items, title }: { items: ScreeningItem[]; title: string }) {
-  return <Panel title={title}><div className="min-w-0 px-5 pb-5">{!items.length && <p className="py-5 text-[var(--muted)]">Chưa có mã phù hợp.</p>}{items.map(item => <article key={item.symbol} className="border-t border-[var(--border)] py-5 first:border-t-0">
-    <div className="flex items-center justify-between gap-3"><h3 className="text-lg font-semibold"><Link href={`/charts?symbol=${encodeURIComponent(item.symbol)}&exchange=${encodeURIComponent(item.exchange || "")}`}>{item.symbol}</Link><span className="ml-2 text-xs font-normal text-[var(--muted)]">{item.exchange}</span></h3><span className="text-sm">{new Intl.NumberFormat("vi-VN",{ maximumFractionDigits:1 }).format(item.score)}/100</span></div>
-    <p className="my-2 flex flex-wrap gap-3 text-sm"><span>{typeof item.price_vnd === "number" ? money(item.price_vnd) : "—"}</span>{typeof item.change_ratio === "number" && <span className={item.change_ratio < 0 ? "text-[var(--negative)]" : "text-[var(--positive)]"}>{percent(item.change_ratio)}</span>}</p>
-    {item.recommendation && <p className="mb-3 text-sm text-[var(--muted)]">{item.recommendation}</p>}
-    <Link className="text-sm text-[var(--accent)]" href={`/analysis?symbol=${encodeURIComponent(item.symbol)}`}>Phân tích Quant ↗</Link>
-  </article>)}</div></Panel>;
+function ScreeningTable({ title, description, items, loading, onSelect }: { title: string; description: string; items: ScreeningItem[]; loading: boolean; onSelect: (item: ScreeningItem) => void }) {
+  return <section className={styles.tableSection} aria-label={title}>
+    <div className={styles.heading}><div><h3>{title}</h3><p>{description}</p></div><span className={styles.hint}>{items.length}/5 mã</span></div>
+    <div className={styles.tableFrame} aria-busy={loading}>
+      <div className={styles.scroll} tabIndex={0} role="region" aria-label={`${title} · cuộn ngang để xem đầy đủ`}>
+        <table className={styles.table}>
+          <caption className={styles.srOnly}>{title}: giá, thanh khoản và ba nhóm điểm screening</caption>
+          <thead><tr>{columnLabels.map(([key, label]) => <th key={key} scope="col">{label}</th>)}<th scope="col">Trạng thái</th></tr></thead>
+          <tbody>{items.map(item => <tr key={item.symbol}>
+            <th scope="row"><button className={styles.symbol} onClick={() => onSelect(item)}>{item.symbol}</button><span className={styles.exchange}>{item.exchange}</span></th>
+            <td>{number(item.price_vnd, 0)}</td><td><Change value={item.change_ratio}/></td><td><Change value={item.change_5d_ratio}/></td><td><Change value={item.change_20d_ratio}/></td>
+            <td>{number(item.volume_shares, 0)}</td><td>{number(item.average_volume_20_shares, 0)}</td><td>{item.volume_ratio_20 == null ? "—" : `${number(item.volume_ratio_20, 2)}×`}</td><td>{item.price_to_high20_ratio == null ? "—" : `${number(item.price_to_high20_ratio*100)}%`}</td>
+            {groupNames.map(group => <td key={group}><Score value={item.groups[group]} warning={group === "DISTRIBUTION"}/></td>)}
+            <td><span className={item.status === "ELIGIBLE" ? styles.status : styles.warning}>{statusLabels[item.status]}</span></td>
+          </tr>)}</tbody>
+        </table>
+      </div>
+      {!items.length && <p role="status" className={styles.empty}>Chưa có mã phù hợp trong nhóm này.</p>}
+    </div>
+  </section>;
+}
+function Change({ value }: { value: number | null }) {
+  return <span className={value == null || value === 0 ? undefined : value < 0 ? styles.negative : styles.positive}>{percent(value)}</span>;
+}
+function Score({ value, warning = false }: { value: ScreeningScore; warning?: boolean }) {
+  return <div className={styles.score}><strong className={value.score == null ? styles.hint : warning && value.score >= 50 ? styles.negative : undefined}>{value.score == null ? "—" : `${number(value.score)}%`}</strong><small>{value.met_count}/{value.total_count} đạt{value.unavailable_count > 0 ? ` · thiếu ${value.unavailable_count}` : ""}</small></div>;
+}
+function Metric({ label, children }: { label: string; children: ReactNode }) {
+  return <div className={styles.metric}><dt>{label}</dt><dd>{children ?? "Chưa đủ dữ liệu"}</dd></div>;
+}
+function StockDetail({ run, item, onClose, onDenied }: { run: ScreeningLatest; item: ScreeningItem; onClose: () => void; onDenied: (error: Error) => void }) {
+  const [data, setData] = useState<ScreeningDetail>(), [error, setError] = useState<Error>(), [retry, setRetry] = useState(0);
+  useEffect(() => {
+    let active = true; setError(undefined);
+    void api<ScreeningDetail>("user", `screenings/${encodeURIComponent(run.id)}/symbols/${encodeURIComponent(item.symbol)}`).then(next => {
+      if (next.run_id !== run.id || next.item.symbol !== item.symbol) throw new Error("Chi tiết không khớp phiên dữ liệu.");
+      if (active) setData(next);
+    }).catch(error => { if (active) { setError(error); if (error instanceof ApiError && [401,403].includes(error.status)) onDenied(error); } });
+    return () => { active = false; };
+    // The detail remains pinned to the run selected when the modal opened.
+  }, [run.id, item.symbol, retry, onDenied]);
+  const assessment = data?.assessment, market = data?.market;
+  return <Modal title={`${item.symbol} · Chi tiết screening`} onClose={onClose} className={styles.dialog}>
+    <div className={styles.detailBody}>
+      <div className={styles.heading}><div><p>{item.exchange} · Dữ liệu ngày {date(run.target_session)}</p><h3>{item.price_vnd == null ? "—" : money(item.price_vnd)} <Change value={item.change_ratio}/></h3></div><span className={styles.status}>{statusLabels[item.status]}</span></div>
+      {error ? <><ErrorNotice error={error}/><button className={styles.button} onClick={() => setRetry(v => v+1)}>Thử lại</button></> : !data ? <p role="status">Đang tải đánh giá chi tiết…</p> : <>
+        <p className={styles.hint}>{data.input_mode === "PROVISIONAL_DAILY" ? "Dữ liệu tạm tính trong phiên; khối lượng chưa phải cả ngày." : "Dữ liệu phiên đã hoàn tất."}{data.observed_at && ` Cập nhật lúc ${new Intl.DateTimeFormat("vi-VN", { dateStyle: "short", timeStyle: "short", timeZone: "Asia/Ho_Chi_Minh" }).format(new Date(data.observed_at))} (giờ Việt Nam).`}</p>
+        <section className={styles.detailSection}><h3>Đánh giá tổng quan</h3><dl className={styles.metrics}>
+          <Metric label="Tín hiệu">{assessment?.overall_signal}</Metric><Metric label="Điều chỉnh theo thị trường">{assessment?.adjusted_signal}</Metric><Metric label="Dòng tiền">{assessment?.money_flow}</Metric><Metric label="Xu hướng">{assessment?.trend}</Metric><Metric label="Sức mạnh">{assessment?.strength}</Metric>
+        </dl></section>
+        <div className={styles.groupCards}>{groupNames.map(group => <section key={group}><h3>{groupLabels[group]}</h3><Score value={data.item.groups[group]} warning={group === "DISTRIBUTION"}/></section>)}</div>
+        <section className={styles.detailSection}><h3>Bối cảnh VNINDEX</h3><dl className={styles.metrics}>
+          <Metric label="VNINDEX">{number(market?.last_close, 2)} điểm</Metric><Metric label="Trạng thái thị trường">{market?.regime_label}</Metric><Metric label="Điểm thị trường">{market?.combined_score == null ? "—" : `${number(market.combined_score)}/100`}</Metric><Metric label="Rủi ro">{market?.risk_label}</Metric>
+          <Metric label="Thay đổi 5D">{percent(market?.change_5d_ratio)}</Metric><Metric label="Thay đổi 20D">{percent(market?.change_20d_ratio)}</Metric><Metric label="So với MA20">{market?.above_ma20 == null ? "—" : market.above_ma20 ? "Trên MA20" : "Dưới MA20"}</Metric><Metric label="Biến động ATR">{market?.atr_pct == null ? "—" : `${number(market.atr_pct)}%`}</Metric>
+        </dl></section>
+        <div className={styles.notes}><Note title="Ghi chú nhà đầu tư" text={assessment?.investor_note}/><Note title="Ghi chú môi giới" text={assessment?.broker_note}/><Note title="Chiến lược theo thị trường · Nhà đầu tư" text={market?.investor_strategy}/><Note title="Chiến lược theo thị trường · Môi giới" text={market?.broker_strategy}/></div>
+      </>}
+      <div className={styles.actions}><Link className={styles.button} href={`/charts?symbol=${encodeURIComponent(item.symbol)}&exchange=${encodeURIComponent(item.exchange || "")}`}>Xem biểu đồ ↗</Link><Link className={styles.primary} href={`/analysis?symbol=${encodeURIComponent(item.symbol)}`}>Phân tích Quant ↗</Link></div>
+    </div>
+  </Modal>;
+}
+function Note({ title, text }: { title: string; text: string | null | undefined }) {
+  return <section className={styles.detailSection}><h3>{title}</h3><p>{text || "Chưa đủ dữ liệu để đưa ra nhận xét."}</p></section>;
 }

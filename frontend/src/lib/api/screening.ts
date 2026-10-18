@@ -1,8 +1,26 @@
 export type ScreeningSlot = "ALL" | "AM" | "PM";
-export type ScreeningGroup = "OVERALL" | "DISTRIBUTION";
+export type ScreeningGroup = "STRONG" | "ACCUMULATION" | "DISTRIBUTION";
 export type ScreeningLatest = { id: string; target_session: string; published_at: number; stale: boolean; refresh_after_seconds: number };
-export type ScreeningItem = { symbol: string; exchange: string | null; score: number; price_vnd: number | null; change_ratio: number | null; recommendation: string | null };
-export type ScreeningResults = { run_id: string; group: ScreeningGroup; items: ScreeningItem[]; next_cursor: null };
+export type ScreeningScore = { score: number | null; met_count: number; total_count: number; unavailable_count: number };
+export type ScreeningItem = {
+  symbol: string; exchange: string | null; price_vnd: number | null; change_ratio: number | null;
+  change_5d_ratio: number | null; change_20d_ratio: number | null;
+  volume_shares: number | null; average_volume_20_shares: number | null;
+  volume_ratio_20: number | null; price_to_high20_ratio: number | null;
+  groups: Record<ScreeningGroup, ScreeningScore>; eligible: boolean;
+  status: "ELIGIBLE" | "INSUFFICIENT_DATA" | "LOW_LIQUIDITY";
+};
+export type ScreeningResults = { run_id: string; group: "OVERALL" | "DISTRIBUTION"; items: ScreeningItem[] };
+export type ScreeningDetail = {
+  run_id: string; target_session: string; published_at: number; input_mode: string; observed_at: string | null;
+  item: ScreeningItem;
+  assessment: Record<"overall_signal" | "adjusted_signal" | "money_flow" | "trend" | "strength" | "investor_note" | "broker_note", string | null>;
+  market: {
+    last_close: number | null; regime_label: string | null; combined_score: number | null; risk_label: string | null;
+    change_5d_ratio: number | null; change_20d_ratio: number | null; above_ma20: boolean | null; atr_pct: number | null;
+    investor_strategy: string | null; broker_strategy: string | null;
+  };
+};
 export const screeningReason = (code: string | null | undefined) => ({
   TASK_DEADLINE: "Ca quét đã quá hạn xử lý", SCREENING_DEADLINE: "Ca quét đã quá hạn công bố", MANIFEST_NOT_READY: "Đang chờ dữ liệu thị trường",
   HISTORY_NOT_READY: "Đang chờ lịch sử giá", UNIVERSE_NOT_VALIDATED: "Danh sách mã chưa được kiểm định", LIVE_DATA_NOT_VALIDATED: "Dữ liệu chưa đạt kiểm định",

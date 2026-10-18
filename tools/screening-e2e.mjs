@@ -12,6 +12,9 @@ const server = path.resolve(root, "../quantik-server");
 const directory = fs.mkdtempSync(path.join(os.tmpdir(), "quantik-screening-e2e-"));
 const python = path.join(os.homedir(), ".venv", process.platform === "win32" ? "Scripts/python.exe" : "bin/python");
 const children = [];
+const port = Number(process.env.SCREENING_E2E_PORT || 18317);
+const origin = `http://127.0.0.1:${port}`;
+const apiOrigin = `http://127.0.0.1:${port+1}`;
 let browser;
 const environment = { ...process.env, PYTHONPATH: path.join(server, "backend/src") };
 async function ready(url) {
@@ -29,16 +32,16 @@ try {
   // This stdout contains a test refresh credential. Keep it only in memory.
   const output = execFileSync(python, ["backend/tests/browser_screening_seed.py", directory], { cwd: server, env: environment, encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] });
   const state = JSON.parse(output.trim().split(/\r?\n/).at(-1));
-  launch(python, ["-m", "uvicorn", "service.api:create_app", "--factory", "--host", "127.0.0.1", "--port", "3208", "--no-access-log", "--log-level", "error"], server, {
+  launch(python, ["-m", "uvicorn", "service.api:create_app", "--factory", "--host", "127.0.0.1", "--port", String(port+1), "--no-access-log", "--log-level", "error"], server, {
     ...environment, QUANTIK_ENVIRONMENT: "test", QUANTIK_DATABASE_URL: state.database_url,
     QUANTIK_JWT_PRIVATE_KEY_PATH: state.private, QUANTIK_JWT_PUBLIC_KEY_PATH: state.public,
-    QUANTIK_ALLOW_FIXTURE_ANALYSIS: "true", QUANTIK_PUBLIC_ORIGIN: "http://127.0.0.1:3207",
+    QUANTIK_ALLOW_FIXTURE_ANALYSIS: "true", QUANTIK_PUBLIC_ORIGIN: origin,
   });
-  await ready("http://127.0.0.1:3208/health/ready");
-  launch(process.execPath, [path.join(root, "node_modules/next/dist/bin/next"), "start", "--hostname", "127.0.0.1", "--port", "3207"], path.join(root, "frontend"), {
-    ...process.env, QUANTIK_API_URL: "http://127.0.0.1:3208", QUANTIK_UPSTREAM_ORIGIN: "http://127.0.0.1:3207", QUANTIK_APP_ORIGIN: "http://127.0.0.1:3207",
+  await ready(`${apiOrigin}/health/ready`);
+  launch(process.execPath, [path.join(root, "node_modules/next/dist/bin/next"), "start", "--hostname", "127.0.0.1", "--port", String(port)], path.join(root, "frontend"), {
+    ...process.env, QUANTIK_API_URL: apiOrigin, QUANTIK_UPSTREAM_ORIGIN: origin, QUANTIK_APP_ORIGIN: origin,
   });
-  await ready("http://127.0.0.1:3207/screener");
+  await ready(`${origin}/screener`);
   browser = await chromium.launch();
   for (const viewport of [{ width: 1440, height: 1000 }, { width: 390, height: 844 }]) {
     const context = await browser.newContext({ viewport });
@@ -46,10 +49,14 @@ try {
     const page = await context.newPage(), errors = [], results = [];
     page.on("pageerror", error => errors.push(error.message));
     page.on("response", response => { if (/\/screenings\/[^/]+\/results/.test(response.url())) results.push(response); });
-    await page.goto("http://127.0.0.1:3207/screener");
+    await page.goto(`${origin}/screener`);
     assert.equal(await page.getByRole("button", { name: /Kích hoạt quét|Quét lại/ }).count(), 0);
-    await page.getByRole("heading", { name: "5 mã nổi bật", exact: true }).waitFor();
-    await page.getByRole("heading", { name: /FPT/ }).first().waitFor();
+    await page.getByRole("button", { name: "FPT", exact: true }).first().waitFor();
+    const best = page.getByRole("region", { name: "5 mã tốt nhất", exact: true });
+    const worst = page.getByRole("region", { name: "5 mã cần thận trọng", exact: true });
+    assert.equal(await best.locator("tbody tr").count(), 5);
+    assert.equal(await worst.locator("tbody tr").count(), 5);
+    assert.equal(await page.getByRole("navigation", { name: "Phân trang screening" }).count(), 0);
     assert.equal(await page.getByRole("button", { name: "Quét toàn sàn", exact: true }).count(), 0);
     assert.equal(await page.getByText("Xem tiêu chí và lý do", { exact: true }).count(), 0);
     assert.equal(await page.getByLabel("Ca công bố", { exact: true }).count(), 0);
@@ -59,11 +66,22 @@ try {
       assert.equal(response.status(), 200);
       const payload = await response.json();
       assert.equal(payload.run_id, state.run_id);
-      assert(payload.items.length <= 5);
-      assert(payload.items.every(item => !item.groups && !item.policy_version));
+      assert(payload.items.length === 5 && ["OVERALL", "DISTRIBUTION"].includes(payload.group));
+      assert(payload.items.every(item => item.groups && !item.policy_version && !item.groups.STRONG.criteria));
     }
     fs.mkdirSync(path.join(root, "frontend/test-results/screening"), { recursive: true });
     await page.screenshot({ path: path.join(root, `frontend/test-results/screening/backend-${viewport.width}.png`), fullPage: true });
+    const detailResponse = page.waitForResponse(response => /\/symbols\/FPT$/.test(response.url()));
+    await best.getByRole("button", { name: "FPT", exact: true }).click();
+    const response = await detailResponse;
+    assert.equal(response.status(), 200);
+    const detail = await response.json();
+    assert.equal(detail.run_id, state.run_id);
+    assert(detail.assessment.investor_note && detail.market.regime_label);
+    await page.getByRole("dialog").getByRole("heading", { name: "Bối cảnh VNINDEX", exact: true }).waitFor();
+    assert(await page.getByRole("dialog").evaluate(el => el.scrollWidth <= el.clientWidth+1));
+    await page.screenshot({ path: path.join(root, `frontend/test-results/screening/backend-modal-${viewport.width}.png`) });
+    await page.keyboard.press("Escape");
     const entitlement = await page.evaluate(async () => {
       const refresh = await fetch("/api/v1/auth/refresh", { method: "POST" });
       const session = await refresh.json();
@@ -72,7 +90,7 @@ try {
     });
     assert.deepEqual(entitlement, { status: 200, created: 0, remaining: 20 });
     assert.deepEqual(errors, []);
-    console.log(`Fixture API browser ${viewport.width}px: top-five outputs, hidden criteria, cookie/proxy authorization, no quota charge, no overflow/errors PASS`);
+    console.log(`Fixture API browser ${viewport.width}px: two top-five tables from 80 symbols, detail modal, cookie/proxy authorization, no quota charge, no overflow/errors PASS`);
     // Rotation changed the cookie; preserve it for the next independent viewport.
     state.refresh_cookie = (await context.cookies()).find(cookie => cookie.name === "quantik_user_refresh").value;
     await context.close();

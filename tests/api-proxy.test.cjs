@@ -31,6 +31,9 @@ test('API boundary: rejects unsupported routes and cross-origin mutations before
     assert.equal(allowed('POST', 'admin/scheduled-tasks/task-id'), false);
     assert.equal(allowed('GET', 'screenings/latest'), true);
     assert.equal(allowed('GET', 'screenings/run-id/results'), true);
+    assert.equal(allowed('GET', 'screenings/run-id/symbols/FPT'), true);
+    assert.equal(allowed('POST', 'screenings/run-id/symbols/FPT'), false);
+    assert.equal(allowed('GET', 'screenings/run-id/symbols/../admin'), false);
     assert.equal(allowed('POST', 'screenings/run-id/results'), false);
     assert.equal(allowed('GET', 'admin/orders/123-test'), true);
     assert.equal(allowed('POST', 'admin/orders/123-test/paid'), false);
