@@ -44,7 +44,7 @@ Bảng điện AGR đã lên production ngày 18/10/2026. Xem [bằng chứng v�
 - `scan.json`: bản mẫu cũ từ **LỌC CỔ PHIẾU.xlsx**, sheet **Summary_20261005_2338**, lưu tham khảo bố cục. Trang screening hiện dùng API bản công bố, không đọc file mẫu này.
 - File Excel không chứa bảng hệ số trọng số %. Giao diện ghi rõ phần còn thiếu, không tự đặt hệ số hoặc công thức.
 - `analysis.json`, `charts.json`: vùng dữ liệu để nối sau; không có dự báo giả hoặc nến tự sinh.
-- Chart **TradingView** nhúng script Advanced Chart thật, giữ cách cấu hình của repo gốc. Không dùng SVG giả làm TradingView. Dữ liệu, độ trễ và quyền khung intraday phụ thuộc TradingView. Nguồn “Dữ liệu Quantik” giữ vùng hiển thị trống để nối hệ thống cũ.
+- Biểu đồ nhúng iframe **VPS Chart** tại `https://chart.vps.com.vn/tv/`, truyền `symbol`, `allowFullscreen=true`, `resolution` (1D/1W/1M) và `lang=vi`. Dùng chung trong cửa sổ biểu đồ Dashboard và trang `/charts`; giữ sidebar Quant và liên kết mở biểu đồ riêng. Không sử dụng nến mẫu trong giao diện này. Nội dung và độ trễ bên trong iframe do VPS cung cấp.
 
 ## Kiểm tra và xem thử
 
@@ -59,13 +59,13 @@ npm run preview:export
 
 `preview/index.html` dùng cùng các component frontend, với router thay thế để mở độc lập. TradingView cần Internet và môi trường cho phép script/iframe bên ngoài.
 
-`npm run test:e2e` kiểm tra các luồng giao diện desktop/mobile. CI chạy tự động trên main. Trong kiểm thử, script bên ngoài của TradingView được thay bằng stub để kiểm tra cấu hình và bố cục ổn định; kiểm thử không xác nhận nguồn giá realtime.
+`npm run test:e2e` kiểm tra các luồng giao diện desktop/mobile. CI chạy tự động trên main. Trong kiểm thử, nội dung iframe VPS được thay bằng trang kiểm thử để kiểm tra tham số và bố cục ổn định; kiểm thử không xác nhận nguồn giá realtime.
 
 ## Chế độ kiểm tra bằng dữ liệu tự do
 
 `backend/mock/demo.json` bật `enabled: true` để nạp 4 chỉ số mô phỏng, khối lượng lần khớp mẫu, 16 kết quả Quant và các bộ nến mẫu 48/24/12 phiên cho ngày/tuần/tháng. Các trọng số nhóm cộng 100% là ví dụ kiểm thử, không được lấy từ Excel hay hệ thống thật. Đặt `enabled: false` để trở về vỏ chưa nối bộ chạy.
 
-Ở chế độ này, **Chạy phân tích mẫu** nạp JSON có sẵn và không gọi API, không chạy mô hình, không tạo kết quả phân tích mới. Nguồn **Dữ liệu mẫu** dùng nến giả lập, ghi rõ không phải TradingView. Chọn **TradingView** vẫn dùng widget thật trong bản Next.js hoặc HTML độc lập. Home và các snapshot gốc được giữ nguyên.
+Ở chế độ này, **Chạy phân tích mẫu** nạp JSON có sẵn và không gọi API, không chạy mô hình, không tạo kết quả phân tích mới. Biểu đồ trong ứng dụng dùng iframe VPS; nến kiểm thử vẫn lưu trong JSON phục vụ kiểm thử và không được hiển thị bởi `ChartSurface`. Home và các snapshot gốc được giữ nguyên.
 
 ## Diễn giải và biểu đồ Quant
 

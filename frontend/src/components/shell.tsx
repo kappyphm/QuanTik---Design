@@ -138,7 +138,7 @@ export function Shell({ children }: {
             if (stock)
                 open(stock.symbol);
             else
-                setError("Mã này chưa có trong bộ dữ liệu mẫu.");
+                setError("Chưa tìm thấy mã cổ phiếu này.");
         }}>
             <Search size={18}/>
             <label className="sr-only" htmlFor="global-search">
@@ -158,7 +158,7 @@ export function Shell({ children }: {
                       <span>{stock.name}</span>
                       <ArrowUpRight size={16}/>
                     </button>))}
-                {!stocks.some((s) => `${s.symbol} ${s.name}`.toUpperCase().includes(query)) && <p>Chưa có mã phù hợp trong bản mẫu.</p>}
+                {!stocks.some((s) => `${s.symbol} ${s.name}`.toUpperCase().includes(query)) && <p>Chưa tìm thấy mã phù hợp.</p>}
               </div>)}
           </form>
           <div className="topbar-actions flex items-center [gap:14px] [flex-shrink:0] max-[700px]:[margin-left:auto]">

@@ -9,7 +9,7 @@ const accent = "var(--accent)", positive = "var(--positive)", negative = "var(--
 type Point = { x: number; value: number; low?: number; high?: number; innerLow?: number; innerHigh?: number; state?: string; label?: string };
 const stateColor = (state = "") => state.toUpperCase() === "BULL" ? positive : state.toUpperCase() === "BEAR" ? negative : "var(--neutral)";
 const finiteArray = (value: unknown): value is number[] => Array.isArray(value) && value.every(v => typeof v === "number" && Number.isFinite(v));
-function Empty() { return <p className="flex min-h-48 items-center justify-center px-4 text-center text-sm text-[var(--muted)]">Báo cáo này chưa có dữ liệu cho biểu đồ. Dữ liệu mẫu không được dùng để thay thế.</p>; }
+function Empty() { return <p className="flex min-h-48 items-center justify-center px-4 text-center text-sm text-[var(--muted)]">Báo cáo này chưa có dữ liệu cho biểu đồ.</p>; }
 function useChartWidth() {
   const ref = useRef<HTMLDivElement>(null), [width, setWidth] = useState(560);
   useEffect(() => {

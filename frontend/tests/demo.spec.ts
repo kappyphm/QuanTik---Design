@@ -2,9 +2,12 @@ import { test, expect } from "@playwright/test";
 import { analysisFixture } from "./fixtures/analysis";
 import { agrFixture } from "./fixtures/agr";
 
-test.beforeEach(async ({ page }) => { await agrFixture(page); });
+test.beforeEach(async ({ page }) => {
+  await agrFixture(page);
+  await page.route("https://chart.vps.com.vn/tv/**", route => route.fulfill({ contentType: "text/html", body: "<html><body>Chart</body></html>" }));
+});
 
-test("Biểu đồ mẫu và yêu cầu Quant API trong sidebar không trộn kết quả", async ({ page }) => {
+test("Biểu đồ VPS và yêu cầu Quant API trong sidebar không trộn kết quả", async ({ page }) => {
   const quant = await analysisFixture(page);
   const errors: string[] = [], apiCalls: string[] = [];
   page.on("pageerror", error => errors.push(error.message));
@@ -14,14 +17,15 @@ test("Biểu đồ mẫu và yêu cầu Quant API trong sidebar không trộn k�
   await page.getByPlaceholder("Tìm mã hoặc tên").fill("FPT");
   await page.getByRole("button", { name: "FPT", exact: true }).click();
   const chart = page.getByRole("dialog", { name: "Biểu đồ FPT", exact: true });
-  await expect(chart.getByRole("img", { name: /48 phiên mẫu/ })).toBeVisible();
-  const plot = await chart.locator(".sample-chart").boundingBox();
+  await expect(chart.locator("iframe")).toBeVisible();
+  await expect(chart.locator("iframe")).toHaveAttribute("src", /symbol=FPT.*resolution=1D/);
+  const plot = await chart.locator("iframe").boundingBox();
   const panel = await chart.locator(".chart-quant").boundingBox();
   if (plot && panel && panel.y < plot.y + plot.height) {
     expect(plot.x + plot.width).toBeLessThanOrEqual(panel.x);
   }
   await chart.getByLabel("Khung thời gian", { exact: true }).selectOption("1M");
-  await expect(chart.getByRole("img", { name: /12 phiên mẫu/ })).toBeVisible();
+  await expect(chart.locator("iframe")).toHaveAttribute("src", /resolution=1M/);
   await chart.getByRole("button", { name: "Gửi yêu cầu Quant FPT", exact: true }).click();
   await chart.getByRole("button", { name: "Xác nhận", exact: true }).click();
   quant.status = "SUCCEEDED";

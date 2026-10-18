@@ -8,7 +8,8 @@ test("Bảng điện AGR nhận giá, giữ delta và đồng bộ sau reconnect
   await page.getByPlaceholder("Tìm mã hoặc tên").fill("FPT");
   const row = page.locator(".price-board tbody tr").filter({ has: page.getByRole("button", { name: "FPT", exact: true }) });
   await expect(row).toHaveCount(1);
-  await expect(page.getByRole("status").filter({ hasText: "Phiên 16/10/2026" })).toBeVisible();
+  await expect(page.getByRole("status")).not.toContainText("Phiên");
+  await expect(page.locator("#workspace")).not.toContainText(/snapshot|mẫu|mock|mã phiên/i);
   state.connections.at(-1)!.send('42["i",{"a":"u","d":[{"SB":"FPT","CP":99000,"TV":123000000,"TT":54321,"B1":"ATC","V1":0,"ts":101,"s":11}]}]');
   await expect(row).toContainText("99,00");
   await expect(row).toContainText("54.321");
