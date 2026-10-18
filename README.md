@@ -28,10 +28,10 @@ Mở `http://localhost:3000`. Bấm **Đăng nhập hệ thống**; sau đăng n
 - **Dashboard**: VN-INDEX, VN30, UPCOM, HNX-INDEX → bảng điện có TC/trần/sàn, ba mức dư mua/bán, khớp lệnh, tổng KL, GTGD, thống kê và nước ngoài → bảng nhóm ngành. Theo dõi nằm trong cùng bảng. Bấm mã mở cửa sổ chart với Quant bên cạnh; có thể thu/mở Quant hoặc mở trang phân tích toàn màn hình.
 - **Quét toàn sàn**: tự tải bản công bố mới nhất, hiển thị hai bảng gồm 5 mã tốt nhất và 5 mã có điểm phân phối cao nhất. Mỗi bảng có giá, thanh khoản và ba nhóm điểm screening; không phân trang hoặc xem toàn bộ mã. Bấm mã để mở modal rộng chứa đánh giá, bối cảnh VNINDEX và ghi chú NĐT/môi giới. Xem screening không trừ lượt Quant.
 
-Hợp đồng API và xác nhận production: [Screening tables](docs/SCREENING-TABLES.md).
-
 - **Phân tích Quant**: nhập/chọn mã → xem tiêu chí trước khi chạy → vùng kết quả. Các nút chạy cuối cùng chưa nối backend.
 - **Biểu đồ**: giữ đường dẫn `/charts?symbol=FPT` cho chế độ toàn màn hình. Biểu đồ nằm trong luồng chọn mã, không thêm mục riêng vào menu.
+
+Hợp đồng API và xác nhận production: [Screening tables](docs/SCREENING-TABLES.md).
 
 ## Dữ liệu và phạm vi
 
