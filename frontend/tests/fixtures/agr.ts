@@ -2,7 +2,13 @@ import type { Page, WebSocketRoute } from "@playwright/test";
 import market from "../../../backend/mock/market.json";
 
 export async function agrFixture(page: Page) {
-  const state = { snapshots: 0, connections: [] as WebSocketRoute[], subscriptions: [] as unknown[], fail: false };
+  const state = { snapshots: 0, connections: [] as WebSocketRoute[], subscriptions: [] as unknown[], fail: false, failIndices: false };
+  const indices = [
+    { marketCode: "HOSE", marketIndex: "1705.91", indexPercentChange: "0.45", ts: 100 },
+    { marketCode: "30", marketIndex: "1855.41", indexPercentChange: "0.63", ts: 100 },
+    { marketCode: "UPCOM", marketIndex: "124.87", indexPercentChange: "0.58", ts: 100 },
+    { marketCode: "HNX", marketIndex: "259.13", indexPercentChange: "-0.06", ts: 100 },
+  ];
   const records = market.stocks.map((stock) => ({
     symbol: stock.symbol, FullName: stock.name, exchange: stock.exchange, tradingdate: "16/10/2026",
     reference: stock.reference === null ? null : stock.reference * 1000,
@@ -14,7 +20,7 @@ export async function agrFixture(page: Page) {
   }));
   await page.route("**/api/market/agr", route => {
     state.snapshots++;
-    return route.fulfill({ status: state.fail ? 502 : 200, contentType: "application/json", body: JSON.stringify(state.fail ? { error: "unavailable" } : { records }) });
+    return route.fulfill({ status: state.fail ? 502 : 200, contentType: "application/json", body: JSON.stringify(state.fail ? { error: "unavailable" } : { records, indices: state.failIndices ? null : indices }) });
   });
   await page.routeWebSocket("wss://trading.agr.vn/market/socket.io/**", socket => {
     state.connections.push(socket);

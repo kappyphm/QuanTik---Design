@@ -2,14 +2,14 @@
 import { tw } from "@/lib/tailwind";
 import { useState } from "react";
 import { Search, X } from "lucide-react";
-import { indices, sectors, format, signed, tone } from "@/lib/mock-data";
+import { sectors, format, signed, tone } from "@/lib/mock-data";
 import { useAgrPriceboard } from "@/lib/use-agr-priceboard";
 import { PageHeading, Panel, EmptyState } from "./ui";
 import { StockTable } from "./stock-table";
 import { usePreferences } from "./preferences";
 import { PurchaseResume } from "./account/purchase-resume";
 export function Dashboard() {
-    const { items: stocks, status } = useAgrPriceboard();
+    const { items: stocks, status, indices, indexStatus } = useAgrPriceboard();
     const { watchlist } = usePreferences();
     const [tab, setTab] = useState("all");
     const [query, setQuery] = useState("");
@@ -24,7 +24,7 @@ export function Dashboard() {
         `${stock.symbol} ${stock.name}`.toUpperCase().includes(query.toUpperCase()));
     return (<><PurchaseResume/>
       <PageHeading title="Dashboard"/>
-      <p className="text-sm text-[var(--muted)] mb-3">Chỉ số tham khảo</p>
+      <p aria-live="polite" className="text-sm text-[var(--muted)] mb-3">{indexStatus}</p>
       <div className="index-grid grid [grid-template-columns:repeat(4,_minmax(0,_1fr))] [gap:16px] [margin-bottom:26px] max-[900px]:[grid-template-columns:repeat(2,_minmax(0,_1fr))] max-[700px]:[gap:12px] max-[700px]:[margin-bottom:20px]">
         {indices.map((index) => (<article className="index-card [padding:20px_22px_13px] [border-width:1px] [border-style:solid] [border-color:var(--border)] [background:var(--surface)] [border-radius:4px] [&_>_div:first-child]:flex [&_>_div:first-child]:items-center [&_>_div:first-child]:justify-between [&_>_div:first-child]:[gap:8px] [&_>_div:first-child]:[font-size:14px] [&_>_div:first-child]:[font-weight:500] [&_strong]:block [&_strong]:[font-size:29px] [&_strong]:[font-weight:500] [&_strong]:[margin-top:11px] [&_strong]:[line-height:1.3] max-[1250px]:[padding:17px_16px_10px] max-[1250px]:[&_strong]:[font-size:25px] max-[900px]:[&_strong]:[font-size:29px] max-[700px]:[padding:16px_14px_10px] max-[700px]:[&_strong]:[font-size:26px] max-[700px]:[&_>_div:first-child]:flex-wrap max-[700px]:[&_>_div:first-child]:[gap:4px]" key={index.name}>
             <div><span>{index.name}</span><span className={tw(`number ${tone(index.change)}`)}>{signed(index.change)}</span></div>

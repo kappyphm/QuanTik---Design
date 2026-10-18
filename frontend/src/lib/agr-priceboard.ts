@@ -2,7 +2,26 @@ import type { Stock } from "./mock-data";
 
 export type AgrRecord = Record<string, unknown>;
 export const AGR_SOCKET_URL = "wss://trading.agr.vn/market/socket.io/?EIO=3&transport=websocket&__sails_io_sdk_version=1.2.1&__sails_io_sdk_platform=browser&__sails_io_sdk_language=javascript";
-export const AGR_TOPICS = ["e:HOSE", "e:HNX", "e:UPCOM"];
+export const AGR_INDEX_DEFINITIONS = [
+  { code: "HOSE", name: "VN-INDEX" }, { code: "30", name: "VN30" },
+  { code: "UPCOM", name: "UPCOM" }, { code: "HNX", name: "HNX-INDEX" },
+] as const;
+export const AGR_TOPICS = ["e:HOSE", "e:HNX", "e:UPCOM", ...AGR_INDEX_DEFINITIONS.map(({ code }) => `idx:${code}`)];
+export type AgrIndex = { name: string; value: number | null; change: number | null };
+
+export function expandAgrIndexRecord(record: AgrRecord): AgrRecord {
+  const aliases: Record<string, string> = { MC: "marketCode", MI: "marketIndex", IPC: "indexPercentChange", ICH: "indexChange", PPMI: "priorMarketIndex", TD: "tradingdate", t: "ts" };
+  const expanded = Object.fromEntries(Object.entries(record).map(([key, value]) => [aliases[key] ?? key, value]));
+  const code = String(expanded.marketCode ?? expanded.marketId ?? "");
+  expanded.marketCode = ({ "10": "HOSE", "02": "HNX", "04": "UPCOM" } as Record<string, string>)[code] ?? code;
+  return expanded;
+}
+export function toAgrIndices(records: Map<string, AgrRecord>): AgrIndex[] {
+  return AGR_INDEX_DEFINITIONS.map(({ code, name }) => {
+    const row = records.get(code);
+    return { name, value: numberOrNull(row?.marketIndex), change: numberOrNull(row?.indexPercentChange) };
+  });
+}
 
 const fields: Record<string, string> = {
   SB: "symbol", FN: "FullName", TD: "tradingdate", EX: "exchange", FC: "FloorCode",
@@ -58,6 +77,7 @@ export function toAgrStock(record: AgrRecord, metadata?: Stock): Stock | null {
 export function connectAgrPriceboard(callbacks: {
   onReady: () => void;
   onRecords: (records: AgrRecord[]) => void;
+  onIndices: (records: AgrRecord[]) => void;
   onDisconnect: () => void;
   onReset: () => void;
 }, createSocket: (url: string) => WebSocket = (url) => new WebSocket(url)) {
@@ -88,6 +108,7 @@ export function connectAgrPriceboard(callbacks: {
       } else if (data.startsWith("42")) {
         const [event, payload] = JSON.parse(data.slice(2));
         if (event === "i" && Array.isArray(payload?.d)) callbacks.onRecords(payload.d.filter((row: unknown) => row && typeof row === "object"));
+        if (event === "idx" && payload?.a === "u" && Array.isArray(payload.d)) callbacks.onIndices(payload.d.filter((row: unknown) => row && typeof row === "object"));
         if (["initday", "quotes_change", "system_open"].includes(event)) callbacks.onReset();
       } else if (data === "41" || data.startsWith("44")) socket.close();
     } catch { /* Ignore malformed frames; heartbeat still detects a dead connection. */ }
