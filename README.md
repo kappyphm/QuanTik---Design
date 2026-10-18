@@ -28,7 +28,7 @@ Mở `http://localhost:3000`. Bấm **Đăng nhập hệ thống**; sau đăng n
 - **Dashboard**: VN-INDEX, VN30, UPCOM, HNX-INDEX → bảng điện có TC/trần/sàn, ba mức dư mua/bán, khớp lệnh, tổng KL, GTGD, thống kê và nước ngoài → bảng nhóm ngành. Theo dõi nằm trong cùng bảng. Bấm mã mở cửa sổ chart với Quant bên cạnh; có thể thu/mở Quant hoặc mở trang phân tích toàn màn hình.
 - **Quét toàn sàn**: tự tải bản công bố mới nhất, hiển thị hai bảng gồm 5 mã tốt nhất và 5 mã có điểm phân phối cao nhất. Mỗi bảng có giá, thanh khoản và ba nhóm điểm screening; không phân trang hoặc xem toàn bộ mã. Bấm mã để mở modal rộng chứa đánh giá, bối cảnh VNINDEX và ghi chú NĐT/môi giới. Xem screening không trừ lượt Quant.
 
-- **Phân tích Quant**: nhập/chọn mã → xem tiêu chí trước khi chạy → vùng kết quả. Các nút chạy cuối cùng chưa nối backend.
+- **Phân tích Quant**: chọn mã → gửi yêu cầu → đọc kết luận dễ hiểu, biểu đồ xu hướng/kịch bản/rủi ro và các mốc giá cần theo dõi. Có mô hình 3D tương tác từ dữ liệu báo cáo; phần mô hình chuyên sâu mở thêm khi cần.
 - **Biểu đồ**: giữ đường dẫn `/charts?symbol=FPT` cho chế độ toàn màn hình. Biểu đồ nằm trong luồng chọn mã, không thêm mục riêng vào menu.
 
 Hợp đồng API và xác nhận production: [Screening tables](docs/SCREENING-TABLES.md).
@@ -66,8 +66,8 @@ npm run preview:export
 
 ## Diễn giải và biểu đồ Quant
 
-Phân tích Quant đọc theo thứ tự Hành động → Hiệu suất & dòng tiền → HMM/Hurst → GARCH → Monte Carlo → Rủi ro & kế hoạch. Biểu đồ nằm trong phần diễn giải tương ứng; **Hiểu mô hình** mở định nghĩa, đầu vào, đầu ra và giới hạn. Nhận định gốc và toàn bộ chỉ tiêu vẫn có thể mở khi cần.
+Phân tích Quant ưu tiên cách đọc đơn giản: kết luận → xu hướng → vùng giá mô phỏng → rủi ro và các mốc theo dõi. Mô hình 3D dùng các lớp giá hoặc tỷ lệ trạng thái từ đúng báo cáo API, có thể xoay và chọn phiên; không dựng dữ liệu mẫu để lấp phần thiếu. Nhận định gốc, 16 nhóm chỉ tiêu, định nghĩa và biểu đồ nghiên cứu nằm trong phần mở rộng. Xem [Quant simple reader](docs/QUANT-SIMPLE-READER.md).
 
 `backend/mock/analysis-visuals.json` chứa 25 báo cáo minh họa, xác suất trạng thái, đường biến động, các đường giá và phân vị đã lưu. Đây là fixture trình bày, không phải kết quả mô hình của các mã và không phải trọng số mới. Không khớp GARCH/HMM hoặc chạy Monte Carlo trong trình duyệt.
 
-3D dùng canvas nhẹ, mặc định đứng yên; phát chuyển động tối đa 30 khung/giây, dừng lịch vẽ khi không còn trong màn hình hoặc tab bị ẩn. Tôn trọng reduced motion, hỗ trợ kéo/phím mũi tên và đổi theme. Sidebar chỉ dựng biểu đồ khi mở phần diễn giải. Home giữ nguyên renderer cũ.
+3D trong báo cáo thật dùng SVG với phép chiếu 3D, hỗ trợ kéo, phím mũi tên, thanh xoay và đổi theme; không tự chạy chuyển động. Home và các fixture minh họa giữ renderer riêng.

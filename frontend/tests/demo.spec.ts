@@ -22,10 +22,11 @@ test("Biểu đồ mẫu và yêu cầu Quant API trong sidebar không trộn k�
   await chart.getByRole("button", { name: "Gửi yêu cầu Quant FPT", exact: true }).click();
   await chart.getByRole("button", { name: "Xác nhận", exact: true }).click();
   quant.status = "SUCCEEDED";
-  await expect(chart.getByText("Báo cáo kiểm thử theo hợp đồng API.", { exact: true })).toBeVisible({ timeout: 10000 });
+  await expect(chart.getByRole("region", { name:"Tổng hợp và khuyến nghị", exact:true })).toBeVisible({ timeout:10000 });
+  await chart.getByText("Xem phân tích chuyên sâu", { exact:true }).click();
   await expect(chart.locator(".quant-report-section[open]")).toHaveCount(0);
   await chart.locator(".quant-report-section > summary").filter({ hasText: "Hiệu suất & dòng tiền" }).click();
-  await expect(chart.getByRole("img", { name: "Lịch sử giá đóng cửa FPT", exact: true })).toBeVisible();
+  await expect(chart.getByRole("region", { name:"Xu hướng dễ hiểu", exact:true }).getByRole("img", { name: "Lịch sử giá đóng cửa FPT", exact: true })).toBeVisible();
   expect(quant.created).toBe(1); expect(quant.unknown).toEqual([]);
   expect(errors).toEqual([]);
   expect(apiCalls.some(url => url.includes("/analyses"))).toBeTruthy();

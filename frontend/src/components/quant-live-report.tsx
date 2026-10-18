@@ -2,9 +2,11 @@
 import { useId, useState } from "react";
 import { stamp } from "@/lib/api/contracts";
 import { analysisReason, type AnalysisReport } from "@/lib/api/analysis";
-import { actionNames, at, metricText, moduleGuides, moduleReading, number, record, researchFor } from "@/lib/quant-reader";
+import { at, metricText, moduleGuides, moduleReading, number, record, researchFor } from "@/lib/quant-reader";
 import { QuantResearchVisuals } from "./quant-research";
 import TermHint from "./term-hint";
+import { SimpleQuantReport } from "./quant-simple-report";
+import styles from "./quant-simple.module.css";
 
 const card = "min-w-0 rounded border border-[var(--border)] bg-[var(--surface)] p-4 sm:p-6";
 const ordered = ["statistics", "distribution", "arima", "garch", "hmm", "technical", "directional_alpha", "context", "agreement", "simulation_risk", "costs", "trade_plan", "liquidity", "data_quality", "decision", "commentary"];
@@ -44,32 +46,25 @@ function Module({ name, report, compact, id }: { name: string; report: AnalysisR
 }
 
 export function LiveQuantReport({ report, compact = false, showAction = true }: { report: AnalysisReport; compact?: boolean; showAction?: boolean }) {
-  const uid = useId().replaceAll(":", ""), research = researchFor(report), statistics = report.sections.statistics?.metrics;
-  const technical = report.sections.technical?.metrics, agreement = report.sections.agreement?.metrics;
-  const costs = report.sections.costs?.metrics, trade = report.sections.trade_plan?.metrics, action = String(report.decision.action || "");
-  const sectionId = (name: string) => `${uid}-quant-${name}`;
-  const reasons = Array.isArray(report.decision.reason_codes) ? report.decision.reason_codes.map(reason => analysisReason(String(reason))) : [];
-  const net = at(costs, "costs.net_forecast_pct"), cmf = at(technical, "flow.cmf"), er = at(technical, "trend.er");
-  const blocks = [
-    { title: "Hiệu suất và dòng tiền", text: `Sharpe ${number(at(statistics, "stats.sharpe"))}; sụt giảm tối đa ${number(at(statistics, "stats.max_dd_pct"), "%")}. CMF ${number(cmf)}${typeof cmf === "number" ? cmf < 0 ? ": áp lực giá–khối lượng nghiêng về bên bán." : cmf > 0 ? ": áp lực giá–khối lượng nghiêng về bên mua." : ": chưa cho thấy lệch hướng dòng tiền." : ". Chưa có đủ dữ liệu dòng tiền."}` },
-    { title: "Trạng thái và chất lượng xu hướng", text: `HMM ${metricText(at(report.sections.hmm?.metrics, "hmm.current"))}; Hurst ${number(at(report.sections.directional_alpha?.metrics, "hurst.hurst"))}; ER ${number(er)}. ${typeof er === "number" && er <= .3 ? "Đường giá còn nhiễu, cần thêm xác nhận xu hướng." : "Đọc trạng thái cùng cấu trúc giá và điều kiện thời điểm của báo cáo."}` },
-    { title: "Dự báo, đồng thuận và chi phí", text: `Dự báo tổng hợp ${number(at(agreement, "fcast.ensemble_ret_pct"), "%")}; đồng thuận ${number(at(agreement, "fcast.agreement_pct"), "%")}; độ phủ ${number(at(agreement, "fcast.coverage_pct"), "%")}. Sau chi phí ${number(net, "%")}. ${typeof net === "number" && net <= 0 ? "Dự báo ròng chưa dương sau chi phí." : "Dự báo được đối chiếu với rủi ro và các cổng thực thi, không phải cam kết lợi nhuận."}` },
-    { title: "Rủi ro và khả năng thực thi", text: `${report.decision.executable === true ? "Báo cáo xác nhận đủ điều kiện thực thi theo quy tắc hệ thống." : "Báo cáo chưa xác nhận đủ điều kiện thực thi."} Quy mô ${metricText(at(trade, "pos.shares"))} cổ phiếu, theo ${metricText(at(trade, "sizing_mode")).toLowerCase()}. Mốc giá và quy mô là kế hoạch có điều kiện; cần đọc cùng rủi ro T-lock.` },
-  ];
-  return <div className={`quant-report grid min-w-0 gap-6 ${compact ? "is-compact" : ""}`}>
-    <div className="border-l-2 border-[var(--accent)] bg-[var(--raised)] px-4 py-3 text-sm leading-7">Kết quả từ báo cáo API · Phiên {report.target_session || report.data_as_of.slice(0, 10)} · Phân tích lúc {stamp(report.evaluated_at)}{report.data_observed_at && <p className="text-xs text-[var(--muted)]">Thu thập dữ liệu lúc {stamp(report.data_observed_at)}</p>}</div>
-    <section className={card}><h3 className="mb-3 font-medium">Dữ liệu của lần phân tích</h3><p className="text-sm leading-7 text-[var(--muted)]">{metricText(research.observations ?? at(statistics, "n"))} nến ngày · {research.start && research.end ? `${research.start} → ${research.end}` : metricText(at(statistics, "range"))} · Giá theo VND</p><details className="mt-3 text-xs leading-6 text-[var(--muted)]"><summary className="cursor-pointer">Nguồn dữ liệu và luồng xử lý</summary><p className="mt-2">Lịch sử giá–khối lượng và VN-Index → kiểm tra, chuẩn hóa dữ liệu → phân tích mô hình → tổng hợp rủi ro, khuyến nghị và biểu đồ.</p></details></section>
-    <section className={card} aria-label="Kế hoạch giao dịch"><Values rows={[["Khuyến nghị", actionNames[action] || action || "Chưa có quyết định"], ["Điểm vào (VND)", metricText(at(trade, "sl.entry"))], ["Cắt lỗ (VND)", metricText(at(trade, "sl.sl_swing"))], ["Chốt lời 1 (VND)", metricText(at(trade, "sl.tp1"))], ["Chốt lời 2 (VND)", metricText(at(trade, "sl.tp2"))], ["R:R TP2", metricText(at(trade, "sl.rr2"), "x")], ["ATR (VND)", metricText(at(trade, "sl.atr"))], ["Dự báo sau chi phí", number(net, "%")]]}/></section>
-    <section className={card} aria-label="Tổng hợp và khuyến nghị"><p className="text-xs tracking-widest text-[var(--accent)]">TỔNG HỢP BẰNG CHỨNG</p><h3 className="mt-2 text-xl font-medium">Xâu chuỗi các mô hình và khuyến nghị</h3><p className="mt-3 text-sm leading-7 text-[var(--muted)]">Đọc cả yếu tố ủng hộ, điểm mâu thuẫn và phần còn thiếu trước khi dùng kết luận.</p>
-      {showAction && <div aria-label="Hành động" className="my-5 border-l-2 border-[var(--accent)] bg-[var(--raised)] p-4"><h4 className="font-medium">HÀNH ĐỘNG · {actionNames[action] || action}</h4><p className="mt-3 whitespace-pre-line text-sm leading-7">{report.commentary.summary}</p>{!!reasons.length && <ul className="mt-3 list-inside list-disc text-xs leading-7 text-[var(--muted)]">{reasons.map((reason, i) => <li key={i}>{reason}</li>)}</ul>}</div>}
-      <div className="grid gap-3">{blocks.map((block, i) => <details key={block.title} open={!compact} className="rounded border border-[var(--border)] px-4"><summary className="cursor-pointer py-4 text-sm font-medium"><span className="mr-3 font-mono text-[var(--accent)]">0{i + 1}</span>{block.title}</summary><p className="pb-4 text-sm leading-7 text-[var(--muted)]">{block.text}</p></details>)}</div>
-      <div className="mt-5 text-sm leading-7"><h4 className="font-medium">Điều kiện cần theo dõi để đánh giá lại</h4><p className="mt-2 text-[var(--muted)]">{reasons.length ? reasons.join(" ") : "Đối chiếu báo cáo ở phiên tiếp theo khi dữ liệu, tín hiệu và rủi ro thay đổi."}</p></div>
-      {!!report.warnings.length && <div className="mt-4 text-xs leading-7 text-[var(--muted)]"><h4 className="font-medium text-[var(--text)]">Phần bằng chứng còn hạn chế</h4><ul className="list-inside list-disc">{report.warnings.map((warning, i) => <li key={i}>{analysisReason(warning)}</li>)}</ul></div>}
-    </section>
-    <section aria-label="Phân tích từng module" className="grid min-w-0 gap-3"><div><h3 className="text-xl font-medium">Hiểu từng mô hình và kết quả</h3><p className="mt-2 text-sm leading-7 text-[var(--muted)]">Từ dữ liệu đầu vào đến ý nghĩa kết quả, nguyên nhân và vai trò trong khuyến nghị tổng hợp.</p></div>
-      {!compact && <nav aria-label="Điều hướng module" className="my-2 flex flex-wrap gap-2">{ordered.map(name => <a key={name} href={`#${sectionId(name)}`} className="rounded border border-[var(--border)] px-3 py-2 text-xs text-[var(--muted)] hover:text-[var(--accent)]">{moduleGuides[name].title}</a>)}</nav>}
-      {ordered.map(name => <Module key={name} name={name} report={report} compact={compact} id={sectionId(name)}/>)}</section>
-    <QuantResearchVisuals report={report}/>
-    <details className={`${card} text-xs leading-7 text-[var(--muted)]`}><summary className="cursor-pointer">Phiên bản dữ liệu và mô hình</summary><dl className="mt-3">{Object.entries(report.versions).filter(([, value]) => typeof value === "string" || typeof value === "number").map(([key, value]) => <div key={key} className="my-2 break-all"><dt>{key}</dt><dd className="font-mono">{String(value)}</dd></div>)}</dl></details>
+  const uid = useId().replaceAll(":", ""), [advancedOpen, setAdvancedOpen] = useState(false);
+  const research = researchFor(report), sectionId = (name: string) => `${uid}-quant-${name}`;
+  return <div className={`quant-report grid min-w-0 gap-5 ${compact ? "is-compact" : ""}`}>
+    <SimpleQuantReport report={report} showAction={showAction} compact={compact}/>
+    {(report.commentary.summary || report.commentary.detailed) && <details className={styles.advanced}>
+      <summary>Đọc nhận định đầy đủ</summary><div className={styles.advancedBody}><p className="whitespace-pre-line text-sm leading-7 text-[var(--muted)]">{report.commentary.summary}</p>{report.commentary.detailed && <p className="whitespace-pre-line text-sm leading-7 text-[var(--muted)]">{report.commentary.detailed}</p>}</div>
+    </details>}
+    <details className={styles.advanced} open={advancedOpen} onToggle={event => setAdvancedOpen(event.currentTarget.open)}>
+      <summary>Xem phân tích chuyên sâu</summary>
+      {advancedOpen && <div className={styles.advancedBody}>
+        <p className="text-sm leading-7 text-[var(--muted)]">Tại đây có chỉ tiêu, cách đọc, điều kiện áp dụng và bảng dữ liệu của từng mô hình. Mở mục bạn muốn tìm hiểu.</p>
+        <section className={card}><h3 className="mb-3 font-medium">Dữ liệu của lần phân tích</h3><p className="text-sm leading-7 text-[var(--muted)]">{metricText(research.observations ?? at(report.sections.statistics?.metrics, "n"))} phiên dữ liệu · {research.start && research.end ? `${research.start} → ${research.end}` : metricText(at(report.sections.statistics?.metrics, "range"))} · Giá theo VND</p>{report.data_observed_at && <p className="mt-2 text-xs text-[var(--muted)]">Thu thập dữ liệu lúc {stamp(report.data_observed_at)}</p>}</section>
+        <section aria-label="Phân tích từng module" className="grid min-w-0 gap-3">
+          <h3 className="text-lg font-medium">Chi tiết mô hình và số liệu</h3>
+          {ordered.map(name => <Module key={name} name={name} report={report} compact id={sectionId(name)}/>)}</section>
+        <QuantResearchVisuals report={report}/>
+        {!!report.warnings.length && <section className={card}><h3 className="font-medium">Giới hạn của báo cáo</h3><ul className="mt-3 list-inside list-disc text-sm leading-7 text-[var(--muted)]">{report.warnings.map((warning, i) => <li key={i}>{analysisReason(warning)}</li>)}</ul></section>}
+        <details className={`${card} text-xs leading-7 text-[var(--muted)]`}><summary className="cursor-pointer">Phiên bản dữ liệu và mô hình</summary><dl className="mt-3">{Object.entries(report.versions).filter(([, value]) => typeof value === "string" || typeof value === "number").map(([key, value]) => <div key={key} className="my-2 break-all"><dt>{key}</dt><dd className="font-mono">{String(value)}</dd></div>)}</dl></details>
+      </div>}
+    </details>
   </div>;
 }
