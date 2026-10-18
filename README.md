@@ -35,6 +35,8 @@ Hợp đồng API và xác nhận production: [Screening tables](docs/SCREENING-
 
 ## Dữ liệu và phạm vi
 
+Bảng điện AGR đã lên production ngày 18/10/2026. Xem [bằng chứng và khôi phục release](docs/AGR-PRICEBOARD-PRODUCTION.md).
+
 `backend/` chỉ có **mock JSON**, không có API server, scheduler, job runner, scoring, backtest hoặc engine Quant. Không dựng lại bộ nạp dữ liệu hay vòng lặp hai lần/ngày. Theme, Theo dõi, lọc và trạng thái mở/thu chỉ là tương tác giao diện cục bộ.
 
 - Bảng điện Dashboard dùng dữ liệu AGR thật: tải snapshot qua `/api/market/agr`, sau đó nhận delta qua `wss://trading.agr.vn/market/socket.io/` (Engine.IO 3 / Socket.IO 2), đăng ký `e:HOSE`, `e:HNX`, `e:UPCOM`. Kết nối trực tiếp từ trình duyệt, có heartbeat, tự nối lại và tải snapshot sau reconnect/đổi phiên/quay lại tab. Không cần API key ở thời điểm tích hợp. Chỉ báo “Đã kết nối AGR” sau khi đăng ký thành công và tải được snapshot; ngày phiên hiển thị riêng vì ngoài giờ không có giao dịch mới. Nếu lỗi, giữ dữ liệu đã nhận và báo trạng thái; không thay bằng giá mẫu. Bảng cổ phiếu loại chứng quyền/phái sinh; giá theo nghìn đồng, KL theo cổ phiếu, GTGD theo triệu đồng, hỗ trợ ATO/ATC/PLO. Quant để trống vì AGR không cung cấp điểm Quant. API/protocol công khai của AGR có thể thay đổi, cần kiểm tra lại khi kết nối bị từ chối.
