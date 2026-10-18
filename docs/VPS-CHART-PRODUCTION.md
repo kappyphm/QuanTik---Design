@@ -39,3 +39,21 @@ Neither viewport had page horizontal overflow or browser JavaScript errors.
 The VPS chart's own controls, history availability and data timing remain
 controlled by VPS. Verification scripts, JSON and screenshots are retained
 locally in the temporary `quantik-vps-chart-20261018-01` directory.
+
+## Chart page follow-up
+
+Release `20261018-chart-page-01`, source `7da5a9d`, replaces the Dashboard chart
+modal with normal links to `/charts?symbol=...`. Both the symbol and chart icon
+open the dedicated page in the same tab; browser Back returns to Dashboard.
+VPS chart controls and the Quant sidebar are preserved.
+
+Production frontend is pinned to
+`sha256:3df5206d1610ae23b30372c1747c7f65cbf1dff1884b7f7f6d66a6d362f4fc04`.
+Only web was recreated; API/other containers and schema `0017` were preserved.
+Recovery artifacts are in `/opt/quantik/releases/20261018-chart-page-01/`, with
+verified backup `backups/quantik-20261018T120552Z.dump` and the prior image above.
+Typecheck, Linux build and twenty desktop/mobile browser scenarios passed.
+Unmocked public checks at 1440px and 390px verified both navigation links,
+browser Back, absence of the chart modal, real VPS chart canvases, weekly URL
+selection and ABW access. Neither viewport had overflow or JavaScript errors.
+Local evidence is retained in temporary `quantik-chart-page-20261018-01`.
