@@ -23,9 +23,19 @@ private panel through the shared session guard.
 Real reports use the16-section API contract, BE decision/commentary/gates, VND
 prices, returned close/volatility/Monte Carlo quantile series and explicit
 unavailable sections. Day of data, collection time and analysis time are distinct.
-No browser model calculations, fabricated raw simulation paths or surfaces fill
-missing fields. Original sample visual components remain separate renderers;
-the customer request path no longer loads a sample report.
+The result layout follows kappyphm/quantik-react at40166c6: data lineage, trade
+summary, synthesis, model navigation and five-part module explanations, then
+research charts. QuantReport accepts only AnalysisReport; its former sample
+renderer has been removed. There is no old-report conversion or backfill.
+
+The research contract supplies P05/P25/P50/P75/P95 cones, terminal-return
+histograms, dated HMM labels, historical drawdown, normalized factors and risk
+metrics from the exact run. Browser SVG charts also show returned GARCH forecasts
+and closing prices. Prices stay in VND; HMM current probabilities are percentages
+and historical labels never become invented posterior probabilities. Chart data
+tables, hover readouts and a recent-history filter support inspection. R:R and
+upside/downside are display arithmetic with an ordered SL/entry/TP guard.
+No browser model fitting or sample data fills missing model results.
 
 Tests use temporary/route fixtures only. Production build, proxy boundary checks
 and desktop/mobile browser scenarios verify submission, uncertain outcomes,

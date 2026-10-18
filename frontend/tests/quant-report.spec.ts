@@ -32,7 +32,12 @@ test("Quant: gửi yêu cầu, tự nhận báo cáo API và mở lại URL", as
   await expect(page.getByText("Báo cáo kiểm thử theo hợp đồng API.", { exact: true }).first()).toBeVisible({ timeout: 10000 });
   await expect(page.locator(".quant-report-section")).toHaveCount(16);
   await expect(page.getByRole("img", { name: "Lịch sử giá đóng cửa FPT", exact: true })).toBeVisible();
-  await expect(page.getByRole("img", { name: "Phân vị đường giá FPT", exact: true })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Xâu chuỗi các mô hình và khuyến nghị", exact: true })).toBeVisible();
+  for (const name of ["Dải giá Monte Carlo FPT", "Phân phối lợi suất cuối kỳ", "Lịch sử trạng thái HMM FPT", "Sụt giảm từ đỉnh FPT", "Hồ sơ nhân tố chuẩn hóa", "Biến động dự báo GARCH"]) {
+    await expect(page.getByRole("img", { name, exact: true })).toBeVisible();
+  }
+  await page.getByText("Xem dữ liệu biểu đồ", { exact: true }).first().click();
+  await expect(page.getByRole("columnheader", { name: "P05 (VND)", exact: true })).toBeVisible();
   await expect(page.getByText(/100\.000/).first()).toBeVisible();
   await expect(page.getByText("nghìn ₫", { exact: true })).toHaveCount(0);
   await expect(page.getByRole("button", { name: "Xem kết quả mẫu", exact: true })).toHaveCount(0);
@@ -40,8 +45,23 @@ test("Quant: gửi yêu cầu, tự nhận báo cáo API và mở lại URL", as
   await expect(page.getByRole("heading", { name: /Đã hoàn tất/ })).toBeVisible();
   expect(state.created).toBe(1); expect(state.unknown).toEqual([]); expect(errors).toEqual([]);
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth+1)).toBeTruthy();
-  await page.screenshot({ path: `test-results/ui/${test.info().project.name}/analysis-live.png`, fullPage: true });
+  await page.evaluate(() => { (document.activeElement as HTMLElement | null)?.blur(); window.scrollTo(0, 0); });
+  await page.screenshot({ path: `test-results/ui/${test.info().project.name}/analysis-live.png`, scale: "css" });
+  await page.getByRole("region", { name: "Tổng hợp và khuyến nghị", exact: true }).screenshot({ path: `test-results/ui/${test.info().project.name}/analysis-synthesis.png`, scale: "css" });
+  await page.getByRole("region", { name: "Visual Quant FPT", exact: true }).screenshot({ path: `test-results/ui/${test.info().project.name}/analysis-visuals.png`, scale: "css" });
  });
+
+test("Quant: không dùng mẫu để lấp biểu đồ mô hình còn thiếu", async ({ page }) => {
+  const state = await analysisFixture(page); state.status = "SUCCEEDED";
+  state.report.research!.cone = []; state.report.research!.distribution = [];
+  await page.goto("/analysis?symbol=FPT");
+  await page.getByRole("button", { name: "Gửi yêu cầu Quant FPT", exact: true }).click();
+  await page.getByRole("button", { name: "Xác nhận", exact: true }).click();
+  await expect(page.getByRole("img", { name: "Lịch sử giá đóng cửa FPT", exact: true })).toBeVisible();
+  await expect(page.getByRole("img", { name: "Sụt giảm từ đỉnh FPT", exact: true })).toBeVisible();
+  await expect(page.getByRole("img", { name: "Dải giá Monte Carlo FPT", exact: true })).toHaveCount(0);
+  await expect(page.getByText(/Báo cáo này chưa có dữ liệu cho biểu đồ/).first()).toBeVisible();
+});
 
 test("Quant: mất phản hồi sau tiếp nhận vẫn retry cùng key khi hết hạn mức", async ({ page }) => {
   const state = await analysisFixture(page); state.limit = 1; state.failSubmitOnce = true;
