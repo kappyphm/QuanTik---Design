@@ -25,7 +25,7 @@ Mở `http://localhost:3000`. Bấm **Đăng nhập hệ thống**; sau đăng n
 
 ## Bố cục
 
-- **Dashboard**: VN-INDEX, VN30, UPCOM, HNX-INDEX → bảng điện có TC/trần/sàn, ba mức dư mua/bán, khớp lệnh, tổng KL, GTGD, thống kê và nước ngoài → bảng nhóm ngành. Theo dõi nằm trong cùng bảng. Bấm mã mở cửa sổ chart với Quant bên cạnh; có thể thu/mở Quant hoặc mở trang phân tích toàn màn hình.
+- **Dashboard**: VN-INDEX, VN30, UPCOM, HNX-INDEX → bảng điện có TC/trần/sàn, ba mức dư mua/bán, khớp lệnh, tổng KL, GTGD, thống kê và nước ngoài → bảng nhóm ngành. Theo dõi nằm trong cùng bảng. Bấm mã hoặc biểu tượng biểu đồ để mở trang chart riêng với Quant bên cạnh; có thể thu/mở Quant hoặc mở trang phân tích toàn màn hình.
 - **Quét toàn sàn**: tự tải bản công bố mới nhất, hiển thị hai bảng gồm 5 mã tốt nhất và 5 mã có điểm phân phối cao nhất. Mỗi bảng có giá, thanh khoản và ba nhóm điểm screening; không phân trang hoặc xem toàn bộ mã. Bấm mã để mở modal rộng chứa đánh giá, bối cảnh VNINDEX và ghi chú NĐT/môi giới. Xem screening không trừ lượt Quant.
 
 - **Phân tích Quant**: chọn mã → gửi yêu cầu → đọc kết luận dễ hiểu, biểu đồ xu hướng/kịch bản/rủi ro và các mốc giá cần theo dõi. Có mô hình 3D tương tác từ dữ liệu báo cáo; phần mô hình chuyên sâu mở thêm khi cần.
@@ -46,7 +46,7 @@ Biểu đồ đã chuyển sang iframe VPS và nội dung giao diện đã đư�
 - `scan.json`: bản mẫu cũ từ **LỌC CỔ PHIẾU.xlsx**, sheet **Summary_20261005_2338**, lưu tham khảo bố cục. Trang screening hiện dùng API bản công bố, không đọc file mẫu này.
 - File Excel không chứa bảng hệ số trọng số %. Giao diện ghi rõ phần còn thiếu, không tự đặt hệ số hoặc công thức.
 - `analysis.json`, `charts.json`: vùng dữ liệu để nối sau; không có dự báo giả hoặc nến tự sinh.
-- Biểu đồ nhúng iframe **VPS Chart** tại `https://chart.vps.com.vn/tv/`, truyền `symbol`, `allowFullscreen=true`, `resolution` (1D/1W/1M) và `lang=vi`. Dùng chung trong cửa sổ biểu đồ Dashboard và trang `/charts`; giữ sidebar Quant và liên kết mở biểu đồ riêng. Không sử dụng nến mẫu trong giao diện này. Nội dung và độ trễ bên trong iframe do VPS cung cấp.
+- Biểu đồ nhúng iframe **VPS Chart** tại `https://chart.vps.com.vn/tv/`, truyền `symbol`, `allowFullscreen=true`, `resolution` (1D/1W/1M) và `lang=vi`. Bấm mã ở Dashboard sẽ dẫn đến trang `/charts?symbol=...`; giữ sidebar Quant và liên kết mở biểu đồ riêng. Không sử dụng nến mẫu trong giao diện này. Nội dung và độ trễ bên trong iframe do VPS cung cấp.
 
 ## Kiểm tra và xem thử
 

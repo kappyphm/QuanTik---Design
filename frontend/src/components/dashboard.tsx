@@ -4,8 +4,7 @@ import { useState } from "react";
 import { Search, X } from "lucide-react";
 import { indices, sectors, format, signed, tone } from "@/lib/mock-data";
 import { useAgrPriceboard } from "@/lib/use-agr-priceboard";
-import { PageHeading, Panel, EmptyState, Modal } from "./ui";
-import { ChartSurface } from "./chart-workspace";
+import { PageHeading, Panel, EmptyState } from "./ui";
 import { StockTable } from "./stock-table";
 import { usePreferences } from "./preferences";
 import { PurchaseResume } from "./account/purchase-resume";
@@ -17,7 +16,6 @@ export function Dashboard() {
     const [sector, setSector] = useState("all");
     const [exchange, setExchange] = useState("all");
     const [depth, setDepth] = useState(true);
-    const [selected, setSelected] = useState<string | null>(null);
     const [statistics, setStatistics] = useState(false);
     const [foreign, setForeign] = useState(false);
     const items = stocks.filter((stock) => (tab !== "watch" || watchlist.includes(stock.symbol)) &&
@@ -57,7 +55,7 @@ export function Dashboard() {
           </div>
           {sector !== "all" && <div className="active-filter inline-flex items-center [gap:10px] [margin:0_20px_14px] [color:var(--accent)] [background:var(--accent-soft)] [padding:5px_10px] [font-size:14px] [border-radius:4px] [&_button]:flex [&_button]:[border-width:0] [&_button]:[background:none]">{sector}<button aria-label="Xóa lọc ngành" onClick={() => setSector("all")}><X size={14}/></button></div>}
           <p className="text-sm text-[var(--muted)] px-5 pb-3">Nguồn: <a href="https://trading.agr.vn/priceboard" target="_blank" rel="noreferrer" className="underline">AGR</a> · Giá: nghìn ₫ · KL: cổ phiếu · GTGD: triệu ₫</p>
-          {items.length ? <StockTable items={items} depth={depth} statistics={statistics} foreign={foreign} onSelect={setSelected}/> : <EmptyState title={stocks.length ? "Chưa có mã phù hợp" : "Đang chờ dữ liệu bảng điện AGR"}/>}
+          {items.length ? <StockTable items={items} depth={depth} statistics={statistics} foreign={foreign}/> : <EmptyState title={stocks.length ? "Chưa có mã phù hợp" : "Đang chờ dữ liệu bảng điện AGR"}/>}
         </Panel>
         <Panel title="Dòng tiền theo ngành" className="sector-panel" action={<span className="count-label [font-size:14px] [color:var(--muted)] whitespace-nowrap">Số liệu tham khảo</span>}>
           <div className="table-scroll relative overflow-x-auto [scrollbar-width:thin] [scrollbar-color:var(--border)_transparent]" tabIndex={0} role="region" aria-label="Bảng nhóm ngành; cuộn ngang để xem đủ cột">
@@ -77,6 +75,5 @@ export function Dashboard() {
           </div>
         </Panel>
       </div>
-      {selected && <Modal title={`Biểu đồ ${selected}`} onClose={() => setSelected(null)} className="chart-dialog"><ChartSurface key={selected} symbol={selected} onSymbolChange={setSelected}/></Modal>}
     </>);
 }

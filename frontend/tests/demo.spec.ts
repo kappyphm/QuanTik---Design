@@ -15,8 +15,10 @@ test("Biểu đồ VPS và yêu cầu Quant API trong sidebar không trộn kế
   await page.goto("/dashboard");
   await expect(page.getByText("1.687,54", { exact: true })).toBeVisible();
   await page.getByPlaceholder("Tìm mã hoặc tên").fill("FPT");
-  await page.getByRole("button", { name: "FPT", exact: true }).click();
-  const chart = page.getByRole("dialog", { name: "Biểu đồ FPT", exact: true });
+  await page.getByRole("link", { name: "FPT", exact: true }).click();
+  await expect(page).toHaveURL(/\/charts\?symbol=FPT$/);
+  await expect(page.getByRole("dialog")).toHaveCount(0);
+  const chart = page.locator(".chart-workspace");
   await expect(chart.locator("iframe")).toBeVisible();
   await expect(chart.locator("iframe")).toHaveAttribute("src", /symbol=FPT.*resolution=1D/);
   const plot = await chart.locator("iframe").boundingBox();

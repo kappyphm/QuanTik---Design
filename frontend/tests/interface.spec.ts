@@ -35,9 +35,9 @@ test("Dashboard hợp nhất bảng điện, nhóm ngành và Theo dõi", async 
   await page.getByRole("button", { name: "Theo dõi SSI", exact: true }).click();
   await page.reload();
   await page.getByRole("button", { name: /^Theo dõi 4$/ }).click();
-  await expect(board.getByRole("button", { name: "SSI", exact: true })).toBeVisible();
+  await expect(board.getByRole("link", { name: "SSI", exact: true })).toBeVisible();
   await page.getByRole("button", { name: "Bỏ theo dõi SSI", exact: true }).click();
-  await expect(board.getByRole("button", { name: "SSI", exact: true })).not.toBeVisible();
+  await expect(board.getByRole("link", { name: "SSI", exact: true })).not.toBeVisible();
   await page.getByRole("button", { name: "Tất cả", exact: true }).click();
   await page.getByRole("button", { name: "Công nghệ Thông tin", exact: true }).click();
   await expect(board.locator("tbody tr")).toHaveCount(1);
@@ -48,13 +48,21 @@ test("Dashboard hợp nhất bảng điện, nhóm ngành và Theo dõi", async 
   await expect(page.locator(".selected-stock")).toHaveCount(0);
 });
 
-test("Bấm mã mở biểu đồ VPS cùng Quant, mở/thu sidebar và toàn màn hình", async ({ page }) => {
+test("Dashboard mở trang biểu đồ bằng mã hoặc biểu tượng, giữ sidebar Quant", async ({ page }) => {
   const quant = await analysisFixture(page);
   await page.goto("/dashboard");
   await page.getByPlaceholder("Tìm mã hoặc tên").fill("FPT");
-  await page.getByRole("button", { name: "FPT", exact: true }).click();
-  const chart = page.getByRole("dialog", { name: "Biểu đồ FPT", exact: true });
+  await page.getByRole("link", { name: "FPT", exact: true }).click();
+  await expect(page).toHaveURL(/\/charts\?symbol=FPT$/);
+  await expect(page.getByRole("dialog")).toHaveCount(0);
+  const chart = page.locator(".chart-workspace");
   await expect(chart).toBeVisible();
+  await page.goBack();
+  await expect(page).toHaveURL(/\/dashboard$/);
+  await page.getByPlaceholder("Tìm mã hoặc tên").fill("FPT");
+  await page.getByRole("link", { name: "Biểu đồ FPT", exact: true }).click();
+  await expect(page).toHaveURL(/\/charts\?symbol=FPT$/);
+  await expect(page.getByRole("dialog")).toHaveCount(0);
   await expect(chart.getByLabel("Nguồn biểu đồ", { exact: true })).toHaveCount(0);
   await expect(chart.locator('iframe[title="Biểu đồ FPT"]')).toHaveAttribute("src", "https://chart.vps.com.vn/tv/?symbol=FPT&allowFullscreen=true&resolution=1D&lang=vi");
   await chart.getByLabel("Khung thời gian", { exact: true }).selectOption("1W");

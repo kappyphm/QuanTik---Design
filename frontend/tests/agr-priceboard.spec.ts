@@ -6,7 +6,7 @@ test("Bảng điện AGR nhận giá, giữ delta và đồng bộ sau reconnect
   await page.goto("/dashboard");
   await expect(page.getByRole("status").filter({ hasText: "Đã kết nối AGR" })).toBeVisible();
   await page.getByPlaceholder("Tìm mã hoặc tên").fill("FPT");
-  const row = page.locator(".price-board tbody tr").filter({ has: page.getByRole("button", { name: "FPT", exact: true }) });
+  const row = page.locator(".price-board tbody tr").filter({ has: page.getByRole("link", { name: "FPT", exact: true }) });
   await expect(row).toHaveCount(1);
   await expect(page.getByRole("status")).not.toContainText("Phiên");
   await expect(page.locator("#workspace")).not.toContainText(/snapshot|mẫu|mock|mã phiên/i);
