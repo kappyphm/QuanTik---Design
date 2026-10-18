@@ -42,8 +42,23 @@ async function fixture(page: Page, mode = "ready") {
   return state;
 }
 
-test("Screening: hai bảng top 5 đầy đủ thông tin và modal", async ({ page }, testInfo) => {
+test("Screening: banner chỉ đọc kết quả sau khi kích hoạt", async ({ page }) => {
   const state = await fixture(page); await page.goto("/screener");
+  const activate = page.getByRole("button", { name: "Kích hoạt kết quả" });
+  await expect(activate).toBeVisible();
+  expect(state.calls.filter(path => path.startsWith("screenings/"))).toEqual([]);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth+1)).toBeTruthy();
+  await activate.click();
+  await expect(page.getByRole("button", { name: "FPT", exact: true })).toBeVisible();
+  await page.getByRole("button", { name: "← Xem lại banner" }).click();
+  await expect(activate).toBeVisible();
+  await activate.click();
+  await expect(page.getByRole("button", { name: "FPT", exact: true })).toBeVisible();
+  expect(state.mutations).toEqual([]);
+});
+
+test("Screening: hai bảng top 5 đầy đủ thông tin và modal", async ({ page }, testInfo) => {
+  const state = await fixture(page); await page.goto("/screener"); await page.getByRole("button", { name: "Kích hoạt kết quả" }).click();
   const best = page.getByRole("region", { name:"5 mã tốt nhất", exact:true });
   const worst = page.getByRole("region", { name:"5 mã cần thận trọng", exact:true });
   await expect(best.locator("tbody tr")).toHaveCount(5);
@@ -83,7 +98,7 @@ test("Screening: hai bảng top 5 đầy đủ thông tin và modal", async ({ p
 
 test("Screening: cập nhật bảng giữ modal đúng bản công bố", async ({ page }) => {
   await page.clock.install();
-  const state = await fixture(page); await page.goto("/screener");
+  const state = await fixture(page); await page.goto("/screener"); await page.getByRole("button", { name: "Kích hoạt kết quả" }).click();
   await page.getByRole("button",{ name:"FPT", exact:true }).click();
   await expect(page.getByRole("dialog").getByText("Quan sát vùng hỗ trợ.")).toBeVisible();
   state.mode = "new";
@@ -98,21 +113,21 @@ test("Screening: cập nhật bảng giữ modal đúng bản công bố", async
 });
 
 test("Screening: gói hết hiệu lực dẫn mua và không tải danh sách", async ({ page }) => {
-  const state=await fixture(page,"unpaid"); await page.goto("/screener");
+  const state=await fixture(page,"unpaid"); await page.goto("/screener"); await page.getByRole("button", { name: "Kích hoạt kết quả" }).click();
   await expect(page.getByRole("heading",{ name:"Cần gói phân tích còn hiệu lực",exact:true })).toBeVisible();
   await expect(page.getByRole("link",{ name:"Xem các gói phân tích",exact:true })).toHaveAttribute("href","/plans");
   expect(state.results).toEqual([]);
 });
 
 test("Screening: chờ dữ liệu không lộ nguyên nhân vận hành", async ({ page }) => {
-  await fixture(page,"waiting"); await page.goto("/screener");
+  await fixture(page,"waiting"); await page.goto("/screener"); await page.getByRole("button", { name: "Kích hoạt kết quả" }).click();
   await expect(page.getByRole("heading",{ name:"Chưa có kết quả được công bố",exact:true })).toBeVisible();
   await expect(page.getByText(/TASK_DEADLINE|quá hạn xử lý|Lần xử lý gần nhất/)).toHaveCount(0);
 });
 
 test("Screening: giữ ngày dữ liệu và bản cũ khi cập nhật lỗi", async ({ page }) => {
   await page.clock.install();
-  const state=await fixture(page,"stale"); await page.goto("/screener");
+  const state=await fixture(page,"stale"); await page.goto("/screener"); await page.getByRole("button", { name: "Kích hoạt kết quả" }).click();
   await expect(page.getByText("Dữ liệu ngày 16/10/2026",{ exact:true })).toBeVisible();
   await expect(page.getByText(/Đang hiển thị kết quả gần nhất/)).toBeVisible();
   await expect(page.getByRole("button",{ name:"FPT", exact:true })).toBeVisible();
