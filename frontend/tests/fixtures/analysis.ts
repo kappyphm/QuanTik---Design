@@ -13,6 +13,14 @@ export function reportFixture(): AnalysisReport {
   report.sections.trade_plan.metrics = { sl: { entry: 100000, sl_swing: 97000, tp1: 105000, tp2: 110000 }, sizing_mode: "REFERENCE" };
   report.sections.simulation_risk.metrics = { simulation_risk: { mc_path: { median: [102000, 103000, 104000], lower: [101000, 99000, 97000], upper: [103000, 107000, 111000] } } };
   report.sections.garch.metrics = { garch: { garch: { forecast_vol: [1.2, 1.3, 1.4] } } };
+  report.research = { schema_version: 1, symbol: "FPT", units: { price: "VND", return: "pct" }, observations: 252,
+    start: "2025-10-30", end: "2026-10-16", horizon_sessions: 3, simulation_count: 1000,
+    cone: [1, 2, 3].map(session => ({ session, p05: 100000-session*1000, p25: 101000-session*500, p50: 102000+session*1000, p75: 103000+session*1500, p95: 104000+session*2000 })),
+    distribution: [{ returnPct: -3, lowerPct: -5, upperPct: -1, probabilityPct: 20 }, { returnPct: 1, lowerPct: -1, upperPct: 3, probabilityPct: 50 }, { returnPct: 5, lowerPct: 3, upperPct: 7, probabilityPct: 30 }],
+    regime: [{ date: "2026-10-14", price: 100000, state: "BEAR" }, { date: "2026-10-15", price: 101000, state: "SIDEWAY" }, { date: "2026-10-16", price: 102000, state: "BULL" }],
+    drawdown: [{ date: "2026-10-14", valuePct: -3 }, { date: "2026-10-15", valuePct: -2 }, { date: "2026-10-16", valuePct: -1 }],
+    factors: [{ id: "cmf", label: "cmf", value: .3, min: -1, max: 1 }, { id: "sharpe", label: "sharpe", value: .6, min: -1, max: 1 }, { id: "hmm_regime", label: "hmm_regime", value: -.1, min: -1, max: 1 }],
+    risk_metrics: [{ id: "var", label: "VaR95 mô phỏng", value: -4.5, unit: "%" }, { id: "cvar", label: "CVaR95 mô phỏng", value: -5.5, unit: "%" }] };
   report.sections.arima = { status: "UNAVAILABLE", reason_codes: ["COMPONENT_UNAVAILABLE"], metrics: { arima: null }, units: {} };
   return report;
 }

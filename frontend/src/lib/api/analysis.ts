@@ -5,11 +5,22 @@ export type AnalysisJob = {
 };
 export type AnalysisOptions = { sessions: string[]; selected_session: string | null; symbols: string[]; ready: boolean; reason: string | null };
 export type ReportSection = { status: "AVAILABLE" | "UNAVAILABLE" | "DISABLED"; reason_codes: string[]; metrics: Record<string, unknown>; units: Record<string, string> };
+export type QuantResearch = {
+  schema_version: 1; symbol: string; units: { price: "VND"; return: "pct" };
+  observations?: number; start?: string | null; end?: string | null; horizon_sessions?: number; simulation_count?: number;
+  cone: { session: number; p05: number; p25: number; p50: number; p75: number; p95: number }[];
+  distribution: { returnPct: number; probabilityPct: number; lowerPct?: number; upperPct?: number; count?: number }[];
+  regime: { date: string; price: number; state: string }[];
+  drawdown: { date: string; valuePct: number }[];
+  factors: { id: string; label: string; value: number; min: number; max: number }[];
+  risk_metrics: { id: string; label: string; value: number; unit: string }[];
+};
 export type AnalysisReport = {
   report_id: string; schema_version: "1.0"; job_id: string; symbol: string; target_session?: string | null;
   evaluated_at: string; data_as_of: string; data_observed_at?: string | null;
   input_mode: "COMPLETED_DAILY"; sections: Record<string, ReportSection>;
   decision: Record<string, unknown>; commentary: { summary?: string; detailed?: string }; warnings: string[]; versions: Record<string, unknown>;
+  research?: QuantResearch | null;
 };
 export const jobStatuses: Record<AnalysisJob["status"], string> = {
   QUEUED: "Đã tiếp nhận", WAITING_DATA: "Đang chuẩn bị dữ liệu", RUNNING: "Đang phân tích", RETRY_WAIT: "Đang chờ thử lại",

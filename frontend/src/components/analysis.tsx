@@ -11,7 +11,7 @@ export function AnalysisPage() {
   const [draft, setDraft] = useState(symbol), [error, setError] = useState("");
   useEffect(() => { setDraft(symbol); setError(""); }, [symbol]);
   return <>
-    <PageHeading title="Phân tích Quant" description="Gửi yêu cầu theo phiên giao dịch, theo dõi xử lý và mở lại báo cáo.">
+    <PageHeading title="Phân tích chuyên sâu" description="Xem kết quả từng mô hình, tổng hợp bằng chứng và biểu đồ Quant theo phiên giao dịch.">
       <form className="flex flex-wrap items-center gap-2" onSubmit={event => {
         event.preventDefault(); const next = draft.trim().toUpperCase();
         if (!/^[A-Z0-9]{2,16}$/.test(next)) { setError("Nhập mã cổ phiếu hợp lệ."); return; }
