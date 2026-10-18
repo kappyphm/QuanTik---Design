@@ -7,6 +7,7 @@ import {
   type ReactNode,
 } from "react";
 
+import { SessionEvents } from "./account/session";
 const defaults = ["FPT", "HPG", "MBB"];
 const Context = createContext<{
   watchlist: string[];
@@ -65,7 +66,7 @@ export function Preferences({ children }: { children: ReactNode }) {
           setTheme((value) => (value === "dark" ? "light" : "dark")),
       }}
     >
-      {children}
+      <SessionEvents/>{children}
     </Context.Provider>
   );
 }

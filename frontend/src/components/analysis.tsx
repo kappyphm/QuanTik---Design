@@ -1,38 +1,28 @@
 "use client";
-import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
-import { stocks, scanSnapshot, getStock, getScanResult } from "@/lib/mock-data";
 import { PageHeading } from "./ui";
 import { QuantPanel } from "./quant-panel";
+import { accountStyles } from "./account/styles";
 
 export function AnalysisPage() {
-  const router = useRouter();
-  const symbol = (useSearchParams().get("symbol") ?? "FPT").toUpperCase();
-  const [draft, setDraft] = useState(symbol);
-  const [error, setError] = useState("");
+  const router = useRouter(), query = useSearchParams();
+  const symbol = (query.get("symbol") || "FPT").toUpperCase();
+  const [draft, setDraft] = useState(symbol), [error, setError] = useState("");
   useEffect(() => { setDraft(symbol); setError(""); }, [symbol]);
-  const stock = getStock(symbol);
-  const result = getScanResult(symbol);
-  const symbols = [...new Set([...stocks.map((item) => item.symbol), ...scanSnapshot.best.map((item) => item.symbol), ...scanSnapshot.avoid.map((item) => item.symbol)])];
   return <>
-    <PageHeading title="Phân tích Quant">
-      <form className="analysis-picker" onSubmit={(event) => {
-        event.preventDefault();
-        const next = draft.trim().toUpperCase();
-        if (!/^[A-Z][A-Z0-9]{2,4}$/.test(next)) { setError("Nhập mã cổ phiếu hợp lệ."); return; }
-        router.replace(`/analysis?symbol=${next}`);
+    <PageHeading title="Phân tích Quant" description="Gửi yêu cầu theo phiên giao dịch, theo dõi xử lý và mở lại báo cáo.">
+      <form className="flex flex-wrap items-center gap-2" onSubmit={event => {
+        event.preventDefault(); const next = draft.trim().toUpperCase();
+        if (!/^[A-Z0-9]{2,16}$/.test(next)) { setError("Nhập mã cổ phiếu hợp lệ."); return; }
+        router.replace(`/analysis?symbol=${encodeURIComponent(next)}`);
       }}>
-        <label><span className="sr-only">Chọn mã phân tích</span><input aria-label="Chọn mã phân tích" value={draft} onChange={(event) => setDraft(event.target.value.toUpperCase())} list="quant-symbols" placeholder="Nhập mã cổ phiếu" /></label>
-        <datalist id="quant-symbols">{symbols.map((item) => <option key={item} value={item} />)}</datalist>
-        <button className="button secondary" type="submit">Chọn mã</button>
+        <label className="sr-only" htmlFor="analysis-symbol">Chọn mã phân tích</label>
+        <input id="analysis-symbol" className="min-h-11 w-32 rounded-[4px] border border-[var(--border)] bg-[var(--surface)] px-3 font-mono" value={draft} maxLength={16} onChange={event => setDraft(event.target.value.toUpperCase())}/>
+        <button className={accountStyles.buttonSecondary}>Chọn mã</button>
       </form>
     </PageHeading>
-    {error && <p className="error-message" role="alert">{error}</p>}
-    <section className="analysis-stock">
-      <div className="stock-line"><h2>{symbol}</h2><span>{stock?.name ?? result?.sector ?? ""}</span>{stock && <span className="exchange-label">{stock.exchange}</span>}</div>
-      {stock && <Link className="button secondary" href={`/charts?symbol=${symbol}`}>Biểu đồ ↗</Link>}
-    </section>
-    <section className="panel standalone-quant"><QuantPanel key={symbol} symbol={symbol} /></section>
+    {error && <p role="alert" className="mb-4 text-[var(--negative)]">{error}</p>}
+    <QuantPanel key={symbol} symbol={symbol}/>
   </>;
 }

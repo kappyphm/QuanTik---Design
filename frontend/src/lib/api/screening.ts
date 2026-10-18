@@ -1,0 +1,16 @@
+export type ScreeningSlot = "ALL" | "AM" | "PM";
+export type ScreeningGroup = "OVERALL" | "DISTRIBUTION";
+export type ScreeningLatest = { id: string; target_session: string; published_at: number; stale: boolean; refresh_after_seconds: number };
+export type ScreeningItem = { symbol: string; exchange: string | null; score: number; price_vnd: number | null; change_ratio: number | null; recommendation: string | null };
+export type ScreeningResults = { run_id: string; group: ScreeningGroup; items: ScreeningItem[]; next_cursor: null };
+export const screeningReason = (code: string | null | undefined) => ({
+  TASK_DEADLINE: "Ca quét đã quá hạn xử lý", SCREENING_DEADLINE: "Ca quét đã quá hạn công bố", MANIFEST_NOT_READY: "Đang chờ dữ liệu thị trường",
+  HISTORY_NOT_READY: "Đang chờ lịch sử giá", UNIVERSE_NOT_VALIDATED: "Danh sách mã chưa được kiểm định", LIVE_DATA_NOT_VALIDATED: "Dữ liệu chưa đạt kiểm định",
+  SCREENING_COVERAGE_NOT_READY: "Độ phủ dữ liệu chưa đạt", SCREENING_ZERO_ELIGIBLE: "Chưa có mã đủ điều kiện xếp hạng", PM_DATA_NOT_COMPLETED: "Đang chờ dữ liệu cuối ngày",
+  LATEST_RUN_UNAVAILABLE: "Ca mới nhất chưa công bố thành công", EXPECTED_SLOT_UNPUBLISHED: "Chưa có kết quả cho ca dự kiến gần nhất",
+  CALENDAR_OUT_OF_RANGE: "Lịch giao dịch cần cập nhật", PUBLICATION_AGE: "Bản công bố đã cũ", INSUFFICIENT_HISTORY: "Chưa đủ lịch sử giá",
+  CORPORATE_ACTION_ADJUSTMENT_UNVERIFIED: "Điều chỉnh giá do sự kiện doanh nghiệp chưa được xác minh",
+  NONFINITE_BARS: "Dữ liệu giá hoặc khối lượng không hợp lệ", INPUT_UNAVAILABLE: "Thiếu dữ liệu đầu vào", INVALID_OR_MISSING_BARS: "Thiếu dữ liệu giá",
+  NO_COMPARISON_SESSIONS: "Chưa đủ phiên tăng và giảm để so sánh",
+  DISTRIBUTION_COVERAGE_INCOMPLETE: "Chưa đủ chỉ tiêu phân phối", INSUFFICIENT_HISTORY_OR_LIQUIDITY: "Chưa đủ lịch sử hoặc thanh khoản",
+} as Record<string, string>)[code || ""] || (code ? `Trạng thái dữ liệu: ${code}` : "Đang chờ dữ liệu hoặc xử lý");

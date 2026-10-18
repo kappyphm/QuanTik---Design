@@ -9,7 +9,8 @@ const terms = JSON.parse(content);
 
 test('All original glossary fields remain identical to the pinned old repository snapshot', () => {
   assert.equal(terms.length, 57);
-  assert.equal(createHash('sha256').update(content).digest('hex'), 'f0e7199ff3f1cbd61bd368d7c7ebfe9e2298be2f84dc017dfa39458273577bb9');
+  // Git may check this text file out as CRLF on Windows; pin content, not checkout EOLs.
+  assert.equal(createHash('sha256').update(content.replace(/\r\n/g, '\n')).digest('hex'), 'f0e7199ff3f1cbd61bd368d7c7ebfe9e2298be2f84dc017dfa39458273577bb9');
   assert.equal(terms.filter(term => term.sourceFormula).length, 21);
 });
 

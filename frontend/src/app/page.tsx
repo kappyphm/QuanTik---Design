@@ -5,7 +5,7 @@ export default function Page() {
   const router = useRouter();
   return (
     <HomePage
-      onNavigate={() => router.push("/dashboard")}
+      onNavigate={(page) => router.push(page === "login" ? "/login" : "/dashboard")}
       onInspect={(symbol) =>
         router.push(`/analysis?symbol=${encodeURIComponent(symbol)}`)
       }

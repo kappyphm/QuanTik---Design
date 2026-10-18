@@ -1,72 +1,63 @@
 "use client";
 import Link from "next/link";
-import { useState } from "react";
-import { ArrowUpRight, Search, ShieldCheck, ChartNoAxesCombined } from "lucide-react";
-import { scanSnapshot, demoEnabled, type ScanResult } from "@/lib/mock-data";
+import { useEffect, useState } from "react";
+import { api, ApiError } from "@/lib/api/client";
+import { money } from "@/lib/api/contracts";
+import type { ScreeningItem, ScreeningLatest, ScreeningResults } from "@/lib/api/screening";
+import { Guard } from "./account/session";
+import { ErrorNotice } from "./account/common";
 import { PageHeading, Panel } from "./ui";
-import { Criteria } from "./quant-panel";
-import { QuantReport } from "./quant-report";
-import {AnnotatedText} from "./term-hint";
+
+const percent = (v: number) => new Intl.NumberFormat("vi-VN", { style: "percent", maximumFractionDigits: 1 }).format(v);
+type Publication = { latest: ScreeningLatest; best: ScreeningItem[]; avoid: ScreeningItem[] };
 
 export function Screener() {
-  const [loaded, setLoaded] = useState(false);
+  return <><PageHeading title="Quét toàn sàn"/><Guard><ScreeningBoard/></Guard></>;
+}
+function ScreeningBoard() {
+  const [version, setVersion] = useState(0);
+  const [publication, setPublication] = useState<Publication>(), [error, setError] = useState<Error>();
+  const [loading, setLoading] = useState(true);
+  useEffect(() => {
+    let active = true; setLoading(true);
+    void (async () => {
+      const latest = await api<ScreeningLatest>("user", "screenings/latest");
+      const groups = ["OVERALL", "DISTRIBUTION"] as const;
+      const pages = await Promise.all(groups.map(group => api<ScreeningResults>("user", `screenings/${encodeURIComponent(latest.id)}/results?group=${group}&limit=5`)));
+      if (pages.some((page, i) => page.run_id !== latest.id || page.group !== groups[i])) throw new Error("Chưa tải được kết quả phù hợp. Vui lòng thử lại.");
+      if (active) { setPublication({ latest, best: pages[0].items.slice(0,5), avoid: pages[1].items.slice(0,5) }); setError(undefined); }
+    })().catch(err => { if (active) { setError(err); if (err instanceof ApiError && [401,403].includes(err.status)) setPublication(undefined); } })
+      .finally(() => { if (active) setLoading(false); });
+    return () => { active = false; };
+  }, [version]);
+  const forbidden = error instanceof ApiError && error.code === "SCREENING_SUBSCRIPTION_REQUIRED";
+  const notReady = error instanceof ApiError && error.code === "SCREENING_NOT_READY";
+  useEffect(() => {
+    if (loading || forbidden) return;
+    const refresh = () => { if (document.visibilityState === "visible") setVersion(v => v+1); };
+    const timer = setTimeout(refresh,60000);
+    document.addEventListener("visibilitychange",refresh);
+    return () => { clearTimeout(timer); document.removeEventListener("visibilitychange",refresh); };
+  }, [loading, forbidden, version]);
   return <>
-    <PageHeading title="Quét toàn sàn">{loaded && <>
-      <button className="button primary" onClick={() => setLoaded(false)}>Quét lại</button>
-    </>}</PageHeading>
-    {!loaded ? <section className="scan-intro" aria-labelledby="scan-intro-title">
-      <div className="scan-intro-main">
-        <div className="scan-intro-copy">
-          <span className="scan-intro-eyebrow">Góc nhìn toàn thị trường</span>
-          <h2 id="scan-intro-title">Khai mở góc nhìn<br /><em>toàn sàn.</em></h2>
-          <p>Tìm 5 mã nổi bật, nhận diện 5 mã nên tránh và khám phá lý do phía sau từng lựa chọn.</p>
-          <div className="scan-intro-actions">
-            <button className="button primary" disabled={!demoEnabled} onClick={() => setLoaded(true)}>Quét toàn sàn <ArrowUpRight size={22} aria-hidden="true" /></button>
-          </div>
-        </div>
-        <ScanIllustration />
-      </div>
-      <div className="scan-intro-features">
-        <div><Search size={22} aria-hidden="true" /><div><h3>Tìm cơ hội</h3><p>5 mã nổi bật để theo dõi</p></div></div>
-        <div><ShieldCheck size={22} aria-hidden="true" /><div><h3>Nhận diện rủi ro</h3><p>5 mã cần thận trọng</p></div></div>
-        <div><ChartNoAxesCombined size={22} aria-hidden="true" /><div><h3>Hiểu từng mã</h3><p>Xem lý do và phân tích Quant</p></div></div>
-      </div>
-    </section> : <>
-    <div className="scan-results-heading"><h2>Kết quả quét</h2><span role="status">10 mã · 2 nhóm</span></div>
-    <div className="scan-grid scan-results">
-      <Panel title="5 mã nổi bật"><ScanList items={scanSnapshot.best} /></Panel>
-      <Panel title="5 mã nên tránh"><ScanList items={scanSnapshot.avoid} caution /></Panel>
+    <div className="grid gap-5" aria-live="polite">
+      {loading && !publication && <p role="status">Đang tải kết quả công bố mới nhất…</p>}
+      {forbidden ? <section className="rounded-[4px] border border-[var(--border)] p-6"><h2 className="text-xl">Cần gói phân tích còn hiệu lực</h2><p className="my-3">Kích hoạt gói để xem kết quả quét.</p><Link className="text-[var(--accent)] underline" href="/plans">Xem các gói phân tích</Link></section>
+        : notReady && !publication ? <section role="status" className="rounded-[4px] border border-[var(--border)] p-6"><h2 className="text-xl">Chưa có kết quả được công bố</h2><p className="mt-3 text-[var(--muted)]">Kết quả sẽ xuất hiện tại đây khi dữ liệu sẵn sàng.</p></section>
+        : error && !publication ? <ErrorNotice error={error}/> : null}
+      {publication && <>
+        <div className="flex flex-wrap items-baseline justify-between gap-3"><h2 className="text-xl font-semibold">Kết quả quét</h2><p className="text-sm text-[var(--muted)]">Dữ liệu ngày {publication.latest.target_session.split("-").reverse().join("/")}</p></div>
+        {(publication.latest.stale || error) && <p role="status" className="text-sm text-[var(--muted)]">Đang hiển thị kết quả gần nhất. Kết quả mới sẽ tự cập nhật khi sẵn sàng.</p>}
+        <div className="grid min-w-0 gap-6 min-[900px]:grid-cols-2"><ScreeningList items={publication.best} title="5 mã nổi bật"/><ScreeningList items={publication.avoid} title="5 mã nên tránh"/></div>
+      </>}
     </div>
-    </>}
   </>;
 }
-function ScanList({ items, caution = false }: { items: ScanResult[]; caution?: boolean }) {
-  return <div className="scan-list">{items.map((item) => <article className="scan-item" key={item.symbol}>
-    <div className="scan-item-heading"><div><Link className="symbol-link" href={`/analysis?symbol=${item.symbol}`}>{item.symbol}</Link><span className={caution ? "negative" : "neutral"}>{item.recommendation}</span></div><strong className="number">{item.score}<span>/100</span></strong></div>
-    <div className="scan-item-summary"><span>{item.sector}</span><Link className="text-link" href={`/analysis?symbol=${item.symbol}`}>Phân tích Quant ↗</Link></div>
-    <details className="scan-explanation"><summary>Vì sao {caution ? "nên tránh" : "nổi bật"}?</summary>
-      <ul className="condition-list">{item.conditions.map((condition) => <li key={condition}><AnnotatedText text={condition}/></li>)}</ul>
-      <QuantReport result={item} compact showAction={false} />
-      <details className="quant-raw-metrics"><summary>Tất cả chỉ tiêu</summary><Criteria result={item} weightSuffix="" /></details>
-      <details className="result-explanation"><summary>Nhận xét đầy đủ</summary><p><AnnotatedText text={item.explanation}/></p></details>
-    </details>
-  </article>)}</div>;
-}
-
-function ScanIllustration() {
-  return <div className="scan-intro-visual" aria-hidden="true">
-    <svg viewBox="0 0 620 420" focusable="false">
-      <g className="scan-visual-grid" fill="none" stroke="var(--positive)" strokeWidth="1">
-        <path d="M30 230 310 70 590 230 310 390Z M100 270 380 110 M170 310 450 150 M240 350 520 190 M100 190 380 350 M170 150 450 310 M240 110 520 270" />
-      </g>
-      <path d="M45 285 150 225 250 170 335 115 445 180 595 270" fill="none" stroke="var(--accent)" strokeWidth="3" strokeLinejoin="round" />
-      {[{x:100,y:228,h:32},{x:170,y:205,h:42},{x:240,y:178,h:36},{x:310,y:165,h:44},{x:380,y:133,h:40},{x:450,y:110,h:35}].map((c, i) => <g key={c.x} fill={i === 3 ? "var(--accent)" : "var(--positive)"} stroke={i === 3 ? "var(--accent)" : "var(--positive)"}>
-        <line x1={c.x} x2={c.x} y1={c.y - 20} y2={c.y + c.h + 24} />
-        <rect x={c.x - 8} y={c.y} width="16" height={c.h} stroke="none" />
-      </g>)}
-      <circle cx="380" cy="154" r="68" fill="var(--surface)" fillOpacity=".15" stroke="var(--positive)" strokeWidth="1.5" />
-      <path d="M428 204 479 255" stroke="var(--accent)" strokeWidth="10" />
-      <path d="M380 67V86 M380 222V241 M293 154H312 M448 154H467" stroke="var(--positive)" strokeWidth="1.5" />
-    </svg>
-  </div>;
+function ScreeningList({ items, title }: { items: ScreeningItem[]; title: string }) {
+  return <Panel title={title}><div className="min-w-0 px-5 pb-5">{!items.length && <p className="py-5 text-[var(--muted)]">Chưa có mã phù hợp.</p>}{items.map(item => <article key={item.symbol} className="border-t border-[var(--border)] py-5 first:border-t-0">
+    <div className="flex items-center justify-between gap-3"><h3 className="text-lg font-semibold"><Link href={`/charts?symbol=${encodeURIComponent(item.symbol)}&exchange=${encodeURIComponent(item.exchange || "")}`}>{item.symbol}</Link><span className="ml-2 text-xs font-normal text-[var(--muted)]">{item.exchange}</span></h3><span className="text-sm">{new Intl.NumberFormat("vi-VN",{ maximumFractionDigits:1 }).format(item.score)}/100</span></div>
+    <p className="my-2 flex flex-wrap gap-3 text-sm"><span>{typeof item.price_vnd === "number" ? money(item.price_vnd) : "—"}</span>{typeof item.change_ratio === "number" && <span className={item.change_ratio < 0 ? "text-[var(--negative)]" : "text-[var(--positive)]"}>{percent(item.change_ratio)}</span>}</p>
+    {item.recommendation && <p className="mb-3 text-sm text-[var(--muted)]">{item.recommendation}</p>}
+    <Link className="text-sm text-[var(--accent)]" href={`/analysis?symbol=${encodeURIComponent(item.symbol)}`}>Phân tích Quant ↗</Link>
+  </article>)}</div></Panel>;
 }
