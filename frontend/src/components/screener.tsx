@@ -8,6 +8,7 @@ import { Guard } from "./account/session";
 import { ErrorNotice } from "./account/common";
 import { Modal, PageHeading } from "./ui";
 import styles from "./screener.module.css";
+import { ScreeningSheet } from "./screening-sheet";
 
 const number = (value: number | null | undefined, digits = 1) => typeof value === "number" ? new Intl.NumberFormat("vi-VN", { maximumFractionDigits: digits }).format(value) : "—";
 const percent = (value: number | null | undefined) => typeof value === "number" ? new Intl.NumberFormat("vi-VN", { style: "percent", maximumFractionDigits: 2, signDisplay: "exceptZero" }).format(value) : "—";
@@ -15,10 +16,9 @@ const date = (value: string) => value.split("-").reverse().join("/");
 const statusLabels = { ELIGIBLE: "Đủ điều kiện", INSUFFICIENT_DATA: "Chưa đủ dữ liệu", LOW_LIQUIDITY: "Thanh khoản thấp" };
 const groupLabels: Record<ScreeningGroup, string> = { STRONG: "MẠNH", ACCUMULATION: "TÍCH LŨY", DISTRIBUTION: "PHÂN PHỐI" };
 const groupNames = Object.keys(groupLabels) as ScreeningGroup[];
-const columnLabels: [string, string][] = [["symbol", "Mã CK"], ["price", "Giá đóng cửa"], ["change_1d", "1D"], ["change_5d", "5D"], ["change_20d", "20D"], ["volume", "KL phiên"], ["average_volume", "KL TB20"], ["volume_ratio", "Vol/TB20"], ["high20", "Giá/Đỉnh 20D"], ["strong", "MẠNH"], ["accumulation", "TÍCH LŨY"], ["distribution", "PHÂN PHỐI"]];
 
 export function Screener() {
-  return <><PageHeading title="Quét toàn sàn" description="5 mã nổi bật và 5 mã cần thận trọng, kèm giá, thanh khoản và điểm screening."/><Guard><ScreeningExperience/></Guard></>;
+  return <><PageHeading title="Quét toàn sàn" description="5 mã tốt nhất và 5 mã nên tránh của phiên, đối chiếu đầy đủ theo sheet lọc cổ phiếu."/><Guard><ScreeningExperience/></Guard></>;
 }
 function ScreeningExperience() {
   const [activated, setActivated] = useState(false);
@@ -88,36 +88,15 @@ function ScreeningBoard({ onReset }: { onReset: () => void }) {
       : error ? <><ErrorNotice error={error}/><button className={styles.button} onClick={() => setVersion(v => v+1)}>Thử lại</button></>
       : <p role="status">Đang tải kết quả công bố mới nhất…</p> : null}
     {publication && <>
-      <div className={styles.heading}><div><span className={styles.tag}>PHÂN TÍCH TOÀN SÀN</span><h2>5 nổi bật · <em>5 thận trọng</em></h2><p>Dữ liệu ngày {date(publication.latest.target_session)}</p></div><span className={styles.hint}>Bấm vào mã để xem đánh giá chi tiết</span></div>
+      <div className={styles.heading}><div><span className={styles.tag}>PHÂN TÍCH TOÀN SÀN</span><h2>5 mã tốt nhất · <em>5 mã nên tránh</em></h2><p>Dữ liệu ngày {date(publication.latest.target_session)}</p></div><span className={styles.hint}>Chọn mã để xem screening · Mở Quant để phân tích chuyên sâu</span></div>
       {(publication.latest.stale || error) && <p role="status" className={styles.notice}>Đang hiển thị kết quả gần nhất. Kết quả mới sẽ tự cập nhật khi sẵn sàng.</p>}
       {error && <button className={styles.button} onClick={() => setVersion(v => v+1)}>Thử lại</button>}
-      <p className={styles.hint}>Giá: VND · Khối lượng: cổ phiếu. Điểm phân phối cao thể hiện rủi ro cao hơn.</p>
-      <ScreeningTable kind="opportunity" title="5 mã tốt nhất" description="Xếp theo điểm tổng hợp của bộ lọc." items={publication.best} loading={loading} onSelect={item => setSelected({ run: publication.latest, item })}/>
-      <ScreeningTable kind="caution" title="5 mã cần thận trọng" description="Các mã có điểm phân phối cao nhất." items={publication.worst} loading={loading} onSelect={item => setSelected({ run: publication.latest, item })}/>
+      <p className={styles.sheetNotice}>Giá: VND · GTGD: tỷ VND · Thời gian: phiên. <span>Ô — là chỉ số chưa có trong bản công bố. Xếp hạng screening không thay cho khuyến nghị Quant.</span></p>
+      <ScreeningSheet kind="opportunity" title="5 mã tốt nhất" description="Xếp hạng tổng hợp từ bản quét của phiên." items={publication.best} loading={loading} onSelect={item => setSelected({ run: publication.latest, item })}/>
+      <ScreeningSheet kind="caution" title="5 mã nên tránh nhất" description="5 mã có điểm phân phối cao nhất trong bản quét của phiên." items={publication.worst} loading={loading} onSelect={item => setSelected({ run: publication.latest, item })}/>
     </>}
     {selected && <StockDetail key={`${selected.run.id}:${selected.item.symbol}`} run={selected.run} item={selected.item} onClose={() => setSelected(undefined)} onDenied={onDenied}/>}
   </div>;
-}
-function ScreeningTable({ kind, title, description, items, loading, onSelect }: { kind: "opportunity" | "caution"; title: string; description: string; items: ScreeningItem[]; loading: boolean; onSelect: (item: ScreeningItem) => void }) {
-  return <section className={`${styles.tableSection} ${styles[kind]}`} aria-label={title}>
-    <div className={styles.heading}><div><h3>{title}</h3><p>{description}</p></div><span className={styles.hint}>{items.length}/5 mã</span></div>
-    <div className={styles.tableFrame} aria-busy={loading}>
-      <div className={styles.scroll} tabIndex={0} role="region" aria-label={`${title} · cuộn ngang để xem đầy đủ`}>
-        <table className={styles.table}>
-          <caption className={styles.srOnly}>{title}: giá, thanh khoản và ba nhóm điểm screening</caption>
-          <thead><tr>{columnLabels.map(([key, label]) => <th key={key} scope="col">{label}</th>)}<th scope="col">Trạng thái</th></tr></thead>
-          <tbody>{items.map(item => <tr key={item.symbol}>
-            <th scope="row"><button className={styles.symbol} onClick={() => onSelect(item)}>{item.symbol}</button><span className={styles.exchange}>{item.exchange}</span></th>
-            <td>{number(item.price_vnd, 0)}</td><td><Change value={item.change_ratio}/></td><td><Change value={item.change_5d_ratio}/></td><td><Change value={item.change_20d_ratio}/></td>
-            <td>{number(item.volume_shares, 0)}</td><td>{number(item.average_volume_20_shares, 0)}</td><td>{item.volume_ratio_20 == null ? "—" : `${number(item.volume_ratio_20, 2)}×`}</td><td>{item.price_to_high20_ratio == null ? "—" : `${number(item.price_to_high20_ratio*100)}%`}</td>
-            {groupNames.map(group => <td key={group}><Score value={item.groups[group]} warning={group === "DISTRIBUTION"}/></td>)}
-            <td><span className={item.status === "ELIGIBLE" ? styles.status : styles.warning}>{statusLabels[item.status]}</span></td>
-          </tr>)}</tbody>
-        </table>
-      </div>
-      {!items.length && <p role="status" className={styles.empty}>Chưa có mã phù hợp trong nhóm này.</p>}
-    </div>
-  </section>;
 }
 function Change({ value }: { value: number | null }) {
   return <span className={value == null || value === 0 ? undefined : value < 0 ? styles.negative : styles.positive}>{percent(value)}</span>;

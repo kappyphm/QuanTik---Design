@@ -26,7 +26,7 @@ Mở `http://localhost:3000`. Bấm **Đăng nhập hệ thống**; sau đăng n
 ## Bố cục
 
 - **Dashboard**: VN-INDEX, VN30, UPCOM, HNX-INDEX → bảng điện có TC/trần/sàn, ba mức dư mua/bán, khớp lệnh, tổng KL, GTGD, thống kê và nước ngoài → bảng nhóm ngành. Theo dõi nằm trong cùng bảng. Bấm mã mở cửa sổ chart với Quant bên cạnh; có thể thu/mở Quant hoặc mở trang phân tích toàn màn hình.
-- **Quét toàn sàn**: tự tải bản công bố mới nhất, hiển thị hai bảng gồm 5 mã tốt nhất và 5 mã có điểm phân phối cao nhất. Mỗi bảng có giá, thanh khoản và ba nhóm điểm screening; không phân trang hoặc xem toàn bộ mã. Bấm mã để mở modal rộng chứa đánh giá, bối cảnh VNINDEX và ghi chú NĐT/môi giới. Xem screening không trừ lượt Quant.
+- **Quét toàn sàn**: kích hoạt để đọc bản công bố mới nhất, hiển thị hai bảng 5 mã tốt nhất và 5 mã nên tránh nhất theo thứ hạng screening. Mỗi bảng có đủ 42 chỉ số theo sheet lọc cổ phiếu, thu gọn trong 34 cột, chia nhóm và cuộn ngang, cố định mã + tên công ty + nút Quant. Bấm tiêu đề bất kỳ để xem định nghĩa/cách tính; bấm mã để mở screening, nút Quant mở luồng yêu cầu hiện có. Các trường Quant/tên doanh nghiệp chưa có trong API giữ trạng thái thiếu dữ liệu; không lấy điểm screening làm điểm Quant và không chạy phân tích ngầm.
 
 - **Phân tích Quant**: nhập/chọn mã → xem tiêu chí trước khi chạy → vùng kết quả. Các nút chạy cuối cùng chưa nối backend.
 - **Biểu đồ**: giữ đường dẫn `/charts?symbol=FPT` cho chế độ toàn màn hình. Biểu đồ nằm trong luồng chọn mã, không thêm mục riêng vào menu.
@@ -45,7 +45,7 @@ Hợp đồng API và xác nhận production: [Screening tables](docs/SCREENING-
 
 ## Kiểm tra và xem thử
 
-Tooltip thuật ngữ dùng nguyên văn 57 định nghĩa đã được ghép từ `metrics.json`, `glossary.js` và `term-education.js` của repo `QuanTik-website`, commit `521a093b56fefd21493026adb4ead77882cdf082`. Công thức được render bằng KaTeX; giữ đủ lý thuyết, công thức, biến, tham số, ví dụ, điều kiện và cách sử dụng. `frontend/src/content/legacy/glossary.json` giữ nguyên mọi trường của nguồn. Trường chưa có định nghĩa ở repo cũ giữ nhãn thường, không tự thêm công thức.
+Tooltip thuật ngữ dùng nguyên văn 57 định nghĩa đã được ghép từ `metrics.json`, `glossary.js` và `term-education.js` của repo `QuanTik-website`, commit `521a093b56fefd21493026adb4ead77882cdf082`. Công thức được render bằng KaTeX; giữ đủ lý thuyết, công thức, biến, tham số, ví dụ, điều kiện và cách sử dụng. `frontend/src/content/legacy/glossary.json` giữ nguyên mọi trường của nguồn. Riêng 42 cột Summary của screening có định nghĩa trình bày tại `frontend/src/content/screening-sheet.ts`, đối chiếu core tham chiếu; không sửa glossary gốc. Các quy tắc phân loại và tham số thực vẫn theo phiên bản báo cáo được công bố.
 
 ```bash
 npm run typecheck

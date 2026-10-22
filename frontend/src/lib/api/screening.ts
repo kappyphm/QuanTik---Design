@@ -1,8 +1,12 @@
+import type { SheetValues } from "@/content/screening-sheet";
+
 export type ScreeningSlot = "ALL" | "AM" | "PM";
 export type ScreeningGroup = "STRONG" | "ACCUMULATION" | "DISTRIBUTION";
 export type ScreeningLatest = { id: string; target_session: string; published_at: number; stale: boolean; refresh_after_seconds: number };
 export type ScreeningScore = { score: number | null; met_count: number; total_count: number; unavailable_count: number };
-export type ScreeningItem = {
+export type ScreeningItem = SheetValues & {
+  // Optional published presentation fields. No new endpoint or computed fallback.
+  name?: string | null; company_name?: string | null;
   symbol: string; exchange: string | null; price_vnd: number | null; change_ratio: number | null;
   change_5d_ratio: number | null; change_20d_ratio: number | null;
   volume_shares: number | null; average_volume_20_shares: number | null;

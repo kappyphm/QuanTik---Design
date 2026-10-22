@@ -60,7 +60,7 @@ test("Screening: banner chỉ đọc kết quả sau khi kích hoạt", async ({
 test("Screening: hai bảng top 5 đầy đủ thông tin và modal", async ({ page }, testInfo) => {
   const state = await fixture(page); await page.goto("/screener"); await page.getByRole("button", { name: "Kích hoạt kết quả" }).click();
   const best = page.getByRole("region", { name:"5 mã tốt nhất", exact:true });
-  const worst = page.getByRole("region", { name:"5 mã cần thận trọng", exact:true });
+  const worst = page.getByRole("region", { name:"5 mã nên tránh nhất", exact:true });
   await expect(best.locator("tbody tr")).toHaveCount(5);
   await expect(worst.locator("tbody tr")).toHaveCount(5);
   await expect(page.getByText("SHOULD_NOT_SHOW")).toHaveCount(0);
@@ -69,7 +69,10 @@ test("Screening: hai bảng top 5 đầy đủ thông tin và modal", async ({ p
   await expect(page.getByLabel("Tìm mã", { exact:true })).toHaveCount(0);
   await expect(page.getByLabel("Số mã / trang")).toHaveCount(0);
   for (const table of [best, worst]) {
-    for (const label of ["Giá đóng cửa", "KL phiên", "KL TB20", "MẠNH", "TÍCH LŨY", "PHÂN PHỐI"]) {
+    await expect(table.locator("tbody tr").first().locator("th, td")).toHaveCount(34);
+    await expect(table.locator("tbody tr").first().locator("[data-sheet-key]")).toHaveCount(41);
+    await expect(table.getByRole("link", { name: /Kích hoạt phân tích quant chi tiết/ })).toHaveCount(5);
+    for (const label of ["Khuyến nghị", "Đạt bộ lọc", "Giải thích điều kiện", "Điểm", "Sharpe", "RiskPctNAV"]) {
       await expect(table.getByRole("columnheader", { name:label, exact:true })).toHaveCount(1);
     }
   }
@@ -110,6 +113,73 @@ test("Screening: cập nhật bảng giữ modal đúng bản công bố", async
   await page.getByRole("button",{ name:"VCB", exact:true }).click();
   await expect(page.getByRole("dialog").getByText("Quan sát vùng hỗ trợ.")).toBeVisible();
   expect(state.details).toContain("screenings/new-run/symbols/VCB");
+});
+
+test("Screening sheet: giữ đúng đơn vị, gate, chú giải và cột mã khi cuộn", async ({ page }, testInfo) => {
+  const state = await fixture(page);
+  await page.route("**/api/v1/screenings/*/results?*", async route => {
+    const group = new URL(route.request().url()).searchParams.get("group");
+    const enriched = { ...item("FPT"), name: "Công ty Cổ phần FPT", action: "WATCH", gate_pass: false,
+      gate_reasons: ["TIMING_NOT_READY"], score: 72, rating: "THEO DÕI", holding_sessions: 10,
+      index_trend: "NEUTRAL", sector: "Công nghệ", sector_trend: "Tăng", sector_return_20d_pct: 5.1,
+      sector_correlation: 0.75, sector_lead_lag: "FPT dẫn trước 1 phiên", sharpe: 1.23,
+      up_day_ratio_pct: 60, max_drawdown_pct: -12, annual_return_pct: 18, hmm_regime: "BULL",
+      volatility_regime: "NORMAL", forecast_direction: "TĂNG", ensemble_return_pct: 6,
+      agreement_pct: 75, gross_forecast_pct: 6, roundtrip_cost_pct: 0.6, net_forecast_pct: 5.4,
+      mc_volatility_source: "recursive GARCH-t", lock_drawdown_pct: -4, probability_loss_gt_3pct: 8,
+      data_quality_status: "PASS", data_quality_score: 95, data_quality_flags: [], liquidity_tier: "A",
+      adv20_value_vnd: 10000000000, capacity_shares: 20000, gap_abs_p95_pct: 2.2,
+      entry_vnd: 58000, stop_loss_vnd: 55000, take_profit_1_vnd: 62000, take_profit_2_vnd: 65000,
+      trade_model_agreement_pct: 75, risk_pct_nav: null, commentary: "Nhận xét đầy đủ của phiên.\nTheo dõi vùng hỗ trợ." };
+    await route.fulfill({ contentType: "application/json", body: JSON.stringify({ run_id: "ready-run", group,
+      items: group === "OVERALL" ? [enriched, item("HPG"), item("MBB"), item("SSI"), item("VNM")] : [item("BAD1")] }) });
+  });
+  await page.goto("/screener"); await page.getByRole("button", { name: "Kích hoạt kết quả" }).click();
+  const best = page.getByRole("region", { name: "5 mã tốt nhất", exact: true });
+  const row = best.locator("tbody tr").first();
+  await expect(row.getByText("Công ty Cổ phần FPT", { exact: true })).toBeVisible();
+  const key = (name: string) => row.locator(`[data-sheet-key="${name}"]`);
+  await expect(key("gate_pass")).toHaveText("Chưa đạt");
+  await expect(key("gate_reasons")).toContainText("Chưa đủ điều kiện thời điểm vào lệnh.");
+  await expect(key("sector_correlation")).toHaveText("0,75");
+  await expect(key("up_day_ratio_pct")).toHaveText("60%");
+  await expect(key("net_forecast_pct")).toHaveText("5,4%");
+  await expect(key("adv20_value_vnd")).toHaveText("10");
+  await expect(key("entry_vnd")).toHaveText("58.000");
+  await expect(key("mc_volatility_source")).toHaveText("recursive GARCH-t");
+  await expect(key("risk_pct_nav")).toHaveText("—");
+  // Basic screening eligibility/scores must never be reinterpreted as Quant data.
+  await expect(best.locator("tbody tr").nth(1).locator('[data-sheet-key="gate_pass"]')).toHaveText("—");
+  await expect(best.locator("tbody tr").nth(1).locator('[data-sheet-key="score"]')).toHaveText("—");
+  await row.getByRole("link", { name: "Kích hoạt phân tích quant chi tiết FPT" }).focus();
+  await expect(row.getByRole("link")).toHaveAttribute("href", "/analysis?symbol=FPT");
+  const identityX = (await row.locator("th").boundingBox())!.x;
+  await best.getByRole("button", { name: "Win Rate (%)" }).click();
+  const tooltip = page.getByRole("tooltip");
+  await expect(tooltip).toContainText("Không phải tỷ lệ lệnh thắng");
+  await expect(tooltip.locator(".katex-error")).toHaveCount(0);
+  await page.keyboard.press("Escape");
+  await expect(tooltip).toHaveCount(0);
+  await best.getByRole("button", { name: "07 Kế hoạch giao dịch" }).click();
+  await expect.poll(async () => best.getByRole("region").evaluate(el => el.scrollLeft)).toBeGreaterThan(4000);
+  // Wait for the horizontal smooth scroll before asking the page to scroll vertically.
+  await expect.poll(async () => {
+    const frame = (await best.getByRole("region").boundingBox())!;
+    const value = (await key("entry_vnd").boundingBox())!;
+    return value.x >= frame.x && value.x + value.width <= frame.x + frame.width;
+  }).toBeTruthy();
+  await row.locator("th").scrollIntoViewIfNeeded();
+  await expect(key("entry_vnd")).toBeInViewport();
+  expect(Math.abs((await row.locator("th").boundingBox())!.x - identityX)).toBeLessThan(2);
+  await best.getByRole("button", { name: "08 Nhận xét" }).click();
+  await row.getByText("Đọc nhận xét", { exact: false }).click();
+  await expect(row.locator("details[open]")).toContainText("Theo dõi vùng hỗ trợ.");
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBeTruthy();
+  await best.getByRole("button", { name: "01 Tổng quan" }).click();
+  await expect.poll(async () => best.getByRole("region").evaluate(el => el.scrollLeft)).toBe(0);
+  await page.screenshot({ path: testInfo.outputPath("screening-sheet.png"), fullPage: true });
+  expect(state.mutations).toEqual([]);
+  expect(state.calls.some(path => path.startsWith("analyses"))).toBeFalsy();
 });
 
 test("Screening: gói hết hiệu lực dẫn mua và không tải danh sách", async ({ page }) => {
