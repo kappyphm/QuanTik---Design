@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useId, useMemo, useRef, useState, type CSSProperties, type ReactNode } from 'react';
+import { useEffect, useId, useLayoutEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
 import katex from 'katex';
 import { getTerm, glossary, type TermDefinition } from '@/content/legacy/glossary';
@@ -49,7 +49,7 @@ export default function TermHint({ id, children }: {
         if (timer.current)
             clearTimeout(timer.current);
     }, []);
-    useEffect(() => {
+    useLayoutEffect(() => {
         if (!mode)
             return;
         // A tooltip opened in a modal must remain in that modal's top layer.
@@ -64,6 +64,11 @@ export default function TermHint({ id, children }: {
         };
         place();
         const frame = requestAnimationFrame(place);
+        // Measure again after the portal mounts or its wrapped content changes.
+        // Otherwise the initial 220px estimate can leave a long popup offscreen.
+        const resize = new ResizeObserver(place);
+        if (popup.current)
+            resize.observe(popup.current);
         window.addEventListener('resize', place);
         document.addEventListener('scroll', place, true);
         const dismiss = (e: KeyboardEvent) => {
@@ -79,8 +84,8 @@ export default function TermHint({ id, children }: {
         };
         document.addEventListener('keydown', dismiss, true);
         document.addEventListener('pointerdown', outside);
-        return () => { cancelAnimationFrame(frame); window.removeEventListener('resize', place); document.removeEventListener('scroll', place, true); document.removeEventListener('keydown', dismiss, true); document.removeEventListener('pointerdown', outside); };
-    }, [mode]);
+        return () => { cancelAnimationFrame(frame); resize.disconnect(); window.removeEventListener('resize', place); document.removeEventListener('scroll', place, true); document.removeEventListener('keydown', dismiss, true); document.removeEventListener('pointerdown', outside); };
+    }, [mode, host]);
     if (!term)
         return <>{children || id}</>;
     return <><button ref={anchor} type="button" className="term-trigger inline [border-width:0] [padding:0] [background:none] [color:inherit] [font:inherit] [line-height:inherit] [text-align:inherit] [text-decoration:underline_dotted] [text-underline-offset:4px] [cursor:help] [.stock-table_&]:inline [.stock-table_&]:[border-width:0] [.stock-table_&]:[padding:0] [.stock-table_&]:[background:none] [.stock-table_&]:[color:inherit] [.stock-table_&]:[font:inherit] [.stock-table_&]:[line-height:inherit] [.stock-table_&]:[text-align:inherit] [.stock-table_&]:[text-decoration:underline_dotted] [.stock-table_&]:[text-underline-offset:4px] [.stock-table_&]:[cursor:help] [&:hover]:[color:var(--accent,_#ff914d)] [&:hover]:[text-decoration-style:solid] [&:focus-visible]:[color:var(--accent,_#ff914d)] [&:focus-visible]:[text-decoration-style:solid]" aria-describedby={mode ? uid : undefined} onPointerEnter={show} onPointerLeave={hide} onFocus={show} onBlur={hide} onClick={e => { e.preventDefault(); e.stopPropagation(); cancel(); setMode(m => m === 'pinned' ? null : 'pinned'); }}>{children || term.en}</button>
