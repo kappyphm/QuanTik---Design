@@ -3,6 +3,9 @@ import { useEffect, useRef, useState, type ReactNode } from "react";
 import type { AnalysisReport, QuantResearch } from "@/lib/api/analysis";
 import { at, factorNames, number, researchFor } from "@/lib/quant-reader";
 import TermHint from "./term-hint";
+import { QuantScenarioView } from "./quant-scenario-3d";
+import { HmmPhaseTriangle } from "./hmm-phase-triangle";
+import { QuantGarchView, QuantFactorViews } from "./quant-report-views";
 
 const H = 250, L = 65, T = 30, B = 210;
 const accent = "var(--accent)", positive = "var(--positive)", negative = "var(--negative)", muted = "var(--muted)";
@@ -57,24 +60,24 @@ export function LinePlot({ title, rows, unit, band = false, regime = false, draw
   </div>;
 }
 
-function Histogram({ data }: { data: QuantResearch["distribution"] }) {
+export function Histogram({ data, title="Phân phối lợi suất cuối kỳ", observation="kịch bản" }: { data: QuantResearch["distribution"]; title?:string; observation?:string }) {
   const { ref, width: W } = useChartWidth(), R = W - 20;
   if (!data.length) return <div ref={ref}><Empty/></div>;
   const max = Math.max(...data.map(p => p.probabilityPct), 1), width = (R - L) / data.length;
-  return <div ref={ref}><svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label="Phân phối lợi suất cuối kỳ" className="block h-auto w-full">
-    <title>Phân phối lợi suất cuối kỳ · tỷ lệ kịch bản (%)</title>
+  return <div ref={ref}><svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label={title} className="block h-auto w-full">
+    <title>{title} · tần suất (%)</title>
     {[0, .5, 1].map(p => <g key={p}><line x1={L} x2={R} y1={B - p * (B - T)} y2={B - p * (B - T)} stroke="var(--border)"/><text x={L - 8} y={B - p * (B - T) + 4} fill={muted} fontSize="11" textAnchor="end">{number(max * p)}%</text></g>)}
-    {data.map((p, i) => <rect key={i} x={L + i * width + 1} y={B - p.probabilityPct / max * (B - T)} width={Math.max(1, width - 2)} height={p.probabilityPct / max * (B - T)} fill={p.returnPct < 0 ? negative : positive} opacity=".8"><title>{number(p.lowerPct ?? p.returnPct)} đến {number(p.upperPct ?? p.returnPct)}%: {number(p.probabilityPct)}% kịch bản</title></rect>)}
+    {data.map((p, i) => <rect key={i} x={L + i * width + 1} y={B - p.probabilityPct / max * (B - T)} width={Math.max(1, width - 2)} height={p.probabilityPct / max * (B - T)} fill={p.returnPct < 0 ? negative : positive} opacity=".8"><title>{number(p.lowerPct ?? p.returnPct)} đến {number(p.upperPct ?? p.returnPct)}%: {number(p.probabilityPct)}% {observation}</title></rect>)}
     <text x={L} y="237" fill={muted} fontSize="11">{number(data[0].lowerPct ?? data[0].returnPct)}%</text><text x={R} y="237" fill={muted} fontSize="11" textAnchor="end">{number(data.at(-1)?.upperPct ?? data.at(-1)?.returnPct)}%</text>
   </svg></div>;
 }
 
-function Radar({ data }: { data: QuantResearch["factors"] }) {
+export function Radar({ data, title="Hồ sơ nhân tố chuẩn hóa" }: { data: QuantResearch["factors"]; title?:string }) {
   const { ref, width: W } = useChartWidth();
   if (data.length < 3) return <div ref={ref}><Empty/></div>;
   const point = (i: number, fraction: number) => { const angle = -Math.PI / 2 + 2 * Math.PI * i / data.length; return [W / 2 + Math.cos(angle) * 73 * fraction, 124 + Math.sin(angle) * 73 * fraction]; };
   const polygon = (fraction: number) => data.map((_, i) => point(i, fraction).join(",")).join(" ");
-  return <div ref={ref}><svg viewBox={`0 0 ${W} 260`} role="img" aria-label="Hồ sơ nhân tố chuẩn hóa" className="block h-auto w-full">
+  return <div ref={ref}><svg viewBox={`0 0 ${W} 260`} role="img" aria-label={title} className="block h-auto w-full">
     {[.25, .5, .75, 1].map(n => <polygon key={n} points={polygon(n)} fill="none" stroke="var(--border)"/>)}
     {data.map((p, i) => { const [x, y] = point(i, 1.5), end = point(i, 1); return <g key={p.id}><line x1={W / 2} y1="124" x2={end[0]} y2={end[1]} stroke="var(--border)"/><text x={x} y={y} fill={muted} fontSize="10" textAnchor="middle">{data.length > 6 ? String(i + 1).padStart(2, "0") : factorNames[p.id] || p.label}</text></g>; })}
     <polygon points={data.map((p, i) => point(i, Math.max(0, Math.min(1, (p.value - p.min) / (p.max - p.min)))).join(",")).join(" ")} fill={accent} fillOpacity=".18" stroke={accent} strokeWidth="2"/>
@@ -96,21 +99,22 @@ export function QuantResearchVisuals({ report }: { report: AnalysisReport }) {
     <div><p className="text-xs tracking-widest text-[var(--accent)]">BẰNG CHỨNG / RỦI RO / KỊCH BẢN</p><h3 className="mt-2 text-xl font-medium">Góc nhìn định lượng</h3><p className="mt-2 text-sm leading-7 text-[var(--muted)]">Dữ liệu từ báo cáo {report.symbol}{research.horizon_sessions ? ` · Horizon ${research.horizon_sessions} phiên` : ""}{research.simulation_count ? ` · ${research.simulation_count.toLocaleString("vi-VN")} kịch bản` : ""}. Giá theo VND.</p></div>
     <div className="grid min-w-0 gap-4 xl:grid-cols-2">
       <Panel title="Dải giá dự báo" term="monte_carlo" note="P05–P95 và P25–P75; đường giữa P50. Các phân vị được tổng hợp từ đúng lần mô phỏng của báo cáo." table={!!research.cone.length && <DataTable columns={["Phiên +", "P05 (VND)", "P25", "P50", "P75", "P95"]} rows={research.cone.map(p => [p.session, p.p05, p.p25, p.p50, p.p75, p.p95])}/> }>
-        {!!research.cone.length && <LinePlot title={`Dải giá Monte Carlo ${report.symbol}`} unit="VND" band rows={research.cone.map(p => ({ x: p.session, value: p.p50, low: p.p05, innerLow: p.p25, innerHigh: p.p75, high: p.p95 }))}/>}
+        <QuantScenarioView report={report} kind="monte">{!!research.cone.length && <LinePlot title={`Dải giá Monte Carlo ${report.symbol}`} unit="VND" band rows={research.cone.map(p => ({ x: p.session, value: p.p50, low: p.p05, innerLow: p.p25, innerHigh: p.p75, high: p.p95 }))}/>}</QuantScenarioView>
       </Panel>
       <Panel title="Phân phối lợi suất" term="mc_volatility" note="Phân phối cuối kỳ của cùng horizon. Không phải xác suất TP chạm trước SL." table={!!research.distribution.length && <DataTable columns={["Biên dưới (%)", "Biên trên (%)", "Tần suất (%)"]} rows={research.distribution.map(p => [p.lowerPct ?? p.returnPct, p.upperPct ?? p.returnPct, p.probabilityPct])}/> }><Histogram data={research.distribution}/></Panel>
       <Panel title="Trạng thái HMM" term="hmm" note="Hiển thị nhãn trạng thái lịch sử do mô hình trả về; không tự tạo xác suất lịch sử." table={!!research.regime.length && <DataTable columns={["Phiên", "Giá (VND)", "Trạng thái"]} rows={research.regime.map(p => [p.date, p.price, p.state])}/> }>
         <label className="mb-3 flex items-center gap-2 text-xs text-[var(--muted)]"><input type="checkbox" checked={recent} onChange={e => setRecent(e.target.checked)}/>Chỉ xem 10 quan sát cuối</label>
         <LinePlot title={`Lịch sử trạng thái HMM ${report.symbol}`} unit="VND" regime rows={history(research.regime).map((p, i) => ({ x: i, value: p.price, label: p.date, state: p.state }))}/>
+        <HmmPhaseTriangle report={report}/>
       </Panel>
       <Panel title="Sụt giảm từ đỉnh" term="max_drawdown" note="Drawdown được tính từ chuỗi giá đóng cửa của đúng cửa sổ phân tích. Số âm phản ánh mức giảm so với đỉnh trước đó." table={!!research.drawdown.length && <DataTable columns={["Phiên", "Drawdown (%)"]} rows={research.drawdown.map(p => [p.date, p.valuePct])}/> }><LinePlot title={`Sụt giảm từ đỉnh ${report.symbol}`} unit="%" drawdown rows={history(research.drawdown).map((p, i) => ({ x: i, value: p.valuePct, label: p.date }))}/></Panel>
-      <Panel title="Hồ sơ nhân tố" term="quant_factor" note="Giữ miền chuẩn hóa từ BE (−1 đến +1); không tự tổng hợp thành điểm mua." table={!!research.factors.length && <DataTable columns={["Nhân tố", "Giá trị", "Min", "Max"]} rows={research.factors.map(p => [factorNames[p.id] || p.label, p.value, p.min, p.max])}/> }><Radar data={research.factors}/></Panel>
+      <Panel title="Hồ sơ nhân tố" term="quant_factor" note="Giữ miền chuẩn hóa do báo cáo công bố; đọc số gốc cùng miền của từng nhân tố, không tự tổng hợp thành điểm mua." table={!!research.factors.length && <DataTable columns={["Nhân tố", "Giá trị", "Min", "Max"]} rows={research.factors.map(p => [factorNames[p.id] || p.label, p.value, p.min, p.max])}/> }><QuantFactorViews data={research.factors}><Radar data={research.factors}/></QuantFactorViews></Panel>
       <Panel title="Rủi ro và phương án" term="risk_reward" note="R:R gộp chỉ tính khi SL < Entry < TP2; không thay thế dự báo ròng hay quyết định từ BE.">
         <dl className="grid grid-cols-2 gap-5 py-3">{research.risk_metrics.map(p => <div key={p.id}><dt className="text-xs text-[var(--muted)]">{p.label}</dt><dd className="mt-2 font-mono text-lg">{number(p.value, p.unit)}</dd></div>)}
           {[["Upside TP2", validTrade ? (tp / entry - 1) * 100 : undefined, "%"], ["Downside SL", validTrade ? (sl / entry - 1) * 100 : undefined, "%"], ["R:R gộp TP2", validTrade ? (tp - entry) / (entry - sl) : undefined, "x"]].map(([label, value, unit]) => <div key={String(label)}><dt className="text-xs text-[var(--muted)]">{label}</dt><dd className="mt-2 font-mono text-lg">{number(value, String(unit))}</dd></div>)}
         </dl>
       </Panel>
-      <Panel title="Biến động dự báo GARCH" term="garch" note="Biến động lợi suất theo phiên (%); không biểu thị hướng giá."><LinePlot title="Biến động dự báo GARCH" unit="% / phiên" rows={finiteArray(forecast) ? forecast.map((value, i) => ({ x: i + 1, value })) : []}/></Panel>
+      <Panel title="Biến động dự báo GARCH" term="garch" note="Biến động lợi suất theo phiên (%); không biểu thị hướng giá."><QuantGarchView report={report}><LinePlot title="Biến động dự báo GARCH" unit="% / phiên" rows={finiteArray(forecast) ? forecast.map((value, i) => ({ x: i + 1, value })) : []}/></QuantGarchView></Panel>
       <Panel title="Lịch sử giá đóng cửa" note="Chuỗi giá dùng trong báo cáo, giữ nguyên đơn vị VND."><LinePlot title={`Lịch sử giá đóng cửa ${report.symbol}`} unit="VND" rows={finiteArray(price) ? price.map((value, i) => ({ x: i, value, label: Array.isArray(dates) ? String(dates[i]).slice(0, 10) : undefined })) : []}/></Panel>
     </div>
   </section>;

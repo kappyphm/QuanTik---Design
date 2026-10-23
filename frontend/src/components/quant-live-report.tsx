@@ -1,53 +1,25 @@
 "use client";
 import { useId, useState } from "react";
 import { analysisReason, type AnalysisReport } from "@/lib/api/analysis";
-import { at, metricText, moduleGuides, moduleReading, number, record, researchFor } from "@/lib/quant-reader";
+import { at, metricText, number, researchFor } from "@/lib/quant-reader";
 import { QuantResearchVisuals } from "./quant-research";
-import TermHint from "./term-hint";
+import { QuantModelSection } from "./quant-model-section";
+import { QuantModuleNavigation, quantModuleItems } from "./quant-module-navigation";
 import { QuantActionSummary } from "./quant-action-summary";
 
 const card = "min-w-0 rounded border border-[var(--border)] bg-[var(--surface)] p-4 sm:p-6";
-const ordered = ["statistics", "distribution", "arima", "garch", "hmm", "technical", "directional_alpha", "context", "agreement", "simulation_risk", "costs", "trade_plan", "liquidity", "data_quality", "decision", "commentary"];
-const terms: Record<string, string> = { hmm: "hmm", garch: "garch", simulation_risk: "monte_carlo", agreement: "agreement", trade_plan: "risk_reward", statistics: "sharpe" };
-function Values({ rows }: { rows: [string, string][] }) {
-  return <dl className="grid min-w-0 grid-cols-2 gap-x-4 gap-y-6 lg:grid-cols-4">{rows.map(([label, value]) => <div key={label} className="min-w-0"><dt className="text-xs leading-5 text-[var(--muted)]">{label}</dt><dd className="mt-2 break-words font-mono text-lg leading-7">{value}</dd></div>)}</dl>;
-}
-
-function Module({ name, report, compact, id }: { name: string; report: AnalysisReport; compact: boolean; id: string }) {
-  const [open, setOpen] = useState(!compact), section = report.sections[name], guide = moduleGuides[name];
-  if (!section || !guide) return null;
-  const metrics = guide.metrics.map(([label, path, unit]) => [label, metricText(at(section.metrics, path), unit)] as [string, string]);
-  const children = Object.values(section.metrics).flatMap(v => [record(v), ...Object.values(record(v)).map(record)]);
-  const failed = children.some(v => v.error || v.available === false), fallback = children.some(v => v.method === "fallback");
-  const label = section.status === "DISABLED" ? "Đã tắt" : section.status === "UNAVAILABLE" ? "Chưa khả dụng" : fallback ? "Phương pháp thay thế" : failed ? "Kết quả một phần" : "Có dữ liệu";
-  const hasMetrics = metrics.some(([, value]) => value !== "—"), narrative = name === "commentary" ? report.commentary.detailed || report.commentary.summary : null;
-  return <details id={id} open={open} onToggle={e => setOpen(e.currentTarget.open)} className="quant-report-section min-w-0 scroll-mt-6 rounded border border-[var(--border)] bg-[var(--surface)] px-4 sm:px-6">
-    <summary className="cursor-pointer py-5 marker:text-[var(--accent)]"><span className="ml-1 inline-flex w-[calc(100%-24px)] flex-wrap items-center justify-between gap-3 align-top"><strong className="text-base font-medium">{guide.title}</strong><span className="text-xs text-[var(--muted)]">{label}</span></span></summary>
-    {open && <div className="grid gap-5 border-t border-[var(--border)] py-5 text-sm leading-7">
-      <div><h4 className="font-medium">1. Đây là gì, dùng để hiểu điều gì?</h4><p className="mt-1 text-[var(--muted)]">{terms[name] ? <TermHint id={terms[name]}>{guide.title}</TermHint> : guide.title}: {guide.definition}</p></div>
-      <div><h4 className="font-medium">2. Đầu vào và điều kiện để sử dụng</h4><p className="mt-1 text-[var(--muted)]">{guide.inputs}</p></div>
-      <div><h4 className="mb-4 font-medium">3. Kết quả đang nói điều gì?</h4>
-        {section.status !== "AVAILABLE" && <p role="status" className="mb-4 text-[var(--muted)]">{section.reason_codes.map(analysisReason).join(" ")}</p>}
-        {fallback && <p className="mb-4 text-[var(--muted)]">Mô hình sử dụng phương pháp thay thế; không coi là HMM đã fit thành công.</p>}
-        {failed && <p className="mb-4 text-[var(--muted)]">Một số thành phần chưa khả dụng. Chỉ đọc các chỉ tiêu có kết quả bên dưới.</p>}
-        {hasMetrics ? <><p className="mb-5 text-[var(--muted)]">{moduleReading(name, section.metrics)}</p><Values rows={metrics}/></> : !narrative && <p className="text-[var(--muted)]">Chưa có chỉ tiêu đã xác nhận cho mục này.</p>}
-        {narrative && <p className="whitespace-pre-line text-[var(--muted)]">{narrative}</p>}
-        {name === "hmm" && <div className="mt-5 grid gap-3">{[["BULL", "var(--positive)"], ["SIDEWAY", "var(--neutral)"], ["BEAR", "var(--negative)"]].map(([state, color]) => {
-          const probability = at(section.metrics, `hmm.state_probs.${state}`);
-          return typeof probability === "number" && Number.isFinite(probability) ? <div key={state} className="grid grid-cols-[80px_1fr_60px] items-center gap-3 text-xs"><span>{state}</span><div className="h-5 overflow-hidden rounded-sm bg-[var(--raised)]"><div style={{ width: `${Math.max(0, Math.min(100, probability))}%`, background: color }} className="h-full opacity-70"/></div><span className="text-right font-mono">{number(probability, "%")}</span></div> : null;
-        })}</div>}
-      </div>
-      <div><h4 className="font-medium">4. Vì sao xuất hiện kết quả này?</h4><p className="mt-1 text-[var(--muted)]">{guide.why}</p></div>
-      <div className="border-l-2 border-[var(--accent)] pl-4"><h4 className="font-medium">5. Ghép với mô hình khác và dùng trong quyết định</h4><p className="mt-1 text-[var(--muted)]">{guide.connection}</p></div>
-    </div>}
-  </details>;
-}
-
+const ordered = quantModuleItems.map(([name]) => name);
 export function LiveQuantReport({ report, compact = false, showAction = true }: { report: AnalysisReport; compact?: boolean; showAction?: boolean }) {
+  const [selectedModule, setSelectedModule] = useState("");
   const uid = useId().replaceAll(":", ""), research = researchFor(report), statistics = report.sections.statistics?.metrics;
   const technical = report.sections.technical?.metrics, agreement = report.sections.agreement?.metrics;
   const costs = report.sections.costs?.metrics, trade = report.sections.trade_plan?.metrics;
   const sectionId = (name: string) => `${uid}-quant-${name}`;
+  const selectModule = (name: string) => {
+    setSelectedModule(name);
+    const section = document.getElementById(sectionId(name));
+    if (section instanceof HTMLDetailsElement) { section.open = true; section.scrollIntoView({block: "start", behavior: "instant"}); section.querySelector("summary")?.focus({preventScroll: true}); }
+  };
   const reasons = Array.isArray(report.decision.reason_codes) ? report.decision.reason_codes.map(reason => analysisReason(String(reason))) : [];
   const net = at(costs, "costs.net_forecast_pct"), cmf = at(technical, "flow.cmf"), er = at(technical, "trend.er");
   const blocks = [
@@ -64,9 +36,9 @@ export function LiveQuantReport({ report, compact = false, showAction = true }: 
       <div className="mt-5 text-sm leading-7"><h4 className="font-medium">Điều kiện cần theo dõi để đánh giá lại</h4><p className="mt-2 text-[var(--muted)]">{reasons.length ? reasons.join(" ") : "Đối chiếu báo cáo ở phiên tiếp theo khi dữ liệu, tín hiệu và rủi ro thay đổi."}</p></div>
       {!!report.warnings.length && <div className="mt-4 text-xs leading-7 text-[var(--muted)]"><h4 className="font-medium text-[var(--text)]">Phần bằng chứng còn hạn chế</h4><ul className="list-inside list-disc">{report.warnings.map((warning, i) => <li key={i}>{analysisReason(warning)}</li>)}</ul></div>}
     </section>
-    <section aria-label="Phân tích từng module" className="grid min-w-0 gap-3"><div><h3 className="text-xl font-medium">Hiểu từng mô hình và kết quả</h3><p className="mt-2 text-sm leading-7 text-[var(--muted)]">Từ dữ liệu đầu vào đến ý nghĩa kết quả, nguyên nhân và vai trò trong khuyến nghị tổng hợp.</p></div>
-      {!compact && <nav aria-label="Điều hướng module" className="my-2 flex flex-wrap gap-2">{ordered.map(name => <a key={name} href={`#${sectionId(name)}`} className="rounded border border-[var(--border)] px-3 py-2 text-xs text-[var(--muted)] hover:text-[var(--accent)]">{moduleGuides[name].title}</a>)}</nav>}
-      {ordered.map(name => <Module key={name} name={name} report={report} compact={compact} id={sectionId(name)}/>)}</section>
+    <section id={sectionId("navigation")} aria-label="Phân tích từng module" className="grid min-w-0 gap-3"><div><h3 className="text-xl font-medium">Hiểu từng mô hình và kết quả</h3><p className="mt-2 text-sm leading-7 text-[var(--muted)]">Từ dữ liệu đầu vào đến ý nghĩa kết quả, nguyên nhân và vai trò trong khuyến nghị tổng hợp.</p></div>
+      <QuantModuleNavigation selected={selectedModule} onSelect={selectModule}/>
+      {ordered.map(name => <QuantModelSection key={name} name={name} report={report} compact={compact} id={sectionId(name)} agreementId={sectionId("agreement")} navigationId={sectionId("navigation")}/>)}</section>
     <QuantResearchVisuals report={report}/>
     <details className={`${card} text-xs leading-7 text-[var(--muted)]`}><summary className="cursor-pointer">Phiên bản dữ liệu và mô hình</summary><dl className="mt-3">{Object.entries(report.versions).filter(([, value]) => typeof value === "string" || typeof value === "number").map(([key, value]) => <div key={key} className="my-2 break-all"><dt>{key}</dt><dd className="font-mono">{String(value)}</dd></div>)}</dl></details>
   </div>;
