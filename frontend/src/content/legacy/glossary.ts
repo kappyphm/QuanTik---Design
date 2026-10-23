@@ -1,5 +1,6 @@
 import definitions from './glossary.json';
 import { quantActionTerms } from '../quant-action-terms';
+import { quantModuleTerms } from '../quant-module-terms';
 
 // Effective tooltip data copied verbatim from QuanTik-website at
 // 521a093b56fefd21493026adb4ead77882cdf082. No editorial changes.
@@ -19,7 +20,7 @@ export type TermDefinition = {
   methodId: string;
   sourceFormula?: string;
 };
-export const glossary: TermDefinition[] = [...definitions, ...quantActionTerms];
+export const glossary: TermDefinition[] = [...definitions, ...quantActionTerms, ...quantModuleTerms];
 export const getTerm = (id: string) => glossary.find(term => term.id === id);
 
 // Only connect fields with an existing definition in the old glossary.
