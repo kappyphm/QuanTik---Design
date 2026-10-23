@@ -26,11 +26,12 @@ export function TermContent({ term }: {
     <h4>05 · Cách sử dụng</h4><p className="term-note [color:var(--term-dim)] [font-size:11px]!">{term.usage}</p><p className="term-note [color:var(--term-dim)] [font-size:11px]!">{term.limitations}</p>
   </>;
 }
-export default function TermHint({ id, children }: {
+export default function TermHint({ id, children, definition }: {
     id: string;
     children?: ReactNode;
+    definition?: TermDefinition;
 }) {
-    const term = getTerm(id);
+    const term = definition ?? getTerm(id);
     const { theme } = usePreferences();
     const anchor = useRef<HTMLButtonElement>(null), popup = useRef<HTMLDivElement>(null);
     const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
