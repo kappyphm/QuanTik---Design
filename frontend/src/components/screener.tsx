@@ -24,6 +24,7 @@ function ScreeningExperience() {
   const [activated, setActivated] = useState(false);
   return activated ? <ScreeningBoard onReset={() => setActivated(false)}/> : <ScanActivation onActivate={() => setActivated(true)}/>;
 }
+
 function ScanActivation({ onActivate }: { onActivate: () => void }) {
   return <section className={styles.gate} aria-label="Kích hoạt kết quả quét toàn sàn">
     <div className={styles.gateCopy}><span className={styles.tag}><i/> PHÂN TÍCH TOÀN THỊ TRƯỜNG</span>
