@@ -2,7 +2,7 @@ import type { SheetValues } from "@/content/screening-sheet";
 
 export type ScreeningSlot = "ALL" | "AM" | "PM";
 export type ScreeningGroup = "STRONG" | "ACCUMULATION" | "DISTRIBUTION";
-export type ScreeningLatest = { id: string; target_session: string; published_at: number; stale: boolean; refresh_after_seconds: number };
+export type ScreeningLatest = { id: string; target_session: string; published_at: number; stale: boolean; refresh_after_seconds: number; screening_quota?: { limit: number; used: number; remaining: number } | null };
 export type ScreeningScore = { score: number | null; met_count: number; total_count: number; unavailable_count: number };
 export type ScreeningItem = SheetValues & {
   // Optional published presentation fields. No new endpoint or computed fallback.
