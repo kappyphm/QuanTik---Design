@@ -306,6 +306,7 @@ export const uiClasses: Record<string, readonly (readonly [
         [370, "max-width", "[max-width:620px]"],
         [370, "width", "[width:calc(100%_-_40px)]"],
         [370, "max-height", "[max-height:85dvh]"],
+        [370, "margin", "[margin:auto]"],
         [370, "background", "[background:#0d1913]"],
         [370, "color", "[color:var(--text)]"],
         [370, "border", "[border-width:1px] [border-style:solid] [border-color:var(--border)]"],
